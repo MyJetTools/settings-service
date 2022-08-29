@@ -44,12 +44,17 @@ impl HttpServerMiddleware for SettingsMiddleware {
             return get_next.next(ctx).await;
         }
 
-        let yaml = crate::operations::templates::get(&self.app, env.unwrap(), name.unwrap()).await;
+        let yaml = crate::operations::templates::get_populated_template(
+            &self.app,
+            env.unwrap(),
+            name.unwrap(),
+        )
+        .await;
 
         if yaml.is_none() {
             return get_next.next(ctx).await;
         }
 
-        HttpOutput::as_text(yaml.unwrap().yaml_template.clone()).into_ok_result(false)
+        HttpOutput::as_text(yaml.unwrap()).into_ok_result(false)
     }
 }
