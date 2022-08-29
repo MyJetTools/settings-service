@@ -1,0 +1,41 @@
+[package]
+name = "settings-service"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+my-http-server = { branch = "0.2.7", git = "https://github.com/MyJetTools/my-http-server.git", features = [
+    "full",
+] }
+
+my-http-server-controllers = { branch = "0.2.7", git = "https://github.com/MyJetTools/my-http-server-controllers.git" }
+my-http-server-swagger = { branch = "0.2.7", git = "https://github.com/MyJetTools/my-http-server-swagger.git" }
+
+rust-extensions = { branch = "0.1.1", git = "https://github.com/MyJetTools/rust-extensions.git" }
+
+my-logger = { branch = "0.2.0", git = "https://github.com/MyJetTools/my-logger.git" }
+
+my-no-sql-data-writer = { branch = "0.1.4", git = "https://github.com/MyJetTools/my-no-sql-data-writer.git" }
+my-no-sql-server-abstractions = { branch = "main", git = "https://github.com/MyJetTools/my-no-sql-server-abstractions.git" }
+
+flurl = { branch = "0.2.1", git = "https://github.com/MyJetTools/fl-url.git" }
+my-settings-reader = { branch = "0.1.1", git = "https://github.com/MyJetTools/my-settings-reader.git" }
+my-azure-key-vault = { branch = "0.1.0", git = "https://github.com/MyJetTools/my-azure-key-valut.git" }
+
+
+tonic = { version = "*", features = ["tls", "tls-roots", "prost"] }
+hyper = { version = "*", features = ["full"] }
+tokio = { version = "*", features = ["full"] }
+tokio-util = "*"
+prost = "*"
+prost-types = "*"
+anyhow = "*"
+serde = "*"
+serde_yaml = "*"
+serde_derive = "*"
+futures-core = "*"
+tokio-postgres = { version = "*", features = ["with-chrono-0_4"] }
+async-trait = "*"
+uuid = { version = "*", features = ["serde", "v4"] }

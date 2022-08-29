@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "ES5",
+    "sourceMap": true,
+    "outDir": "wwwroot/js",
+    "baseUrl": ". ",
+    "moduleResolution": "Node"
+  },
+  "include": [
+    "TypeScript/**/*"
+  ],
+  "compileOnSave": true,
+  "exclude": [
+    "node_modules"
+  ]
+}
