@@ -5,13 +5,14 @@ var concat = require('gulp-concat');
 
 gulp.task('default', function () {
     return gulp
-        .src(['./wwwroot/js/Utils.js',
-            './wwwroot/js/HtmlStatusBar.js',
+        .src([
             './wwwroot/js/HtmlStaticElement.js',
-            './wwwroot/js/HtmlGraph.js',
-            './wwwroot/js/HtmlServices.js',
-            './wwwroot/js/HtmlTunnelTraffic.js',
-            './wwwroot/js/HtmlServices.js',
+            './wwwroot/js/AppContext.js',
+            './wwwroot/js/Dialog.js',
+            './wwwroot/js/dialogs/EditTemplate.js',
+            './wwwroot/js/dialogs/EditSecret.js',
+            './wwwroot/js/dialogs/ConfirmDeleteTemplate.js',
+            './wwwroot/js/Actions.js',
             './wwwroot/js/HtmlMain.js',
             './wwwroot/js/main.js'])
         .pipe(minifyjs())
