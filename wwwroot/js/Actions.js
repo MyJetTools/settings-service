@@ -36,6 +36,12 @@ var Actions = /** @class */ (function () {
             .fail(function () {
         });
     };
+    Actions.deleteTemplate = function (el) {
+        var env = el.getAttribute('data-env');
+        var name = el.getAttribute('data-name');
+        var dialog = new ConfirmDeleteTemplate("Confirmation", { env: env, name: name });
+        Dialog.show(dialog);
+    };
     Actions.addSecret = function () {
         var dialog = new EditSecretDialog("Add secret", undefined);
         Dialog.show(dialog);

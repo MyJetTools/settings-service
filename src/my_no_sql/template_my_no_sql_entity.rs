@@ -19,6 +19,16 @@ pub struct TemplateMyNoSqlEntity {
     pub yaml_template: String,
 }
 
+impl TemplateMyNoSqlEntity {
+    pub fn update_yaml(&self, yaml: String) -> Self {
+        Self {
+            yaml_template: yaml,
+            last_update_date: DateTimeAsMicroseconds::now().to_rfc3339(),
+            ..self.clone()
+        }
+    }
+}
+
 impl MyNoSqlEntity for TemplateMyNoSqlEntity {
     fn get_partition_key(&self) -> &str {
         &self.partition_key

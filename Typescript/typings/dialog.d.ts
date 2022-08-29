@@ -1,4 +1,5 @@
 interface IDialog {
+    getOkBtnName(): string;
     getWidth(): string;
     title: string;
     getContent(): string;

@@ -1,7 +1,12 @@
 class EditTemlateDialog implements IDialog {
     title: string;
+
     getWidth(): string {
         return undefined;
+    }
+
+    getOkBtnName(): string {
+        return "Save";
     }
 
     edtEnv: HTMLInputElement
@@ -60,7 +65,13 @@ class EditTemlateDialog implements IDialog {
     }
 
     public ok(data: IEditTemplateModel) {
-        console.log(data);
+        $.ajax({ type: "POST", url: "/api/templates/post", data })
+            .then(() => {
+                Actions.loadTemplates();
+            })
+            .fail(() => {
+
+            });
     }
 
     viewModel: IEditTemplateModel;

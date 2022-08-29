@@ -23,6 +23,14 @@ pub fn build_controllers(app: &Arc<AppContext>) -> Arc<ControllersMiddleware> {
         super::controllers::templates::GetTemplateAction::new(app.clone()),
     ));
 
+    result.register_post_action(Arc::new(
+        super::controllers::templates::PostTemplateAction::new(app.clone()),
+    ));
+
+    result.register_post_action(Arc::new(
+        super::controllers::templates::DeleteTemplateAction::new(app.clone()),
+    ));
+
     result.register_get_action(Arc::new(super::controllers::home::IndexAction::new(
         app.clone(),
     )));

@@ -57,4 +57,47 @@ impl TemplatesCache {
     pub fn is_initialized(&self) -> bool {
         self.initialized.load(Ordering::SeqCst)
     }
+
+    pub async fn save(&self, entity: TemplateMyNoSqlEntity) {
+        let mut write_access = self.items.lock().await;
+
+        let index = get_no(
+            write_access.as_ref().unwrap(),
+            &entity.partition_key,
+            &entity.row_key,
+        );
+
+        if let Some(index) = index {
+            write_access.as_mut().unwrap().remove(index);
+            write_access
+                .as_mut()
+                .unwrap()
+                .insert(index, Arc::new(entity));
+        } else {
+            write_access.as_mut().unwrap().push(Arc::new(entity));
+        }
+    }
+
+    pub async fn delete(&self, env: &str, name: &str) {
+        let mut write_access = self.items.lock().await;
+
+        let index = get_no(write_access.as_ref().unwrap(), env, name);
+
+        if let Some(index) = index {
+            write_access.as_mut().unwrap().remove(index);
+        }
+    }
+}
+
+fn get_no(src: &Vec<Arc<TemplateMyNoSqlEntity>>, env: &str, name: &str) -> Option<usize> {
+    let mut result = 0;
+
+    for itm in src {
+        if itm.partition_key == env && itm.row_key == name {
+            return Some(result);
+        }
+        result += 1;
+    }
+
+    None
 }

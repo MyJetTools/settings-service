@@ -6,6 +6,10 @@ class EditSecretDialog implements IDialog {
         return "600px";
     }
 
+    getOkBtnName(): string {
+        return "Save";
+    }
+
     edtName: HTMLInputElement
     edtSecret: HTMLInputElement
 
@@ -49,7 +53,7 @@ class EditSecretDialog implements IDialog {
     }
 
     public ok(data: IEditSecret) {
-        console.log(data);
+
     }
 
     viewModel: IEditSecret;

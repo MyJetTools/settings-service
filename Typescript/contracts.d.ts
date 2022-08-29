@@ -18,6 +18,11 @@ interface IEditTemplateModel {
     yaml: string,
 }
 
+interface IDeleteTemplateModel {
+    env: string
+    name: string,
+}
+
 interface IEditSecret {
     name: string,
     secret: string,

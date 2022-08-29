@@ -6,6 +6,9 @@ var EditTemlateDialog = /** @class */ (function () {
     EditTemlateDialog.prototype.getWidth = function () {
         return undefined;
     };
+    EditTemlateDialog.prototype.getOkBtnName = function () {
+        return "Save";
+    };
     EditTemlateDialog.prototype.getContent = function () {
         return "\n        <div class=\"form-floating mb-3\">\n        <input class=\"form-control\" id=\"edtEnv\" name=\"env\">\n        <label for=\"edtEnv\">Env</label>\n        </div>\n\n        <div class=\"form-floating mb-3\">\n        <input class=\"form-control\" id=\"edtName\" name=\"name\">\n        <label for=\"edtName\">Name</label>\n        </div>\n\n        <div class=\"form-floating\">\n        <textarea class=\"form-control\" style=\"min-height:500px;font-family: monospace;\" id=\"edtYaml\"  name=\"yaml\"></textarea>\n        <label for=\"edtYaml\">Yaml</label>\n        </div>";
     };
@@ -39,7 +42,12 @@ var EditTemlateDialog = /** @class */ (function () {
         };
     };
     EditTemlateDialog.prototype.ok = function (data) {
-        console.log(data);
+        $.ajax({ type: "POST", url: "/api/templates/post", data: data })
+            .then(function () {
+            Actions.loadTemplates();
+        })
+            .fail(function () {
+        });
     };
     return EditTemlateDialog;
 }());

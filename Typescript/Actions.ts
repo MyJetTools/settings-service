@@ -47,6 +47,14 @@ class Actions {
             });
     }
 
+    public static deleteTemplate(el: HTMLElement) {
+        let env = el.getAttribute('data-env');
+        let name = el.getAttribute('data-name');
+
+        let dialog = new ConfirmDeleteTemplate("Confirmation", { env, name });
+        Dialog.show(dialog);
+    }
+
     public static addSecret() {
         let dialog = new EditSecretDialog("Add secret", undefined);
         Dialog.show(dialog);

@@ -6,6 +6,24 @@ use serde::{Deserialize, Serialize};
 use crate::my_no_sql::TemplateMyNoSqlEntity;
 
 #[derive(MyHttpInput)]
+pub struct DeleteTemplateContract {
+    #[http_form(description = "Environment")]
+    pub env: String,
+    #[http_form(description = "Service name")]
+    pub name: String,
+}
+
+#[derive(MyHttpInput)]
+pub struct PostTemplateContract {
+    #[http_form(description = "Environment")]
+    pub env: String,
+    #[http_form(description = "Service name")]
+    pub name: String,
+    #[http_form(description = "Yaml template")]
+    pub yaml: String,
+}
+
+#[derive(MyHttpInput)]
 pub struct GetTemplateContract {
     #[http_form(description = "Environment")]
     pub env: String,

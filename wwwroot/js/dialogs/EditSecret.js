@@ -6,6 +6,9 @@ var EditSecretDialog = /** @class */ (function () {
     EditSecretDialog.prototype.getWidth = function () {
         return "600px";
     };
+    EditSecretDialog.prototype.getOkBtnName = function () {
+        return "Save";
+    };
     EditSecretDialog.prototype.getContent = function () {
         return "\n        <div class=\"form-floating mb-3\">\n        <input class=\"form-control\" id=\"edtName\" name=\"name\">\n        <label for=\"edtName\">Name</label>\n        </div>\n\n      <div class=\"form-floating\">\n      <input class=\"form-control\" id=\"edtSecret\" name=\"secret\">\n      <label for=\"edtSecret\">Secret</label>\n      </div>";
     };
@@ -32,7 +35,6 @@ var EditSecretDialog = /** @class */ (function () {
         };
     };
     EditSecretDialog.prototype.ok = function (data) {
-        console.log(data);
     };
     return EditSecretDialog;
 }());

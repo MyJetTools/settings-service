@@ -8,7 +8,8 @@ use crate::app_ctx::AppContext;
 use super::SettingsMiddleware;
 
 pub fn start(app: &Arc<AppContext>) {
-    let mut http_server = MyHttpServer::new(SocketAddr::from(([0, 0, 0, 0], 8000)));
+    let mut http_server =
+        MyHttpServer::new(SocketAddr::from(([0, 0, 0, 0], app.settings.http_port)));
 
     http_server.add_middleware(Arc::new(SettingsMiddleware::new(app.clone())));
 

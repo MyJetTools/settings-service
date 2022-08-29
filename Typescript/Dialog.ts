@@ -53,8 +53,10 @@ class Dialog {
                 ` + data.getContent() + `
             </div>
             <div class="modal-footer">
-            <button type="button" class="btn btn-primary" onclick="Dialog.onOkPressed()">Save changes</button>
+            <div class="btn-group">
+            <button type="button" class="btn btn-primary" onclick="Dialog.onOkPressed()">`+ data.getOkBtnName() + `</button>
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="Dialog.hide()">Cancel</button>
+            </div>
             </div>
           </div>
         </div>`;
