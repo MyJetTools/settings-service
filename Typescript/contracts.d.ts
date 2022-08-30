@@ -7,6 +7,7 @@ interface ITemplate {
 
 
 interface ISecret {
+    amount: number,
     name: string,
     created: string,
     updated: string,

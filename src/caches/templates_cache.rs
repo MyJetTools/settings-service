@@ -87,6 +87,19 @@ impl TemplatesCache {
             write_access.as_mut().unwrap().remove(index);
         }
     }
+
+    pub async fn get_used_secret_amount(&self, contains: &str) -> usize {
+        let read_access = self.items.lock().await;
+
+        let mut result = 0;
+        for itm in read_access.as_ref().unwrap() {
+            if itm.yaml_template.contains(contains) {
+                result += 1;
+            }
+        }
+
+        result
+    }
 }
 
 fn get_no(src: &Vec<Arc<TemplateMyNoSqlEntity>>, env: &str, name: &str) -> Option<usize> {

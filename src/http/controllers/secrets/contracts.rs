@@ -3,7 +3,7 @@ use std::sync::Arc;
 use my_http_server_swagger::{MyHttpInput, MyHttpObjectStructure};
 use serde::{Deserialize, Serialize};
 
-use crate::my_no_sql::SecretMyNoSqlEntity;
+use crate::{app_ctx::AppContext, my_no_sql::SecretMyNoSqlEntity};
 
 #[derive(MyHttpInput)]
 pub struct PostSecretContract {
@@ -25,11 +25,11 @@ pub struct ListOfSecretsContract {
 }
 
 impl ListOfSecretsContract {
-    pub fn new(items: Vec<Arc<SecretMyNoSqlEntity>>) -> Self {
+    pub async fn new(app: &AppContext, items: Vec<Arc<SecretMyNoSqlEntity>>) -> Self {
         let mut data = Vec::with_capacity(items.len());
 
         for item in items {
-            data.push(SecretModel::new(&item));
+            data.push(SecretModel::new(app, &item).await);
         }
 
         Self { data }
@@ -38,17 +38,20 @@ impl ListOfSecretsContract {
 
 #[derive(Serialize, Deserialize, Debug, MyHttpObjectStructure)]
 pub struct SecretModel {
+    amount: usize,
     name: String,
     created: String,
     updated: String,
 }
 
 impl SecretModel {
-    pub fn new(itm: &SecretMyNoSqlEntity) -> Self {
+    pub async fn new(app: &AppContext, itm: &SecretMyNoSqlEntity) -> Self {
         Self {
             name: itm.row_key.to_string(),
             created: itm.create_date.to_string(),
             updated: itm.last_update_date.to_string(),
+            amount: crate::operations::secrets::get_used_secret_amount(app, itm.row_key.as_str())
+                .await,
         }
     }
 }

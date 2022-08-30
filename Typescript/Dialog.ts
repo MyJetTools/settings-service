@@ -47,15 +47,21 @@ class Dialog {
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title">`+ data.title + `</h5>
-              <button type="button" class="btn btn-default" data-bs-dismiss="modal" aria-label="Close" onclick="Dialog.hide()">X</button>
+              <button type="button" class="btn btn-default btn-sm" data-bs-dismiss="modal" aria-label="Close" onclick="Dialog.hide()"><svg class="bi" width="1em" height="1em" fill="currentColor">
+              <use xlink:href="bootstrap-icons.svg#x"></use>
+              </svg></button>
             </div>
             <div class="modal-body">
                 ` + data.getContent() + `
             </div>
             <div class="modal-footer">
             <div class="btn-group">
-            <button type="button" class="btn btn-primary" onclick="Dialog.onOkPressed()">`+ data.getOkBtnName() + `</button>
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="Dialog.hide()">Cancel</button>
+            <button type="button" class="btn btn-primary  btn-sm" onclick="Dialog.onOkPressed()"><svg class="bi" width="1em" height="1em" fill="currentColor">
+            <use xlink:href="bootstrap-icons.svg#check"></use>
+            </svg>`+ data.getOkBtnName() + `</button>
+              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" onclick="Dialog.hide()"><svg class="bi" width="1em" height="1em" fill="currentColor">
+              <use xlink:href="bootstrap-icons.svg#x"></use>
+              </svg>Cancel</button>
             </div>
             </div>
           </div>

@@ -12,21 +12,43 @@ class HtmlMain {
     }
 
     public static generateTemplateContent(templates: ITemplate[]): string {
-        let result = `<table class="table table-striped"><tr><th>Env</th><th>Name</th><th>Created</th><th>Updated</th><th><button class="btn btn-sm btn-primary" onclick="Actions.addTemplate()">Add</button></th></tr>`;
+        let result = `<table class="table table-striped"><tr><th>Env</th><th>Name</th><th>Created</th><th>Updated</th><th><button class="btn btn-sm btn-primary" onclick="Actions.addTemplate()"><svg class="bi" width="1em" height="1em" fill="currentColor">
+        <use xlink:href="bootstrap-icons.svg#plus-circle-dotted"></use>
+        </svg></button></th></tr>`;
         for (let template of templates) {
             let data = `data-env="` + template.env + `" data-name="` + template.name + `"`;
             result += `<tr><td>${template.env}</td><td>${template.name}</td><td>${template.created}</td><td>${template.updated}</td>
-            <td><div class="btn-group"><button class="btn btn-sm btn-primary" `+ data + ` onclick="Actions.editTemplate(this)">Edit</button><button class="btn btn-sm btn-danger" ` + data + ` onclick="Actions.deleteTemplate(this)">Delete</button></div></td></tr>`;
+            <td><div class="btn-group"><button class="btn btn-sm btn-primary" `+ data + ` onclick="Actions.editTemplate(this)"><svg class="bi" width="1em" height="1em" fill="currentColor">
+            <use xlink:href="bootstrap-icons.svg#pen"></use>
+            </svg></button><button class="btn btn-sm btn-danger" ` + data + ` onclick="Actions.deleteTemplate(this)"><svg class="bi" width="1em" height="1em" fill="currentColor">
+            <use xlink:href="bootstrap-icons.svg#eraser-fill"></use>
+            </svg></button></div></td></tr>`;
         }
         return result + "</table>";
     }
 
     public static generateSecretesContent(secrets: ISecret[]): string {
-        let result = `<table class="table table-striped"><tr><th>Name</th><th>Created</th><th>Updated</th><th><button class="btn btn-sm btn-primary" onclick="Actions.addSecret()">Add</button></th></tr>`;
+        let result = `<table class="table table-striped"><tr><th>Used</th><th>Name</th><th>Created</th><th>Updated</th><th><button class="btn btn-sm btn-primary" onclick="Actions.addSecret()"><svg class="bi" width="1em" height="1em" fill="currentColor">
+        <use xlink:href="bootstrap-icons.svg#plus-circle-dotted"></use>
+        </svg></button></th></tr>`;
         for (let secret of secrets) {
             let data = `data-name="` + secret.name + `"`;
-            result += `<tr><td>${secret.name}</td><td>${secret.created}</td><td>${secret.updated}</td>
-            <td><div class="btn-group"><button class="btn btn-sm btn-primary" ` + data + ` onclick="Actions.editSecret(this)">Edit</button><button class="btn btn-sm btn-danger" ` + data + ` onclick="Actions.deleteSecret(this)">Delete</button></div></td></tr>`;
+
+            var secretsAmount;
+
+            if (secret.amount > 0) {
+                secretsAmount = `<span class="badge badge-success" style="background: green;">${secret.amount}</span>`;
+            }
+            else {
+                secretsAmount = `<span class="badge badge-success" style="background: red;">0</span>`;
+            }
+
+            result += `<tr><td>` + secretsAmount + `</td><td>${secret.name}</td><td>${secret.created}</td><td>${secret.updated}</td>
+            <td><div class="btn-group"><button class="btn btn-sm btn-primary" ` + data + ` onclick="Actions.editSecret(this)"><svg class="bi" width="1em" height="1em" fill="currentColor">
+            <use xlink:href="bootstrap-icons.svg#pen"></use>
+            </svg></button><button class="btn btn-sm btn-danger" ` + data + ` onclick="Actions.deleteSecret(this)"><svg class="bi" width="1em" height="1em" fill="currentColor">
+            <use xlink:href="bootstrap-icons.svg#eraser-fill"></use>
+            </svg></button></div></td></tr>`;
         }
         return result + "</table>";
     }
