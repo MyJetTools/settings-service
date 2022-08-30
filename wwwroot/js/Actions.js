@@ -39,7 +39,7 @@ var Actions = /** @class */ (function () {
     Actions.deleteTemplate = function (el) {
         var env = el.getAttribute('data-env');
         var name = el.getAttribute('data-name');
-        var dialog = new ConfirmDeleteTemplate("Confirmation", { name: name });
+        var dialog = new ConfirmDeleteTemplate("Confirmation", { env: env, name: name });
         Dialog.show(dialog);
     };
     Actions.addSecret = function () {
@@ -59,7 +59,7 @@ var Actions = /** @class */ (function () {
     };
     Actions.deleteSecret = function (el) {
         var name = el.getAttribute('data-name');
-        var dialog = new ConfirmDeleteTemplate("Confirmation", { name: name });
+        var dialog = new ConfirmDeleteSecret("Confirmation", { name: name });
         Dialog.show(dialog);
     };
     /// Operation

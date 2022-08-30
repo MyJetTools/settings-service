@@ -31,9 +31,9 @@ class ConfirmDeleteTemplate implements IDialog {
             });
     }
 
-    data: IDeleteSecretModel;
+    data: IDeleteTemplateModel;
 
-    constructor(title: string, data: IDeleteSecretModel) {
+    constructor(title: string, data: IDeleteTemplateModel) {
         this.title = title;
         this.data = data;
     }
