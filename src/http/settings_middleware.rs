@@ -33,8 +33,13 @@ impl HttpServerMiddleware for SettingsMiddleware {
 
         for segment in path.split('/') {
             if no == 1 {
+                if segment != "settings" {
+                    return get_next.next(ctx).await;
+                }
+            }
+            if no == 2 {
                 env = Some(segment);
-            } else if no == 2 {
+            } else if no == 3 {
                 name = Some(segment);
             }
             no += 1;
