@@ -40,6 +40,7 @@ impl GetAction for IndexAction {
                 <script src="/js/dialogs/EditTemplate.js"></script>
                 <script src="/js/dialogs/EditSecret.js"></script>
                 <script src="/js/dialogs/ConfirmDeleteTemplate.js"></script>
+                <script src="/js/dialogs/ConfirmDeleteSecret.js"></script>
                 <script src="/js/Actions.js"></script>
                 <script src="/js/HtmlMain.js"></script>
                 <script src="/js/main.js"></script>
