@@ -16,6 +16,12 @@ pub struct SecretMyNoSqlEntity {
     pub last_update_date: String,
 }
 
+impl SecretMyNoSqlEntity {
+    pub fn generate_partition_key() -> &'static str {
+        "SettingsSecrets"
+    }
+}
+
 impl MyNoSqlEntity for SecretMyNoSqlEntity {
     fn get_partition_key(&self) -> &str {
         &self.partition_key

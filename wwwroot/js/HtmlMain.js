@@ -24,7 +24,8 @@ var HtmlMain = /** @class */ (function () {
         var result = "<table class=\"table table-striped\"><tr><th>Name</th><th>Created</th><th>Updated</th><th><button class=\"btn btn-sm btn-primary\" onclick=\"Actions.addSecret()\">Add</button></th></tr>";
         for (var _i = 0, secrets_1 = secrets; _i < secrets_1.length; _i++) {
             var secret = secrets_1[_i];
-            result += "<tr><td>".concat(secret.name, "</td><td>").concat(secret.created, "</td><td>").concat(secret.updated, "</td>\n            <td><div class=\"btn-group\"><button class=\"btn btn-sm btn-primary\"  data-name=\"") + secret.name + "\" onclick=\"Actions.editSecret(this)\">Edit</button><button class=\"btn btn-sm btn-danger\">Delete</button></div></td></tr>";
+            var data = "data-name=\"" + secret.name + "\"";
+            result += "<tr><td>".concat(secret.name, "</td><td>").concat(secret.created, "</td><td>").concat(secret.updated, "</td>\n            <td><div class=\"btn-group\"><button class=\"btn btn-sm btn-primary\" ") + data + " onclick=\"Actions.editSecret(this)\">Edit</button><button class=\"btn btn-sm btn-danger\" " + data + " onclick=\"Actions.deleteSecret(this)\">Delete</button></div></td></tr>";
         }
         return result + "</table>";
     };

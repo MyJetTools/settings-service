@@ -6,6 +6,14 @@ use serde::{Deserialize, Serialize};
 use crate::my_no_sql::SecretMyNoSqlEntity;
 
 #[derive(MyHttpInput)]
+pub struct PostSecretContract {
+    #[http_form(description = "Name")]
+    pub name: String,
+    #[http_form(description = "Secret")]
+    pub secret: String,
+}
+
+#[derive(MyHttpInput)]
 pub struct GetSecretContract {
     #[http_form(description = "Name")]
     pub name: String,

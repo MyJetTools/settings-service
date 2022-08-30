@@ -27,3 +27,7 @@ interface IEditSecret {
     name: string,
     secret: string,
 }
+
+interface IDeleteSecretModel {
+    name: string,
+}

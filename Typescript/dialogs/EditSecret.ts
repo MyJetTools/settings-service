@@ -53,7 +53,13 @@ class EditSecretDialog implements IDialog {
     }
 
     public ok(data: IEditSecret) {
+        $.ajax({ type: "POST", url: "/api/secrets/post", data })
+            .then(() => {
+                Actions.loadSecrets();
+            })
+            .fail(() => {
 
+            });
     }
 
     viewModel: IEditSecret;

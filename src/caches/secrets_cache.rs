@@ -54,4 +54,9 @@ impl SecretsCache {
 
         result
     }
+
+    pub async fn insert(&self, secret: SecretMyNoSqlEntity) {
+        let mut write_access = self.items.lock().await;
+        write_access.insert(secret.row_key.clone(), Arc::new(secret));
+    }
 }

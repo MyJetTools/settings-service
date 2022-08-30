@@ -24,8 +24,9 @@ class HtmlMain {
     public static generateSecretesContent(secrets: ISecret[]): string {
         let result = `<table class="table table-striped"><tr><th>Name</th><th>Created</th><th>Updated</th><th><button class="btn btn-sm btn-primary" onclick="Actions.addSecret()">Add</button></th></tr>`;
         for (let secret of secrets) {
+            let data = `data-name="` + secret.name + `"`;
             result += `<tr><td>${secret.name}</td><td>${secret.created}</td><td>${secret.updated}</td>
-            <td><div class="btn-group"><button class="btn btn-sm btn-primary"  data-name="` + secret.name + `" onclick="Actions.editSecret(this)">Edit</button><button class="btn btn-sm btn-danger">Delete</button></div></td></tr>`;
+            <td><div class="btn-group"><button class="btn btn-sm btn-primary" ` + data + ` onclick="Actions.editSecret(this)">Edit</button><button class="btn btn-sm btn-danger" ` + data + ` onclick="Actions.deleteSecret(this)">Delete</button></div></td></tr>`;
         }
         return result + "</table>";
     }

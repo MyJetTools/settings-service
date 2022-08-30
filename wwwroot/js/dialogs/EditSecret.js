@@ -35,6 +35,12 @@ var EditSecretDialog = /** @class */ (function () {
         };
     };
     EditSecretDialog.prototype.ok = function (data) {
+        $.ajax({ type: "POST", url: "/api/secrets/post", data: data })
+            .then(function () {
+            Actions.loadSecrets();
+        })
+            .fail(function () {
+        });
     };
     return EditSecretDialog;
 }());

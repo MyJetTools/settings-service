@@ -1,4 +1,4 @@
-class ConfirmDeleteTemplate implements IDialog {
+class ConfirmDeleteSecret implements IDialog {
 
     title: string;
 
@@ -11,7 +11,7 @@ class ConfirmDeleteTemplate implements IDialog {
     }
 
     getContent() {
-        return `<h4>You are about to delete template</h4>`;
+        return `<h4>You are about to delete secret</h4>`;
     }
 
     populate() {
@@ -22,7 +22,7 @@ class ConfirmDeleteTemplate implements IDialog {
     }
 
     public ok(_: any) {
-        $.ajax({ type: "POST", url: "/api/templates/delete", data: this.data })
+        $.ajax({ type: "POST", url: "/api/secrets/delete", data: this.data })
             .then(() => {
                 Actions.loadTemplates();
             })
@@ -31,9 +31,9 @@ class ConfirmDeleteTemplate implements IDialog {
             });
     }
 
-    data: IDeleteSecretModel;
+    data: IDeleteTemplateModel;
 
-    constructor(title: string, data: IDeleteSecretModel) {
+    constructor(title: string, data: IDeleteTemplateModel) {
         this.title = title;
         this.data = data;
     }

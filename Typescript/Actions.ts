@@ -51,7 +51,7 @@ class Actions {
         let env = el.getAttribute('data-env');
         let name = el.getAttribute('data-name');
 
-        let dialog = new ConfirmDeleteTemplate("Confirmation", { env, name });
+        let dialog = new ConfirmDeleteTemplate("Confirmation", { name });
         Dialog.show(dialog);
     }
 
@@ -73,6 +73,13 @@ class Actions {
             .fail(() => {
 
             });
+    }
+
+    public static deleteSecret(el: HTMLElement) {
+        let name = el.getAttribute('data-name');
+
+        let dialog = new ConfirmDeleteTemplate("Confirmation", { name });
+        Dialog.show(dialog);
     }
 
 
