@@ -45,7 +45,7 @@ impl HttpServerMiddleware for SettingsMiddleware {
             no += 1;
         }
 
-        if no != 3 {
+        if no != 4 {
             return get_next.next(ctx).await;
         }
 
