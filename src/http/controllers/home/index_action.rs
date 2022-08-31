@@ -30,7 +30,7 @@ impl GetAction for IndexAction {
     async fn handle_request(&self, _: &mut HttpContext) -> Result<HttpOkResult, HttpFailResult> {
         if cfg!(debug_assertions) {
             let content = format!(
-                r###"<html><head><title>{} traffic-forwarder-a</title>
+                r###"<html><head><title>{} settings-service</title>
                 <link href="/css/bootstrap.css" rel="stylesheet" type="text/css" />
                 <link href="/css/site.css" rel="stylesheet" type="text/css" />
                 <script src="/lib/jquery.js"></script>
@@ -57,7 +57,7 @@ impl GetAction for IndexAction {
             .into()
         } else {
             let content = format!(
-                r###"<html><head><title>{} traffic-forwarder-a</title>
+                r###"<html><head><title>{} settings-service</title>
                 <link href="/css/bootstrap.css" rel="stylesheet" type="text/css" />
                 <link href="/css/site.css" rel="stylesheet" type="text/css" />
                 <script src="/lib/jquery.js"></script><script src="/js/app.js?ver={rnd}"></script>
