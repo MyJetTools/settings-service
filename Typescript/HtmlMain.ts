@@ -17,13 +17,19 @@ class HtmlMain {
         </svg></button></th></tr>`;
         for (let template of templates) {
             let data = `data-env="` + template.env + `" data-name="` + template.name + `"`;
-            let url = Utils.compileSettingsUrl(template.env, template.name);
-            result += `<tr><td>${template.env}</td><td><a href="${url}" target="blank">${template.name}</td><td>${template.created}</td><td>${template.updated}</td>
-            <td><div class="btn-group"><button class="btn btn-sm btn-primary" `+ data + ` onclick="Actions.editTemplate(this)"><svg class="bi" width="1em" height="1em" fill="currentColor">
+
+            result += `<tr><td>${template.env}</td><td>${template.name}</td><td>${template.created}</td><td>${template.updated}</td>
+            <td><div class="btn-group">
+            <button class="btn btn-sm btn-success" `+ data + ` onclick="Actions.showYaml(this)"><svg class="bi" width="1em" height="1em" fill="currentColor">
+            <use xlink:href="bootstrap-icons.svg#eye"></use>
+            </svg></button>
+            <button class="btn btn-sm btn-primary" `+ data + ` onclick="Actions.editTemplate(this)"><svg class="bi" width="1em" height="1em" fill="currentColor">
             <use xlink:href="bootstrap-icons.svg#pen"></use>
-            </svg></button><button class="btn btn-sm btn-danger" ` + data + ` onclick="Actions.deleteTemplate(this)"><svg class="bi" width="1em" height="1em" fill="currentColor">
+            </svg></button>
+            <button class="btn btn-sm btn-danger" ` + data + ` onclick="Actions.deleteTemplate(this)"><svg class="bi" width="1em" height="1em" fill="currentColor">
             <use xlink:href="bootstrap-icons.svg#eraser-fill"></use>
-            </svg></button></div></td></tr>`;
+            </svg></button>
+            </div></td></tr>`;
         }
         return result + "</table>";
     }

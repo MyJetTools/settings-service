@@ -6,6 +6,7 @@ class ConfirmDeleteTemplate implements IDialog {
         return "600px";
     }
 
+    hideCancelBtn = false;
     getOkBtnName(): string {
         return "Confirm";
     }

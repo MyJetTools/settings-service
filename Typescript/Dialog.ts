@@ -46,6 +46,14 @@ class Dialog {
       width = `style="width: ${width}"`;
     }
 
+    let cancelButton = "";
+
+    if (!this.dialogData.hideCancelBtn) {
+      cancelButton = `<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" onclick="Dialog.hide()"><svg class="bi" width="1em" height="1em" fill="currentColor">
+      <use xlink:href="bootstrap-icons.svg#x"></use>
+      </svg>Cancel</button>`;
+    }
+
     return `
         <div class="modal-dialog" `+ width + `>
           <div class="modal-content">
@@ -63,9 +71,7 @@ class Dialog {
             <button type="button" class="btn btn-primary  btn-sm" onclick="Dialog.onOkPressed()"><svg class="bi" width="1em" height="1em" fill="currentColor">
             <use xlink:href="bootstrap-icons.svg#check"></use>
             </svg>`+ data.getOkBtnName() + `</button>
-              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" onclick="Dialog.hide()"><svg class="bi" width="1em" height="1em" fill="currentColor">
-              <use xlink:href="bootstrap-icons.svg#x"></use>
-              </svg>Cancel</button>
+            ${cancelButton}
             </div>
             </div>
           </div>

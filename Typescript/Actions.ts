@@ -49,17 +49,16 @@ class Actions {
             });
     }
 
-    public static previewTemplate(el: HTMLElement) {
+    public static showYaml(el: HTMLElement) {
         let env = el.getAttribute('data-env');
         let name = el.getAttribute('data-name');
-
-        let data = { env, name };
-        let dialog = new EditTemlateDialog("Edit template");
+        let url = Utils.compileSettingsUrl(env, name);
+        let dialog = new ShowYamlDialog(url);
         Dialog.show(dialog);
 
-        $.ajax({ type: "POST", url: "/api/templates/get", data })
+        $.ajax({ type: "POST", url })
             .then(data => {
-                Dialog.populateData({ env, name, yaml: data });
+                Dialog.populateData(data);
             })
             .fail(() => {
 

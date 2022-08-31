@@ -1,5 +1,6 @@
 var EditSecretDialog = /** @class */ (function () {
     function EditSecretDialog(title) {
+        this.hideCancelBtn = false;
         this.title = title;
     }
     EditSecretDialog.prototype.getWidth = function () {

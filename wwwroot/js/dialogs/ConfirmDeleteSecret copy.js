@@ -1,6 +1,5 @@
 var ConfirmDeleteSecret = /** @class */ (function () {
     function ConfirmDeleteSecret(title) {
-        this.hideCancelBtn = false;
         this.title = title;
     }
     ConfirmDeleteSecret.prototype.getWidth = function () {
@@ -28,4 +27,4 @@ var ConfirmDeleteSecret = /** @class */ (function () {
     };
     return ConfirmDeleteSecret;
 }());
-//# sourceMappingURL=ConfirmDeleteSecret.js.map
+//# sourceMappingURL=ConfirmDeleteSecret%20copy.js.map

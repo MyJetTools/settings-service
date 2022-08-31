@@ -10,6 +10,7 @@ gulp.task('default', function () {
             './wwwroot/js/AppContext.js',
             './wwwroot/js/Utils.js',
             './wwwroot/js/Dialog.js',
+            './wwwroot/js/dialogs/ShowYamlDialog.js',
             './wwwroot/js/dialogs/EditTemplate.js',
             './wwwroot/js/dialogs/EditSecret.js',
             './wwwroot/js/dialogs/ConfirmDeleteTemplate.js',

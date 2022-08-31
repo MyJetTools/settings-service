@@ -1,5 +1,6 @@
 var EditTemlateDialog = /** @class */ (function () {
     function EditTemlateDialog(title) {
+        this.hideCancelBtn = false;
         this.title = title;
     }
     EditTemlateDialog.prototype.getWidth = function () {

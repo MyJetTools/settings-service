@@ -1,5 +1,6 @@
 var ConfirmDeleteTemplate = /** @class */ (function () {
     function ConfirmDeleteTemplate(title) {
+        this.hideCancelBtn = false;
         this.title = title;
     }
     ConfirmDeleteTemplate.prototype.getWidth = function () {

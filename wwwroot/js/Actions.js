@@ -38,15 +38,15 @@ var Actions = /** @class */ (function () {
             .fail(function () {
         });
     };
-    Actions.previewTemplate = function (el) {
+    Actions.showYaml = function (el) {
         var env = el.getAttribute('data-env');
         var name = el.getAttribute('data-name');
-        var data = { env: env, name: name };
-        var dialog = new EditTemlateDialog("Edit template");
+        var url = Utils.compileSettingsUrl(env, name);
+        var dialog = new ShowYamlDialog(url);
         Dialog.show(dialog);
-        $.ajax({ type: "POST", url: "/api/templates/get", data: data })
+        $.ajax({ type: "POST", url: url })
             .then(function (data) {
-            Dialog.populateData({ env: env, name: name, yaml: data });
+            Dialog.populateData(data);
         })
             .fail(function () {
         });

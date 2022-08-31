@@ -2,6 +2,8 @@
 class EditSecretDialog implements IDialog {
     title: string;
 
+    hideCancelBtn = false;
+
     getWidth(): string {
         return "600px";
     }

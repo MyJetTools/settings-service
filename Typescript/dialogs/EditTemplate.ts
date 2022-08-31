@@ -1,6 +1,8 @@
 class EditTemlateDialog implements IDialog {
     title: string;
 
+    hideCancelBtn = false;
+
     getWidth(): string {
         return undefined;
     }
