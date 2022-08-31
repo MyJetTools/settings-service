@@ -21,46 +21,66 @@ var Actions = /** @class */ (function () {
         }
     };
     Actions.addTemplate = function () {
-        var dialog = new EditTemlateDialog("Add template", undefined);
+        var dialog = new EditTemlateDialog("Add template");
         Dialog.show(dialog);
+        Dialog.populateData(undefined);
     };
     Actions.editTemplate = function (el) {
         var env = el.getAttribute('data-env');
         var name = el.getAttribute('data-name');
         var data = { env: env, name: name };
+        var dialog = new EditTemlateDialog("Edit template");
+        Dialog.show(dialog);
         $.ajax({ type: "POST", url: "/api/templates/get", data: data })
             .then(function (data) {
-            var dialog = new EditTemlateDialog("Edit template", { env: env, name: name, yaml: data });
-            Dialog.show(dialog);
+            Dialog.populateData({ env: env, name: name, yaml: data });
         })
             .fail(function () {
         });
     };
+    Actions.previewTemplate = function (el) {
+        var env = el.getAttribute('data-env');
+        var name = el.getAttribute('data-name');
+        var data = { env: env, name: name };
+        var dialog = new EditTemlateDialog("Edit template");
+        Dialog.show(dialog);
+        $.ajax({ type: "POST", url: "/api/templates/get", data: data })
+            .then(function (data) {
+            Dialog.populateData({ env: env, name: name, yaml: data });
+        })
+            .fail(function () {
+        });
+    };
+    ////////////////////////////////////////////////////////////////////////////////
     Actions.deleteTemplate = function (el) {
         var env = el.getAttribute('data-env');
         var name = el.getAttribute('data-name');
-        var dialog = new ConfirmDeleteTemplate("Confirmation", { env: env, name: name });
+        var dialog = new ConfirmDeleteTemplate("Confirmation");
         Dialog.show(dialog);
+        Dialog.populateData({ env: env, name: name });
     };
     Actions.addSecret = function () {
-        var dialog = new EditSecretDialog("Add secret", undefined);
+        var dialog = new EditSecretDialog("Add secret");
         Dialog.show(dialog);
+        Dialog.show(undefined);
     };
     Actions.editSecret = function (el) {
         var name = el.getAttribute('data-name');
         var data = { name: name };
+        var dialog = new EditSecretDialog("Edit secret");
+        Dialog.show(dialog);
         $.ajax({ type: "POST", url: "/api/secrets/get", data: data })
             .then(function (data) {
-            var dialog = new EditSecretDialog("Edit secret", { name: name, secret: data });
-            Dialog.show(dialog);
+            Dialog.populateData({ name: name, secret: data });
         })
             .fail(function () {
         });
     };
     Actions.deleteSecret = function (el) {
         var name = el.getAttribute('data-name');
-        var dialog = new ConfirmDeleteSecret("Confirmation", { name: name });
+        var dialog = new ConfirmDeleteSecret("Confirmation");
         Dialog.show(dialog);
+        Dialog.populateData({ name: name });
     };
     /// Operation
     Actions.loadTemplates = function () {

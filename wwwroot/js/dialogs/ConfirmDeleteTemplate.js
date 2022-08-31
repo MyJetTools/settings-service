@@ -1,7 +1,6 @@
 var ConfirmDeleteTemplate = /** @class */ (function () {
-    function ConfirmDeleteTemplate(title, data) {
+    function ConfirmDeleteTemplate(title) {
         this.title = title;
-        this.data = data;
     }
     ConfirmDeleteTemplate.prototype.getWidth = function () {
         return "600px";
@@ -12,7 +11,8 @@ var ConfirmDeleteTemplate = /** @class */ (function () {
     ConfirmDeleteTemplate.prototype.getContent = function () {
         return "<h4>You are about to delete template</h4>";
     };
-    ConfirmDeleteTemplate.prototype.populate = function () {
+    ConfirmDeleteTemplate.prototype.populate = function (data) {
+        this.data = data;
     };
     ConfirmDeleteTemplate.prototype.check = function () {
         return true;

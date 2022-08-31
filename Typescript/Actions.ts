@@ -27,8 +27,9 @@ class Actions {
 
     public static addTemplate() {
 
-        let dialog = new EditTemlateDialog("Add template", undefined);
+        let dialog = new EditTemlateDialog("Add template");
         Dialog.show(dialog);
+        Dialog.populateData(undefined);
     }
 
     public static editTemplate(el: HTMLElement) {
@@ -37,27 +38,49 @@ class Actions {
 
         let data = { env, name };
 
+        let dialog = new EditTemlateDialog("Edit template");
+        Dialog.show(dialog);
         $.ajax({ type: "POST", url: "/api/templates/get", data })
             .then(data => {
-                let dialog = new EditTemlateDialog("Edit template", { env, name, yaml: data });
-                Dialog.show(dialog);
+                Dialog.populateData({ env, name, yaml: data });
             })
             .fail(() => {
 
             });
     }
 
+    public static previewTemplate(el: HTMLElement) {
+        let env = el.getAttribute('data-env');
+        let name = el.getAttribute('data-name');
+
+        let data = { env, name };
+        let dialog = new EditTemlateDialog("Edit template");
+        Dialog.show(dialog);
+
+        $.ajax({ type: "POST", url: "/api/templates/get", data })
+            .then(data => {
+                Dialog.populateData({ env, name, yaml: data });
+            })
+            .fail(() => {
+
+            });
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+
     public static deleteTemplate(el: HTMLElement) {
         let env = el.getAttribute('data-env');
         let name = el.getAttribute('data-name');
 
-        let dialog = new ConfirmDeleteTemplate("Confirmation", { env, name });
+        let dialog = new ConfirmDeleteTemplate("Confirmation");
         Dialog.show(dialog);
+        Dialog.populateData({ env, name });
     }
 
     public static addSecret() {
-        let dialog = new EditSecretDialog("Add secret", undefined);
+        let dialog = new EditSecretDialog("Add secret");
         Dialog.show(dialog);
+        Dialog.show(undefined);
     }
 
     public static editSecret(el: HTMLElement) {
@@ -65,10 +88,12 @@ class Actions {
 
         let data = { name };
 
+        let dialog = new EditSecretDialog("Edit secret");
+        Dialog.show(dialog);
+
         $.ajax({ type: "POST", url: "/api/secrets/get", data })
             .then(data => {
-                let dialog = new EditSecretDialog("Edit secret", { name, secret: data });
-                Dialog.show(dialog);
+                Dialog.populateData({ name, secret: data });
             })
             .fail(() => {
 
@@ -78,9 +103,11 @@ class Actions {
     public static deleteSecret(el: HTMLElement) {
         let name = el.getAttribute('data-name');
 
-        let dialog = new ConfirmDeleteSecret("Confirmation", { name });
+        let dialog = new ConfirmDeleteSecret("Confirmation");
         Dialog.show(dialog);
+        Dialog.populateData({ name });
     }
+
 
 
     /// Operation

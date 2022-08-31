@@ -36,6 +36,7 @@ impl GetAction for IndexAction {
                 <script src="/lib/jquery.js"></script>
                 <script src="/js/HtmlStaticElement.js"></script>
                 <script src="/js/AppContext.js"></script>
+                <script src="/js/Utils.js"></script>
                 <script src="/js/Dialog.js"></script>
                 <script src="/js/dialogs/EditTemplate.js"></script>
                 <script src="/js/dialogs/EditSecret.js"></script>

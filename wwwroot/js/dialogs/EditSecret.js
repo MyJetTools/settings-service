@@ -1,7 +1,6 @@
 var EditSecretDialog = /** @class */ (function () {
-    function EditSecretDialog(title, viewModel) {
+    function EditSecretDialog(title) {
         this.title = title;
-        this.viewModel = viewModel;
     }
     EditSecretDialog.prototype.getWidth = function () {
         return "600px";
@@ -12,7 +11,8 @@ var EditSecretDialog = /** @class */ (function () {
     EditSecretDialog.prototype.getContent = function () {
         return "\n        <div class=\"form-floating mb-3\">\n        <input class=\"form-control\" id=\"edtName\" name=\"name\">\n        <label for=\"edtName\">Name</label>\n        </div>\n\n      <div class=\"form-floating\">\n      <input class=\"form-control\" id=\"edtSecret\" name=\"secret\">\n      <label for=\"edtSecret\">Secret</label>\n      </div>";
     };
-    EditSecretDialog.prototype.populate = function () {
+    EditSecretDialog.prototype.populate = function (viewModel) {
+        this.viewModel = viewModel;
         this.edtName = document.getElementById('edtName');
         this.edtSecret = document.getElementById('edtSecret');
         if (this.viewModel) {

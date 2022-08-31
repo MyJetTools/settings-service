@@ -9,8 +9,12 @@ class Dialog {
     AppContext.contentElement.classList.add('blur-content');
 
     AppContext.dialogPadElement.innerHTML = this.generateDialog(data);
+  }
 
-    data.populate();
+  public static populateData(model: any) {
+    let el = document.getElementById('modal-content');
+    el.innerHTML = this.dialogData.getContent();
+    this.dialogData.populate(model);
   }
 
   public static hide() {
@@ -51,8 +55,8 @@ class Dialog {
               <use xlink:href="bootstrap-icons.svg#x"></use>
               </svg></button>
             </div>
-            <div class="modal-body">
-                ` + data.getContent() + `
+            <div id="modal-content" class="modal-body">
+                <div style="text-align:center;"><img src="/img/loading.gif" style="width: 90px;" /></div>
             </div>
             <div class="modal-footer">
             <div class="btn-group">

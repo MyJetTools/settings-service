@@ -1,7 +1,6 @@
 var ConfirmDeleteSecret = /** @class */ (function () {
-    function ConfirmDeleteSecret(title, data) {
+    function ConfirmDeleteSecret(title) {
         this.title = title;
-        this.data = data;
     }
     ConfirmDeleteSecret.prototype.getWidth = function () {
         return "600px";
@@ -12,7 +11,8 @@ var ConfirmDeleteSecret = /** @class */ (function () {
     ConfirmDeleteSecret.prototype.getContent = function () {
         return "<h4>You are about to delete secret</h4>";
     };
-    ConfirmDeleteSecret.prototype.populate = function () {
+    ConfirmDeleteSecret.prototype.populate = function (data) {
+        this.data = data;
     };
     ConfirmDeleteSecret.prototype.check = function () {
         return true;

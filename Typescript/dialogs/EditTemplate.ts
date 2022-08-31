@@ -31,7 +31,8 @@ class EditTemlateDialog implements IDialog {
         </div>`;
     }
 
-    populate() {
+    populate(viewModel: IEditTemplateModel) {
+        this.viewModel = viewModel;
         this.edtEnv = document.getElementById('edtEnv') as HTMLInputElement;
         this.edtName = document.getElementById('edtName') as HTMLInputElement;
         this.edtYaml = document.getElementById('edtYaml') as HTMLInputElement;
@@ -76,9 +77,8 @@ class EditTemlateDialog implements IDialog {
 
     viewModel: IEditTemplateModel;
 
-    constructor(title: string, viewModel: IEditTemplateModel) {
+    constructor(title: string) {
         this.title = title;
-        this.viewModel = viewModel;
     }
 }
 

@@ -14,7 +14,8 @@ class ConfirmDeleteSecret implements IDialog {
         return `<h4>You are about to delete secret</h4>`;
     }
 
-    populate() {
+    populate(data: IDeleteSecretModel) {
+        this.data = data;
     }
 
     check(): any {
@@ -33,8 +34,8 @@ class ConfirmDeleteSecret implements IDialog {
 
     data: IDeleteSecretModel;
 
-    constructor(title: string, data: IDeleteSecretModel) {
+    constructor(title: string) {
         this.title = title;
-        this.data = data;
+
     }
 }

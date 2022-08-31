@@ -3,7 +3,7 @@ interface IDialog {
     getWidth(): string;
     title: string;
     getContent(): string;
-    populate(): void;
+    populate(mode: any): void;
     check(): any;
     ok(data: any): void,
 }

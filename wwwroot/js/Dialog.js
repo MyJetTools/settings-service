@@ -6,7 +6,11 @@ var Dialog = /** @class */ (function () {
         AppContext.menuElement.classList.add('blur-content');
         AppContext.contentElement.classList.add('blur-content');
         AppContext.dialogPadElement.innerHTML = this.generateDialog(data);
-        data.populate();
+    };
+    Dialog.populateData = function (model) {
+        var el = document.getElementById('modal-content');
+        el.innerHTML = this.dialogData.getContent();
+        this.dialogData.populate(model);
     };
     Dialog.hide = function () {
         AppContext.dialogPadElement.classList.add('dialog-pad-hidden');
@@ -29,7 +33,7 @@ var Dialog = /** @class */ (function () {
         else {
             width = "style=\"width: ".concat(width, "\"");
         }
-        return "\n        <div class=\"modal-dialog\" " + width + ">\n          <div class=\"modal-content\">\n            <div class=\"modal-header\">\n              <h5 class=\"modal-title\">" + data.title + "</h5>\n              <button type=\"button\" class=\"btn btn-default btn-sm\" data-bs-dismiss=\"modal\" aria-label=\"Close\" onclick=\"Dialog.hide()\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n              <use xlink:href=\"bootstrap-icons.svg#x\"></use>\n              </svg></button>\n            </div>\n            <div class=\"modal-body\">\n                " + data.getContent() + "\n            </div>\n            <div class=\"modal-footer\">\n            <div class=\"btn-group\">\n            <button type=\"button\" class=\"btn btn-primary  btn-sm\" onclick=\"Dialog.onOkPressed()\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n            <use xlink:href=\"bootstrap-icons.svg#check\"></use>\n            </svg>" + data.getOkBtnName() + "</button>\n              <button type=\"button\" class=\"btn btn-secondary btn-sm\" data-bs-dismiss=\"modal\" onclick=\"Dialog.hide()\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n              <use xlink:href=\"bootstrap-icons.svg#x\"></use>\n              </svg>Cancel</button>\n            </div>\n            </div>\n          </div>\n        </div>";
+        return "\n        <div class=\"modal-dialog\" " + width + ">\n          <div class=\"modal-content\">\n            <div class=\"modal-header\">\n              <h5 class=\"modal-title\">" + data.title + "</h5>\n              <button type=\"button\" class=\"btn btn-default btn-sm\" data-bs-dismiss=\"modal\" aria-label=\"Close\" onclick=\"Dialog.hide()\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n              <use xlink:href=\"bootstrap-icons.svg#x\"></use>\n              </svg></button>\n            </div>\n            <div id=\"modal-content\" class=\"modal-body\">\n                <div style=\"text-align:center;\"><img src=\"/img/loading.gif\" style=\"width: 90px;\" /></div>\n            </div>\n            <div class=\"modal-footer\">\n            <div class=\"btn-group\">\n            <button type=\"button\" class=\"btn btn-primary  btn-sm\" onclick=\"Dialog.onOkPressed()\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n            <use xlink:href=\"bootstrap-icons.svg#check\"></use>\n            </svg>" + data.getOkBtnName() + "</button>\n              <button type=\"button\" class=\"btn btn-secondary btn-sm\" data-bs-dismiss=\"modal\" onclick=\"Dialog.hide()\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n              <use xlink:href=\"bootstrap-icons.svg#x\"></use>\n              </svg>Cancel</button>\n            </div>\n            </div>\n          </div>\n        </div>";
     };
     return Dialog;
 }());

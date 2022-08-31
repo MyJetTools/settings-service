@@ -17,7 +17,8 @@ class HtmlMain {
         </svg></button></th></tr>`;
         for (let template of templates) {
             let data = `data-env="` + template.env + `" data-name="` + template.name + `"`;
-            result += `<tr><td>${template.env}</td><td><a href="/settings/${template.env}/${template.name}" target="blank">${template.name}</td><td>${template.created}</td><td>${template.updated}</td>
+            let url = Utils.compileSettingsUrl(template.env, template.name);
+            result += `<tr><td>${template.env}</td><td><a href="${url}" target="blank">${template.name}</td><td>${template.created}</td><td>${template.updated}</td>
             <td><div class="btn-group"><button class="btn btn-sm btn-primary" `+ data + ` onclick="Actions.editTemplate(this)"><svg class="bi" width="1em" height="1em" fill="currentColor">
             <use xlink:href="bootstrap-icons.svg#pen"></use>
             </svg></button><button class="btn btn-sm btn-danger" ` + data + ` onclick="Actions.deleteTemplate(this)"><svg class="bi" width="1em" height="1em" fill="currentColor">

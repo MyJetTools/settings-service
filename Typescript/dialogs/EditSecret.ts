@@ -26,7 +26,9 @@ class EditSecretDialog implements IDialog {
       </div>`;
     }
 
-    populate() {
+
+    populate(viewModel: IEditSecret) {
+        this.viewModel = viewModel;
         this.edtName = document.getElementById('edtName') as HTMLInputElement;
         this.edtSecret = document.getElementById('edtSecret') as HTMLInputElement;
         if (this.viewModel) {
@@ -64,9 +66,8 @@ class EditSecretDialog implements IDialog {
 
     viewModel: IEditSecret;
 
-    constructor(title: string, viewModel: IEditSecret) {
+    constructor(title: string) {
         this.title = title;
-        this.viewModel = viewModel;
     }
 
 }

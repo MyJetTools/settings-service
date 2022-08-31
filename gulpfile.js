@@ -8,6 +8,7 @@ gulp.task('default', function () {
         .src([
             './wwwroot/js/HtmlStaticElement.js',
             './wwwroot/js/AppContext.js',
+            './wwwroot/js/Utils.js',
             './wwwroot/js/Dialog.js',
             './wwwroot/js/dialogs/EditTemplate.js',
             './wwwroot/js/dialogs/EditSecret.js',

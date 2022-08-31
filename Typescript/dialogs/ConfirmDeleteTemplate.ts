@@ -14,7 +14,8 @@ class ConfirmDeleteTemplate implements IDialog {
         return `<h4>You are about to delete template</h4>`;
     }
 
-    populate() {
+    populate(data: IDeleteTemplateModel) {
+        this.data = data;
     }
 
     check(): any {
@@ -33,8 +34,8 @@ class ConfirmDeleteTemplate implements IDialog {
 
     data: IDeleteTemplateModel;
 
-    constructor(title: string, data: IDeleteTemplateModel) {
+    constructor(title: string) {
         this.title = title;
-        this.data = data;
+
     }
 }
