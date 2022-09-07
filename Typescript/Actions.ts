@@ -79,7 +79,7 @@ class Actions {
     public static addSecret() {
         let dialog = new EditSecretDialog("Add secret");
         Dialog.show(dialog);
-        Dialog.show(undefined);
+        Dialog.populateData(undefined);
     }
 
     public static editSecret(el: HTMLElement) {

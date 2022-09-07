@@ -62,7 +62,7 @@ var Actions = /** @class */ (function () {
     Actions.addSecret = function () {
         var dialog = new EditSecretDialog("Add secret");
         Dialog.show(dialog);
-        Dialog.show(undefined);
+        Dialog.populateData(undefined);
     };
     Actions.editSecret = function (el) {
         var name = el.getAttribute('data-name');
