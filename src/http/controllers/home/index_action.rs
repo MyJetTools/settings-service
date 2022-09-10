@@ -31,6 +31,7 @@ impl GetAction for IndexAction {
         if cfg!(debug_assertions) {
             let content = format!(
                 r###"<html><head><title>{} settings-service</title>
+                <link rel="icon" type="image/x-icon" href="/img/favicon.png">
                 <link href="/css/bootstrap.css" rel="stylesheet" type="text/css" />
                 <link href="/css/site.css" rel="stylesheet" type="text/css" />
                 <script src="/lib/jquery.js"></script>
@@ -60,6 +61,7 @@ impl GetAction for IndexAction {
         } else {
             let content = format!(
                 r###"<html><head><title>{} settings-service</title>
+                <link rel="icon" type="image/x-icon" href="/img/favicon.png">
                 <link href="/css/bootstrap.css" rel="stylesheet" type="text/css" />
                 <link href="/css/site.css" rel="stylesheet" type="text/css" />
                 <script src="/lib/jquery.js"></script><script src="/js/app.js?ver={rnd}"></script>
