@@ -91,3 +91,10 @@ pub struct SecretUsageModel {
     name: String,
     yaml: String,
 }
+
+// Delete secret
+#[derive(MyHttpInput)]
+pub struct DeleteSecretInputContract {
+    #[http_form(description = "Name")]
+    pub name: String,
+}

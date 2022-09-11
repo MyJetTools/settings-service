@@ -7,30 +7,30 @@ use crate::app_ctx::AppContext;
 
 #[my_http_server_swagger::http_route(
     method: "POST",
-    route: "/api/templates/delete",
-    description: "Delete",
-    controller: "Templates",
-    input_data: "DeleteTemplateContract",
-
+    route: "/api/secrets/delete",
+    description: "Delete secret",
+    controller: "Secrets",
+    input_data: "DeleteSecretInputContract",
     result:[
         {status_code: 202, description: "Ok response"},
     ]
 )]
-pub struct DeleteTemplateAction {
+pub struct DeleteSecretAction {
     app: Arc<AppContext>,
 }
 
-impl DeleteTemplateAction {
+impl DeleteSecretAction {
     pub fn new(app: Arc<AppContext>) -> Self {
         Self { app }
     }
 }
 
 async fn handle_request(
-    action: &DeleteTemplateAction,
-    input_data: DeleteTemplateContract,
+    action: &DeleteSecretAction,
+    input_data: DeleteSecretInputContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    crate::operations::templates::delete(&action.app, input_data.env, input_data.name).await;
+    crate::operations::delete_secret(&action.app, input_data.name.as_str()).await;
+
     HttpOutput::Empty.into_ok_result(false)
 }

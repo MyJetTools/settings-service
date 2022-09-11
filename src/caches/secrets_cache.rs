@@ -59,4 +59,9 @@ impl SecretsCache {
         let mut write_access = self.items.lock().await;
         write_access.insert(secret.row_key.clone(), Arc::new(secret));
     }
+
+    pub async fn remove(&self, secret_name: &str) {
+        let mut write_access = self.items.lock().await;
+        write_access.remove(secret_name);
+    }
 }

@@ -27,7 +27,7 @@ class ConfirmDeleteSecret implements IDialog {
     public ok(_: any) {
         $.ajax({ type: "POST", url: "/api/secrets/delete", data: this.data })
             .then(() => {
-                Actions.loadTemplates();
+                Actions.loadSecrets();
             })
             .fail(() => {
 

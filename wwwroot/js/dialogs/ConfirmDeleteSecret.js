@@ -21,7 +21,7 @@ var ConfirmDeleteSecret = /** @class */ (function () {
     ConfirmDeleteSecret.prototype.ok = function (_) {
         $.ajax({ type: "POST", url: "/api/secrets/delete", data: this.data })
             .then(function () {
-            Actions.loadTemplates();
+            Actions.loadSecrets();
         })
             .fail(function () {
         });
