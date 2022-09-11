@@ -27,7 +27,7 @@ var HtmlMain = /** @class */ (function () {
             var data = "data-name=\"" + secret.name + "\"";
             var secretsAmount;
             if (secret.amount > 0) {
-                secretsAmount = "<span class=\"badge badge-success\" style=\"background: green;\">".concat(secret.amount, "</span>");
+                secretsAmount = "<span class=\"badge badge-success\" " + data + " style=\"background: green;cursor:pointer;\" onclick=\"Actions.showSecretUsage(this)\">".concat(secret.amount, "</span>");
             }
             else {
                 secretsAmount = "<span class=\"badge badge-success\" style=\"background: red;\">0</span>";

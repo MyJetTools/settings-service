@@ -32,3 +32,9 @@ interface IEditSecret {
 interface IDeleteSecretModel {
     name: string,
 }
+
+interface ISecretModel {
+    env: string,
+    name: string,
+    yaml: string
+}

@@ -82,6 +82,19 @@ var Actions = /** @class */ (function () {
         Dialog.show(dialog);
         Dialog.populateData({ name: name });
     };
+    Actions.showSecretUsage = function (el) {
+        var name = el.getAttribute('data-name');
+        var data = { name: name };
+        var dialog = new ShowSecretUsageDialog("Show secret [" + name + "] usage", name);
+        Dialog.show(dialog);
+        $.ajax({ type: "POST", url: "/api/secrets/usage", data: data })
+            .then(function (data) {
+            Dialog.populateData(data.data);
+        })
+            .fail(function () {
+        });
+        Dialog.populateData({ name: name });
+    };
     /// Operation
     Actions.loadTemplates = function () {
         $.ajax({ method: "POST", url: "/api/templates/getall" })

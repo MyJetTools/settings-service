@@ -107,6 +107,22 @@ class Actions {
         Dialog.populateData({ name });
     }
 
+    public static showSecretUsage(el: HTMLElement) {
+        let name = el.getAttribute('data-name');
+        let data = { name };
+        let dialog = new ShowSecretUsageDialog("Show secret [" + name + "] usage", name);
+        Dialog.show(dialog);
+
+        $.ajax({ type: "POST", url: "/api/secrets/usage", data })
+            .then(data => {
+                Dialog.populateData(data.data);
+            })
+            .fail(() => {
+
+            });
+        Dialog.populateData({ name });
+    }
+
 
 
     /// Operation

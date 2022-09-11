@@ -3,7 +3,7 @@ use std::sync::Arc;
 use my_http_server_swagger::{MyHttpInput, MyHttpObjectStructure};
 use serde::{Deserialize, Serialize};
 
-use crate::{app_ctx::AppContext, my_no_sql::SecretMyNoSqlEntity};
+use crate::{app_ctx::AppContext, caches::SecretUsage, my_no_sql::SecretMyNoSqlEntity};
 
 #[derive(MyHttpInput)]
 pub struct PostSecretContract {
@@ -54,4 +54,40 @@ impl SecretModel {
                 .await,
         }
     }
+}
+
+// Secret Usage
+
+#[derive(MyHttpInput)]
+pub struct ShowUsageInputContract {
+    #[http_form(description = "Name")]
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, MyHttpObjectStructure)]
+pub struct ShowSecretUsageResponse {
+    data: Vec<SecretUsageModel>,
+}
+
+impl ShowSecretUsageResponse {
+    pub fn new(src: Vec<SecretUsage>) -> Self {
+        let mut data = Vec::new();
+
+        for itm in src {
+            data.push(SecretUsageModel {
+                env: itm.env,
+                name: itm.name,
+                yaml: itm.yaml,
+            });
+        }
+
+        Self { data }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, MyHttpObjectStructure)]
+pub struct SecretUsageModel {
+    env: String,
+    name: String,
+    yaml: String,
 }

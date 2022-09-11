@@ -39,5 +39,9 @@ pub fn build_controllers(app: &Arc<AppContext>) -> Arc<ControllersMiddleware> {
         app.clone(),
     )));
 
+    result.register_post_action(Arc::new(super::controllers::secrets::ShowUsageAction::new(
+        app.clone(),
+    )));
+
     Arc::new(result)
 }

@@ -7,6 +7,12 @@ use tokio::sync::Mutex;
 
 use crate::my_no_sql::TemplateMyNoSqlEntity;
 
+pub struct SecretUsage {
+    pub env: String,
+    pub name: String,
+    pub yaml: String,
+}
+
 pub struct TemplatesCache {
     initialized: AtomicBool,
     items: Mutex<Option<Vec<Arc<TemplateMyNoSqlEntity>>>>,
@@ -95,6 +101,23 @@ impl TemplatesCache {
         for itm in read_access.as_ref().unwrap() {
             if itm.yaml_template.contains(contains) {
                 result += 1;
+            }
+        }
+
+        result
+    }
+
+    pub async fn get_secret_usages(&self, contains: &str) -> Vec<SecretUsage> {
+        let mut result = Vec::new();
+        let read_access = self.items.lock().await;
+
+        for itm in read_access.as_ref().unwrap() {
+            if itm.yaml_template.contains(contains) {
+                result.push(SecretUsage {
+                    env: itm.partition_key.clone(),
+                    name: itm.row_key.clone(),
+                    yaml: itm.yaml_template.clone(),
+                });
             }
         }
 

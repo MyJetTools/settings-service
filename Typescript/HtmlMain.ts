@@ -44,7 +44,7 @@ class HtmlMain {
             var secretsAmount;
 
             if (secret.amount > 0) {
-                secretsAmount = `<span class="badge badge-success" style="background: green;">${secret.amount}</span>`;
+                secretsAmount = `<span class="badge badge-success" ` + data + ` style="background: green;cursor:pointer;" onclick="Actions.showSecretUsage(this)">${secret.amount}</span>`;
             }
             else {
                 secretsAmount = `<span class="badge badge-success" style="background: red;">0</span>`;
