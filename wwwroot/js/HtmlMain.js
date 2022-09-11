@@ -38,7 +38,7 @@ var HtmlMain = /** @class */ (function () {
                 bg = ' style="background: #ff000017;"';
                 secretsAmount = "<span class=\"badge badge-success\" style=\"background: red;\">0</span>";
                 deleteCommandButtonStyle = "btn-danger";
-                deleteAttrs = "onclick=\"Actions.editSecret(this)\"";
+                deleteAttrs = "onclick=\"Actions.deleteSecret(this)\"";
             }
             result += "<tr" + bg + "><td>" + secretsAmount + "</td><td>".concat(secret.name, "</td><td id=\"secret-value-") + secret.name + "\"><div style=\"cursor:pointer\" " + data + " onclick=\"Actions.showSecretValue(this)\">***</div></td><td>".concat(secret.created, "</td><td>").concat(secret.updated, "</td>\n            <td><div class=\"btn-group\"><button class=\"btn btn-sm btn-primary\" ") + data + " onclick=\"Actions.editSecret(this)\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n            <use xlink:href=\"bootstrap-icons.svg#pen\"></use>\n            </svg></button><button class=\"btn btn-sm " + deleteCommandButtonStyle + "\" " + data + " " + deleteAttrs + "><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n            <use xlink:href=\"bootstrap-icons.svg#eraser-fill\"></use>\n            </svg></button></div></td></tr>";
         }

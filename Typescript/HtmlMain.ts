@@ -55,7 +55,7 @@ class HtmlMain {
                 bg = ' style="background: #ff000017;"';
                 secretsAmount = `<span class="badge badge-success" style="background: red;">0</span>`;
                 deleteCommandButtonStyle = "btn-danger";
-                deleteAttrs = `onclick="Actions.editSecret(this)"`;
+                deleteAttrs = `onclick="Actions.deleteSecret(this)"`;
             }
 
             result += `<tr` + bg + `><td>` + secretsAmount + `</td><td>${secret.name}</td><td id="secret-value-` + secret.name + `"><div style="cursor:pointer" ` + data + ` onclick="Actions.showSecretValue(this)">***</div></td><td>${secret.created}</td><td>${secret.updated}</td>
