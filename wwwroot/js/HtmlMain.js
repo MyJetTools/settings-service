@@ -26,13 +26,15 @@ var HtmlMain = /** @class */ (function () {
             var secret = secrets_1[_i];
             var data = "data-name=\"" + secret.name + "\"";
             var secretsAmount;
+            var bg = "";
             if (secret.amount > 0) {
                 secretsAmount = "<span class=\"badge badge-success\" " + data + " style=\"background: green;cursor:pointer;\" onclick=\"Actions.showSecretUsage(this)\">".concat(secret.amount, "</span>");
             }
             else {
+                bg = 'style="background: ff000017;"';
                 secretsAmount = "<span class=\"badge badge-success\" style=\"background: red;\">0</span>";
             }
-            result += "<tr><td>" + secretsAmount + "</td><td>".concat(secret.name, "</td><td>").concat(secret.created, "</td><td>").concat(secret.updated, "</td>\n            <td><div class=\"btn-group\"><button class=\"btn btn-sm btn-primary\" ") + data + " onclick=\"Actions.editSecret(this)\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n            <use xlink:href=\"bootstrap-icons.svg#pen\"></use>\n            </svg></button><button class=\"btn btn-sm btn-danger\" " + data + " onclick=\"Actions.deleteSecret(this)\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n            <use xlink:href=\"bootstrap-icons.svg#eraser-fill\"></use>\n            </svg></button></div></td></tr>";
+            result += "<tr><td " + bg + ">" + secretsAmount + "</td><td>".concat(secret.name, "</td><td>").concat(secret.created, "</td><td>").concat(secret.updated, "</td>\n            <td><div class=\"btn-group\"><button class=\"btn btn-sm btn-primary\" ") + data + " onclick=\"Actions.editSecret(this)\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n            <use xlink:href=\"bootstrap-icons.svg#pen\"></use>\n            </svg></button><button class=\"btn btn-sm btn-danger\" " + data + " onclick=\"Actions.deleteSecret(this)\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n            <use xlink:href=\"bootstrap-icons.svg#eraser-fill\"></use>\n            </svg></button></div></td></tr>";
         }
         return result + "</table>";
     };
