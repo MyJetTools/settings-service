@@ -95,6 +95,18 @@ var Actions = /** @class */ (function () {
         });
         Dialog.populateData({ name: name });
     };
+    Actions.showSecretValue = function (el) {
+        var name = el.getAttribute('data-name');
+        var elToUpdate = document.getElementById("secret-value-" + name);
+        elToUpdate.innerHTML = '<img src="/img/loading.gif" style="height:32px"></img>';
+        var data = { name: name };
+        $.ajax({ type: "POST", url: "/api/secrets/get", data: data })
+            .then(function (data) {
+            elToUpdate.innerHTML = data;
+        })
+            .fail(function () {
+        });
+    };
     /// Operation
     Actions.loadTemplates = function () {
         $.ajax({ method: "POST", url: "/api/templates/getall" })

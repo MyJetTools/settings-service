@@ -2,3 +2,4 @@
 * Added: show Secret Usage
 * Delete secret feature is introduced
 * Unused secret is marked as red line
+* Can expose secret by clicking on the secret line

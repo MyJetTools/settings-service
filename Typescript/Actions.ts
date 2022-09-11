@@ -123,6 +123,24 @@ class Actions {
         Dialog.populateData({ name });
     }
 
+    public static showSecretValue(el: HTMLElement) {
+        let name = el.getAttribute('data-name');
+
+        let elToUpdate = document.getElementById("secret-value-" + name);
+
+        elToUpdate.innerHTML = '<img src="/img/loading.gif" style="height:32px"></img>';
+
+        let data = { name };
+
+        $.ajax({ type: "POST", url: "/api/secrets/get", data })
+            .then(data => {
+                elToUpdate.innerHTML = data;
+            })
+            .fail(() => {
+
+            });
+    }
+
 
 
     /// Operation
