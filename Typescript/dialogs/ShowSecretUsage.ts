@@ -30,9 +30,22 @@ class ShowSecretUsageDialog implements IDialog {
             for (let line of itm.yaml.split(/\r?\n/)) {
 
                 if (line.indexOf(this.secretName) >= 0) {
-                    result += '<div><b>' + line + '</b></div>';
+
+                    result += '<div>';
+
+                    for (let i = 0; i < spacesAmount(line); i++) {
+                        result += '&nbsp;';
+                    }
+
+                    result += '<b>' + line.trim() + '</b></div>';
                 } else {
-                    result += '<div style="color:gray">' + line + '</div>';
+
+                    result += '<div style="color:gray">';
+
+                    for (let i = 0; i < spacesAmount(line); i++) {
+                        result += '&nbsp;';
+                    }
+                    result += line.trim() + '</div>';
                 }
 
 
@@ -64,4 +77,18 @@ class ShowSecretUsageDialog implements IDialog {
 
 function splitByLines(text: string) {
     return text.split(/\r?\n/);
+}
+
+function spacesAmount(text: string): number {
+    let result = 0;
+
+    for (let i = 0; i < text.length; i++) {
+        if (text[i] == ' ') {
+            result++;
+        } else {
+            break;
+        }
+    }
+
+    return result;
 }

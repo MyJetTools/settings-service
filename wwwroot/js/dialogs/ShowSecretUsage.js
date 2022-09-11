@@ -21,10 +21,18 @@ var ShowSecretUsageDialog = /** @class */ (function () {
             for (var _a = 0, _b = itm.yaml.split(/\r?\n/); _a < _b.length; _a++) {
                 var line = _b[_a];
                 if (line.indexOf(this.secretName) >= 0) {
-                    result += '<div><b>' + line + '</b></div>';
+                    result += '<div>';
+                    for (var i = 0; i < spacesAmount(line); i++) {
+                        result += '&nbsp;';
+                    }
+                    result += '<b>' + line.trim() + '</b></div>';
                 }
                 else {
-                    result += '<div style="color:gray">' + line + '</div>';
+                    result += '<div style="color:gray">';
+                    for (var i = 0; i < spacesAmount(line); i++) {
+                        result += '&nbsp;';
+                    }
+                    result += line.trim() + '</div>';
                 }
             }
             result += '<hr/>';
@@ -40,5 +48,17 @@ var ShowSecretUsageDialog = /** @class */ (function () {
 }());
 function splitByLines(text) {
     return text.split(/\r?\n/);
+}
+function spacesAmount(text) {
+    var result = 0;
+    for (var i = 0; i < text.length; i++) {
+        if (text[i] == ' ') {
+            result++;
+        }
+        else {
+            break;
+        }
+    }
+    return result;
 }
 //# sourceMappingURL=ShowSecretUsage.js.map
