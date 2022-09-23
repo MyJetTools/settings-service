@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use my_http_server_swagger::{MyHttpInput, MyHttpObjectStructure};
 use serde::{Deserialize, Serialize};
 
@@ -25,7 +23,7 @@ pub struct ListOfSecretsContract {
 }
 
 impl ListOfSecretsContract {
-    pub async fn new(app: &AppContext, items: Vec<Arc<SecretMyNoSqlEntity>>) -> Self {
+    pub async fn new(app: &AppContext, items: Vec<SecretMyNoSqlEntity>) -> Self {
         let mut data = Vec::with_capacity(items.len());
 
         for item in items {

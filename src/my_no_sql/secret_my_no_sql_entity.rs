@@ -14,6 +14,8 @@ pub struct SecretMyNoSqlEntity {
     pub create_date: String,
     #[serde(rename = "LastUpdate")]
     pub last_update_date: String,
+    #[serde(rename = "Value", skip_serializing_if = "Option::is_none")]
+    pub value: Option<String>,
 }
 
 impl SecretMyNoSqlEntity {

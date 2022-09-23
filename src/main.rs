@@ -4,11 +4,14 @@ use crate::settings_model::SettingsModel;
 
 mod app_ctx;
 mod caches;
+mod encryption;
 mod env_settings;
 mod http;
+mod key_value_repository;
 mod my_no_sql;
 mod operations;
 mod settings_model;
+
 #[tokio::main]
 async fn main() {
     let settings = SettingsModel::load(".settings-service").await;

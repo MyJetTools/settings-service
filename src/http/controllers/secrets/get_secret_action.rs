@@ -30,8 +30,11 @@ async fn handle_request(
     input_data: GetSecretContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let result =
-        crate::operations::secrets_values::get(&action.app, input_data.name.as_str()).await;
+    let result = action
+        .app
+        .key_value_repository
+        .get_secret(input_data.name.as_str())
+        .await;
 
     match result {
         Some(result) => HttpOutput::as_text(result).into_ok_result(false),

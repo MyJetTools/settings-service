@@ -1,6 +1,6 @@
 [package]
 name = "settings-service"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -39,3 +39,5 @@ futures-core = "*"
 tokio-postgres = { version = "*", features = ["with-chrono-0_4"] }
 async-trait = "*"
 uuid = { version = "*", features = ["serde", "v4"] }
+libaes = "*"
+base64 = "*"

@@ -99,7 +99,7 @@ pub async fn populate_template(app: &AppContext, template: &str) -> String {
             if b == b'}' {
                 let key = std::str::from_utf8(&template[start..i]).unwrap();
 
-                if let Some(value) = super::secrets_values::get(app, key).await {
+                if let Some(value) = app.key_value_repository.get_secret(key).await {
                     result.extend_from_slice(value.as_bytes());
                 }
 
