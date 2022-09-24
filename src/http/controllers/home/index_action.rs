@@ -18,10 +18,10 @@ impl IndexAction {
 
     fn get_favicon_file_name(&self) -> &str {
         match self.app.settings.get_favicon_suffix() {
-            crate::settings_model::FaviconSuffix::Default => "favicon.png",
-            crate::settings_model::FaviconSuffix::Green => "favicon-green.png",
-            crate::settings_model::FaviconSuffix::Pink => "favicon-pink.png",
-            crate::settings_model::FaviconSuffix::Black => "favicon-black.png",
+            crate::settings_model::FaviconColour::Default => "favicon.png",
+            crate::settings_model::FaviconColour::Green => "favicon-green.png",
+            crate::settings_model::FaviconColour::Pink => "favicon-pink.png",
+            crate::settings_model::FaviconColour::Black => "favicon-black.png",
         }
     }
 }
@@ -57,7 +57,7 @@ impl GetAction for IndexAction {
                 <script src="/js/Actions.js"></script>
                 <script src="/js/HtmlMain.js"></script>
                 <script src="/js/main.js"></script>
-                </head><body></body></html>"###,
+                </head><body data-env="debug"></body></html>"###,
                 ver = crate::app_ctx::APP_VERSION,
                 favicon_file_name = self.get_favicon_file_name()
             );
@@ -71,14 +71,14 @@ impl GetAction for IndexAction {
             .into()
         } else {
             let content = format!(
-                r###"<html><head><title>{app_version} settings-service-{suffix}</title>
+                r###"<html><head><title>{app_version} settings-service-{env}</title>
                 <link rel="icon" type="image/x-icon" href="/img/{favicon_file_name}">
                 <link href="/css/bootstrap.css" rel="stylesheet" type="text/css" />
                 <link href="/css/site.css" rel="stylesheet" type="text/css" />
                 <script src="/lib/jquery.js"></script><script src="/js/app.js?ver={rnd}"></script>
-                </head><body></body></html>"###,
+                </head><body data-env="{env}"></body></html>"###,
                 app_version = crate::app_ctx::APP_VERSION,
-                suffix = self.app.settings.suffix,
+                env = self.app.settings.env,
                 rnd = self.app.process_id,
                 favicon_file_name = self.get_favicon_file_name()
             );

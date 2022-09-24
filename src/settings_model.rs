@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-pub enum FaviconSuffix {
+pub enum FaviconColour {
     Default,
     Green,
     Pink,
@@ -17,24 +17,24 @@ pub struct SettingsModel {
     pub http_port: u16,
     #[serde(rename = "KeyVaultKey")]
     pub key_vault_key: Option<String>,
-    #[serde(rename = "Suffix")]
-    pub suffix: String,
-    #[serde(rename = "FaviconSuffix")]
-    favicon_suffix: Option<String>,
+    #[serde(rename = "Environment")]
+    pub env: String,
+    #[serde(rename = "FaviconColour")]
+    favicon_colour: Option<String>,
 }
 
 impl SettingsModel {
-    pub fn get_favicon_suffix(&self) -> FaviconSuffix {
-        match self.favicon_suffix.as_ref() {
+    pub fn get_favicon_suffix(&self) -> FaviconColour {
+        match self.favicon_colour.as_ref() {
             Some(suffix) => match suffix.to_lowercase().as_str() {
-                "black" => FaviconSuffix::Black,
-                "green" => FaviconSuffix::Green,
-                "pink" => FaviconSuffix::Pink,
+                "black" => FaviconColour::Black,
+                "green" => FaviconColour::Green,
+                "pink" => FaviconColour::Pink,
                 _ => panic!("Unknown favicon suffix: {}", suffix),
             },
             None => {
                 println!("Settings.FaviconSuffix is not set. Using default favicon");
-                FaviconSuffix::Default
+                FaviconColour::Default
             }
         }
     }
