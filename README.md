@@ -6,7 +6,7 @@
 
 ### 0.1.1
 * Secret can be stored in my-no-sql encoded
-* Added Suffix Support for HTTP Header
+* Added Env names Support
 * Added Favicon colours support
   - Black;
   - Green;
