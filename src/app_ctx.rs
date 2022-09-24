@@ -42,15 +42,14 @@ impl AppContext {
             my_no_sql_server_abstractions::DataSyncronizationPeriod::Sec5,
         );
 
-        let env_settings = EnvSettings::load();
-
-        let token_manager = BearerTokenManager::new(
-            env_settings.azure_tennant_id,
-            env_settings.azure_client_id,
-            env_settings.azure_client_secret,
-        );
-
         let key_value_repository = if let Some(key_value_url) = &settings.key_vault_url {
+            let env_settings = EnvSettings::load();
+
+            let token_manager = BearerTokenManager::new(
+                env_settings.azure_tennant_id,
+                env_settings.azure_client_id,
+                env_settings.azure_client_secret,
+            );
             let key_vault_client =
                 MyAzureKeyVault::new(Arc::new(token_manager), key_value_url.to_string());
 
