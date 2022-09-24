@@ -24,6 +24,15 @@ impl IndexAction {
             crate::settings_model::FaviconColour::Black => "favicon-black.png",
         }
     }
+
+    fn get_env_color(&self) -> &str {
+        match self.app.settings.get_favicon_suffix() {
+            crate::settings_model::FaviconColour::Default => "orange",
+            crate::settings_model::FaviconColour::Green => "green",
+            crate::settings_model::FaviconColour::Pink => "pink",
+            crate::settings_model::FaviconColour::Black => "gray",
+        }
+    }
 }
 
 #[async_trait::async_trait]
@@ -76,10 +85,11 @@ impl GetAction for IndexAction {
                 <link href="/css/bootstrap.css" rel="stylesheet" type="text/css" />
                 <link href="/css/site.css" rel="stylesheet" type="text/css" />
                 <script src="/lib/jquery.js"></script><script src="/js/app.js?ver={rnd}"></script>
-                </head><body data-env="{env}"></body></html>"###,
+                </head><body data-env="{env}" data-env-color="{env_color}"></body></html>"###,
                 app_version = crate::app_ctx::APP_VERSION,
                 env = self.app.settings.env,
                 rnd = self.app.process_id,
+                env_color = self.get_env_color(),
                 favicon_file_name = self.get_favicon_file_name()
             );
             HttpOutput::Content {

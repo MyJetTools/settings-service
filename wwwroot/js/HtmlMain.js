@@ -7,7 +7,8 @@ var HtmlMain = /** @class */ (function () {
     };
     HtmlMain.generateStatusBar = function () {
         var env = document.body.getAttribute("data-env");
-        return "<div class=\"title\"> <h3>Settings </h3><h4>" + env + "</h4></div> "
+        var envColor = document.body.getAttribute("data-env-color");
+        return "<div class=\"title\"> <h3>Settings </h3><h4 style=\"color: " + envColor + "\">" + env + "</h4></div> "
             + "<div class=\"menu-item\" data-itm=\"Secrets\" onclick=\"Actions.menuClicked(this)\"> Secrets </div>"
             + "<div class=\"menu-item\" data-itm=\"Templates\" onclick=\"Actions.menuClicked(this)\">Templates</div>"
             + "<div class=\"menu-item\" data-itm=\"SubTemplates\" onclick=\"Actions.menuClicked(this)\">Sub templates</div>";
