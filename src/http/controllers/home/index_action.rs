@@ -15,6 +15,15 @@ impl IndexAction {
     pub fn new(app: Arc<AppContext>) -> Self {
         Self { app }
     }
+
+    fn get_favicon_file_name(&self) -> &str {
+        match self.app.settings.get_favicon_suffix() {
+            crate::settings_model::FaviconSuffix::Default => "favicon.png",
+            crate::settings_model::FaviconSuffix::Green => "favicon-green.png",
+            crate::settings_model::FaviconSuffix::Pink => "favicon-pink.png",
+            crate::settings_model::FaviconSuffix::Black => "favicon-black.png",
+        }
+    }
 }
 
 #[async_trait::async_trait]
@@ -30,8 +39,8 @@ impl GetAction for IndexAction {
     async fn handle_request(&self, _: &mut HttpContext) -> Result<HttpOkResult, HttpFailResult> {
         if cfg!(debug_assertions) {
             let content = format!(
-                r###"<html><head><title>{} settings-service</title>
-                <link rel="icon" type="image/x-icon" href="/img/favicon.png">
+                r###"<html><head><title>{ver} settings-service</title>
+                <link rel="icon" type="image/x-icon" href="/img/{favicon_file_name}">
                 <link href="/css/bootstrap.css" rel="stylesheet" type="text/css" />
                 <link href="/css/site.css" rel="stylesheet" type="text/css" />
                 <script src="/lib/jquery.js"></script>
@@ -50,6 +59,7 @@ impl GetAction for IndexAction {
                 <script src="/js/main.js"></script>
                 </head><body></body></html>"###,
                 ver = crate::app_ctx::APP_VERSION,
+                favicon_file_name = self.get_favicon_file_name()
             );
 
             HttpOutput::Content {
@@ -61,14 +71,16 @@ impl GetAction for IndexAction {
             .into()
         } else {
             let content = format!(
-                r###"<html><head><title>{} settings-service</title>
-                <link rel="icon" type="image/x-icon" href="/img/favicon.png">
+                r###"<html><head><title>{app_version} settings-service-{suffix}</title>
+                <link rel="icon" type="image/x-icon" href="/img/{favicon_file_name}">
                 <link href="/css/bootstrap.css" rel="stylesheet" type="text/css" />
                 <link href="/css/site.css" rel="stylesheet" type="text/css" />
                 <script src="/lib/jquery.js"></script><script src="/js/app.js?ver={rnd}"></script>
                 </head><body></body></html>"###,
-                ver = crate::app_ctx::APP_VERSION,
-                rnd = self.app.process_id
+                app_version = crate::app_ctx::APP_VERSION,
+                suffix = self.app.settings.suffix,
+                rnd = self.app.process_id,
+                favicon_file_name = self.get_favicon_file_name()
             );
             HttpOutput::Content {
                 headers: None,
