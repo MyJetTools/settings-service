@@ -5,6 +5,7 @@ pub enum FaviconColour {
     Green,
     Pink,
     Black,
+    Yellow,
 }
 
 #[derive(my_settings_reader::SettingsModel, Serialize, Deserialize, Debug, Clone)]
@@ -30,6 +31,7 @@ impl SettingsModel {
                 "black" => FaviconColour::Black,
                 "green" => FaviconColour::Green,
                 "pink" => FaviconColour::Pink,
+                "yellow" => FaviconColour::Yellow,
                 _ => panic!("Unknown favicon suffix: {}", suffix),
             },
             None => {

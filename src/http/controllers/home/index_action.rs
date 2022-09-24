@@ -22,6 +22,7 @@ impl IndexAction {
             crate::settings_model::FaviconColour::Green => "favicon-green.png",
             crate::settings_model::FaviconColour::Pink => "favicon-pink.png",
             crate::settings_model::FaviconColour::Black => "favicon-black.png",
+            crate::settings_model::FaviconColour::Yellow => "favicon-yellow.png",
         }
     }
 
@@ -31,6 +32,7 @@ impl IndexAction {
             crate::settings_model::FaviconColour::Green => "green",
             crate::settings_model::FaviconColour::Pink => "pink",
             crate::settings_model::FaviconColour::Black => "gray",
+            crate::settings_model::FaviconColour::Yellow => "yellow",
         }
     }
 }

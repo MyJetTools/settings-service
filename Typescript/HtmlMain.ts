@@ -7,7 +7,7 @@ class HtmlMain {
     static generateStatusBar(): string {
         let env = document.body.getAttribute("data-env");
         let envColor = document.body.getAttribute("data-env-color");
-        return `<div class="title"> <h3>Settings </h3><h4 style="color: ` + envColor + `">` + env + `</h4></div> `
+        return `<div class="title"> <h3>Settings </h3><h4 style="text-shadow: 1px 1px 1px black;color: ` + envColor + `">` + env + `</h4></div> `
             + `<div class="menu-item" data-itm="Secrets" onclick="Actions.menuClicked(this)"> Secrets </div>`
             + `<div class="menu-item" data-itm="Templates" onclick="Actions.menuClicked(this)">Templates</div>`
             + `<div class="menu-item" data-itm="SubTemplates" onclick="Actions.menuClicked(this)">Sub templates</div>`;

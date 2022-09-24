@@ -11,4 +11,5 @@
   - Black;
   - Green;
   - Pink;
+  - Yellow;
   - Orange (Default)
