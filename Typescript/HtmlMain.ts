@@ -33,7 +33,7 @@ class HtmlMain {
             </svg></button>
             </div></td></tr>`;
         }
-        return result + "</table>";
+        return result + `</table><h3>Total:${templates.length}</h3>`;
     }
 
     public static generateSecretesContent(secrets: ISecret[]): string {
@@ -67,6 +67,6 @@ class HtmlMain {
             <use xlink:href="bootstrap-icons.svg#eraser-fill"></use>
             </svg></button></div></td></tr>`;
         }
-        return result + "</table>";
+        return result + `</table><h3>Total:${secrets.length}</h3>`;
     }
 }
