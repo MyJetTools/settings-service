@@ -3,6 +3,7 @@ interface ITemplate {
     name: string,
     created: string,
     updated: string,
+    lastRequest: number,
 }
 
 

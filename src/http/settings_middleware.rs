@@ -4,6 +4,7 @@ use my_http_server::{
     HttpContext, HttpFailResult, HttpOkResult, HttpOutput, HttpServerMiddleware,
     HttpServerRequestFlow,
 };
+use rust_extensions::date_time::DateTimeAsMicroseconds;
 
 use crate::app_ctx::AppContext;
 
@@ -49,16 +50,19 @@ impl HttpServerMiddleware for SettingsMiddleware {
             return get_next.next(ctx).await;
         }
 
-        let yaml = crate::operations::templates::get_populated_template(
-            &self.app,
-            env.unwrap(),
-            name.unwrap(),
-        )
-        .await;
+        let env = env.unwrap();
+        let name = name.unwrap();
+
+        let yaml = crate::operations::templates::get_populated_template(&self.app, env, name).await;
 
         if yaml.is_none() {
             return get_next.next(ctx).await;
         }
+
+        self.app
+            .last_request
+            .update(env, name, DateTimeAsMicroseconds::now())
+            .await;
 
         HttpOutput::as_text(yaml.unwrap()).into_ok_result(false)
     }

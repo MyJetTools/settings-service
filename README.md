@@ -13,3 +13,6 @@
   - Pink;
   - Yellow;
   - Orange (Default)
+
+### 0.1.2
+* Now we track moment settings were requested

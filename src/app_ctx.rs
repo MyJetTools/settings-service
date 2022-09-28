@@ -5,7 +5,7 @@ use my_no_sql_data_writer::MyNoSqlDataWriter;
 use rust_extensions::AppStates;
 
 use crate::{
-    caches::TemplatesCache,
+    caches::{LastRequestTimeCache, TemplatesCache},
     env_settings::EnvSettings,
     key_value_repository::{KeyValueRepository, KeyValueRepositoryStorage},
     my_no_sql::TemplateMyNoSqlEntity,
@@ -22,6 +22,7 @@ pub struct AppContext {
     pub process_id: String,
     pub templates_cache: TemplatesCache,
     pub key_value_repository: KeyValueRepository,
+    pub last_request: LastRequestTimeCache,
 }
 
 impl AppContext {
@@ -74,6 +75,7 @@ impl AppContext {
             process_id: uuid::Uuid::new_v4().to_string(),
             key_value_repository,
             templates_cache: TemplatesCache::new(),
+            last_request: LastRequestTimeCache::new(),
         }
     }
 }

@@ -14,7 +14,6 @@ pub struct TemplateMyNoSqlEntity {
     pub create_date: String,
     #[serde(rename = "LastUpdateDate")]
     pub last_update_date: String,
-
     #[serde(rename = "SettingsYamlTemplate")]
     pub yaml_template: String,
 }

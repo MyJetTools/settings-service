@@ -14,13 +14,14 @@ class HtmlMain {
     }
 
     public static generateTemplateContent(templates: ITemplate[]): string {
-        let result = `<table class="table table-striped"><tr><th>Env</th><th>Name</th><th>Created</th><th>Updated</th><th><button class="btn btn-sm btn-primary" onclick="Actions.addTemplate()"><svg class="bi" width="1em" height="1em" fill="currentColor">
+        let result = `<table class="table table-striped"><tr><th>Env</th><th>Name</th><th>Created</th><th>Updated</th><th>LastRequest</th><th><button class="btn btn-sm btn-primary" onclick="Actions.addTemplate()"><svg class="bi" width="1em" height="1em" fill="currentColor">
         <use xlink:href="bootstrap-icons.svg#plus-circle-dotted"></use>
         </svg></button></th></tr>`;
-        for (let template of templates) {
+        for (let template of templates.sort((a, b) => a.name.localeCompare(b.name))) {
             let data = `data-env="` + template.env + `" data-name="` + template.name + `"`;
 
-            result += `<tr><td>${template.env}</td><td>${template.name}</td><td>${template.created}</td><td>${template.updated}</td>
+            let lastRequest = template.lastRequest == 0 ? "" : (new Date(template.lastRequest)).toISOString();
+            result += `<tr><td>${template.env}</td><td>${template.name}</td><td>${template.created}</td><td>${template.updated}</td><td>${lastRequest}</td>
             <td><div class="btn-group">
             <button class="btn btn-sm btn-success" `+ data + ` onclick="Actions.showYaml(this)"><svg class="bi" width="1em" height="1em" fill="currentColor">
             <use xlink:href="bootstrap-icons.svg#eye"></use>
@@ -59,6 +60,7 @@ class HtmlMain {
                 deleteCommandButtonStyle = "btn-danger";
                 deleteAttrs = `onclick="Actions.deleteSecret(this)"`;
             }
+
 
             result += `<tr` + bg + `><td>` + secretsAmount + `</td><td>${secret.name}</td><td id="secret-value-` + secret.name + `"><div style="cursor:pointer" ` + data + ` onclick="Actions.showSecretValue(this)">***</div></td><td>${secret.created}</td><td>${secret.updated}</td>
             <td><div class="btn-group"><button class="btn btn-sm btn-primary" ` + data + ` onclick="Actions.editSecret(this)"><svg class="bi" width="1em" height="1em" fill="currentColor">
