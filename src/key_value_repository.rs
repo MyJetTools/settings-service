@@ -65,14 +65,19 @@ impl KeyValueRepository {
             }
             KeyValueRepositoryStorage::EncodingKey(aes_key) => {
                 if let Some(value) = &entity.value {
-                    let bytes = base64::decode(value).unwrap();
+                    let bytes = base64::decode(value);
+                    if bytes.is_err() {
+                        return Some("".to_string());
+                    }
+
+                    let bytes = bytes.unwrap();
                     let result = aes_key.decrypt(bytes.as_slice());
                     match result {
-                        Ok(result) => Some(String::from_utf8(result).unwrap()),
-                        Err(_) => None,
+                        Ok(result) => return Some(String::from_utf8(result).unwrap()),
+                        Err(_) => return Some("".to_string()),
                     }
                 } else {
-                    None
+                    return Some("".to_string());
                 }
             }
         };
