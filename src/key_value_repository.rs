@@ -196,7 +196,13 @@ fn decode_value(entity: &SecretMyNoSqlEntity, aes_key: &AesKey) -> SecretValue {
 
     match value {
         Some(value) => {
-            let bytes = base64::decode(value).unwrap();
+            let bytes = base64::decode(value);
+
+            if bytes.is_err() {
+                return SecretValue::None;
+            }
+
+            let bytes = bytes.unwrap();
             let result = aes_key.decrypt(bytes.as_slice());
             match result {
                 Ok(result) => SecretValue::Some(String::from_utf8(result).unwrap()),
