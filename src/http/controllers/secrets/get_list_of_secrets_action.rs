@@ -9,6 +9,7 @@ use crate::app_ctx::AppContext;
     method: "POST",
     route: "/api/secrets/getall",
     description: "Get list of secrets",
+    summary: "Returns list of secrets",
     controller: "Secrets",
 
     result:[

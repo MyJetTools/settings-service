@@ -8,7 +8,8 @@ use crate::app_ctx::AppContext;
 #[my_http_server_swagger::http_route(
     method: "POST",
     route: "/api/templates/get",
-    description: "Get list of templates",
+    description: "Get template",
+    summary: "Returns template",
     controller: "Templates",
     input_data: "GetTemplateContract",
 

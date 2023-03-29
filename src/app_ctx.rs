@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use my_azure_key_vault::{BearerTokenManager, MyAzureKeyVault};
-use my_no_sql_data_writer::MyNoSqlDataWriter;
+use my_no_sql_data_writer::{CreateTableParams, MyNoSqlDataWriter};
 use rust_extensions::AppStates;
 
 use crate::{
@@ -29,18 +29,24 @@ impl AppContext {
     pub fn new(settings: SettingsModel) -> Self {
         let templates_storage = MyNoSqlDataWriter::new(
             settings.my_no_sql_server.clone(),
-            "settingstemplate".to_string(),
-            true,
-            true,
-            my_no_sql_server_abstractions::DataSyncronizationPeriod::Sec5,
+            CreateTableParams {
+                persist: true,
+                max_partitions_amount: None,
+                max_rows_per_partition_amount: None,
+            }
+            .into(),
+            my_no_sql_server_abstractions::DataSynchronizationPeriod::Sec5,
         );
 
         let secrets_storage = MyNoSqlDataWriter::new(
             settings.my_no_sql_server.clone(),
-            "settingssecrets".to_string(),
-            true,
-            true,
-            my_no_sql_server_abstractions::DataSyncronizationPeriod::Sec5,
+            CreateTableParams {
+                persist: true,
+                max_partitions_amount: None,
+                max_rows_per_partition_amount: None,
+            }
+            .into(),
+            my_no_sql_server_abstractions::DataSynchronizationPeriod::Sec5,
         );
 
         let key_value_repository = if let Some(key_value_url) = &settings.key_vault_url {
@@ -59,7 +65,7 @@ impl AppContext {
                 secrets_storage,
             )
         } else if let Some(key_value_key) = &settings.key_vault_key {
-            let aes_key = crate::encryption::AesKey::new(key_value_key.as_bytes());
+            let aes_key = encryption::aes::AesKey::new(key_value_key.as_bytes());
             KeyValueRepository::new(
                 KeyValueRepositoryStorage::EncodingKey(aes_key),
                 secrets_storage,

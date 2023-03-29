@@ -9,6 +9,7 @@ use crate::app_ctx::AppContext;
     method: "POST",
     route: "/api/templates/post",
     description: "Add or update template",
+    summary: "Adds or updates template",
     controller: "Templates",
     input_data: "PostTemplateContract",
 

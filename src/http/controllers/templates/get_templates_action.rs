@@ -9,6 +9,7 @@ use crate::app_ctx::AppContext;
     method: "POST",
     route: "/api/templates/getall",
     description: "Get list of templates",
+    summary: "Returns list of templates",
     controller: "Templates",
 
     result:[

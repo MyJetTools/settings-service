@@ -5,7 +5,8 @@ use my_no_sql_data_writer::MyNoSqlDataWriter;
 use rust_extensions::date_time::DateTimeAsMicroseconds;
 use tokio::sync::Mutex;
 
-use crate::{encryption::AesKey, my_no_sql::SecretMyNoSqlEntity};
+use crate::my_no_sql::SecretMyNoSqlEntity;
+use encryption::aes::{AesEncryptedData, AesKey};
 
 pub enum KeyValueRepositoryStorage {
     KeyValue(MyAzureKeyVault),
@@ -55,7 +56,11 @@ impl KeyValueRepository {
 
         let entity = self
             .secrets_storage
-            .get_entity(SecretMyNoSqlEntity::generate_partition_key(), secret_name)
+            .get_entity(
+                SecretMyNoSqlEntity::generate_partition_key(),
+                secret_name,
+                None,
+            )
             .await
             .unwrap()?;
 
@@ -65,15 +70,15 @@ impl KeyValueRepository {
             }
             KeyValueRepositoryStorage::EncodingKey(aes_key) => {
                 if let Some(value) = &entity.value {
-                    let bytes = base64::decode(value);
+                    let bytes = AesEncryptedData::from_base_64(value);
                     if bytes.is_err() {
                         return Some("".to_string());
                     }
 
                     let bytes = bytes.unwrap();
-                    let result = aes_key.decrypt(bytes.as_slice());
+                    let result = aes_key.decrypt(&bytes);
                     match result {
-                        Ok(result) => return Some(String::from_utf8(result).unwrap()),
+                        Ok(result) => return Some(result.into_string()),
                         Err(_) => return Some("".to_string()),
                     }
                 } else {
@@ -121,8 +126,7 @@ impl KeyValueRepository {
             }
             KeyValueRepositoryStorage::EncodingKey(aes_key) => {
                 let encrypted = aes_key.encrypt(secret_value.as_bytes());
-                let value = base64::encode(encrypted);
-                entity.value = Some(value);
+                entity.value = Some(encrypted.as_base_64());
             }
         };
 
@@ -160,7 +164,7 @@ impl KeyValueRepository {
     pub async fn get_all(&self) -> Vec<SecretMyNoSqlEntity> {
         let secrets = self
             .secrets_storage
-            .get_by_partition_key(SecretMyNoSqlEntity::generate_partition_key())
+            .get_by_partition_key(SecretMyNoSqlEntity::generate_partition_key(), None)
             .await
             .unwrap();
 
@@ -173,7 +177,7 @@ impl KeyValueRepository {
     async fn init_all(&self) -> BTreeMap<String, SecretValue> {
         let secrets = self
             .secrets_storage
-            .get_by_partition_key(SecretMyNoSqlEntity::generate_partition_key())
+            .get_by_partition_key(SecretMyNoSqlEntity::generate_partition_key(), None)
             .await
             .unwrap();
 
@@ -201,16 +205,16 @@ fn decode_value(entity: &SecretMyNoSqlEntity, aes_key: &AesKey) -> SecretValue {
 
     match value {
         Some(value) => {
-            let bytes = base64::decode(value);
+            let encrypted_data = AesEncryptedData::from_base_64(value);
 
-            if bytes.is_err() {
+            if encrypted_data.is_err() {
                 return SecretValue::None;
             }
 
-            let bytes = bytes.unwrap();
-            let result = aes_key.decrypt(bytes.as_slice());
+            let encrypted_data = encrypted_data.unwrap();
+            let result = aes_key.decrypt(&encrypted_data);
             match result {
-                Ok(result) => SecretValue::Some(String::from_utf8(result).unwrap()),
+                Ok(result) => SecretValue::Some(result.into_string()),
                 Err(_) => SecretValue::None,
             }
         }

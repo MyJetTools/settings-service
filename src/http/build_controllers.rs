@@ -5,7 +5,7 @@ use my_http_server_controllers::controllers::ControllersMiddleware;
 use crate::app_ctx::AppContext;
 
 pub fn build_controllers(app: &Arc<AppContext>) -> Arc<ControllersMiddleware> {
-    let mut result = ControllersMiddleware::new();
+    let mut result = ControllersMiddleware::new(None, None);
 
     result.register_post_action(Arc::new(super::controllers::secrets::GetSecretAction::new(
         app.clone(),

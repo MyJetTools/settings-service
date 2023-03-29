@@ -9,6 +9,7 @@ use crate::app_ctx::AppContext;
     method: "POST",
     route: "/api/secrets/delete",
     description: "Delete secret",
+    summary: "Deletes secret",
     controller: "Secrets",
     input_data: "DeleteSecretInputContract",
     result:[

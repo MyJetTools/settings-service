@@ -4,7 +4,6 @@ use crate::settings_model::SettingsModel;
 
 mod app_ctx;
 mod caches;
-mod encryption;
 mod env_settings;
 mod http;
 mod key_value_repository;
@@ -14,7 +13,7 @@ mod settings_model;
 
 #[tokio::main]
 async fn main() {
-    let settings = SettingsModel::load(".settings-service").await;
+    let settings = SettingsModel::first_load(".settings-service").await.into();
 
     let app = crate::app_ctx::AppContext::new(settings);
 

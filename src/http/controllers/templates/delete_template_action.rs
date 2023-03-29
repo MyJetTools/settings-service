@@ -8,7 +8,8 @@ use crate::app_ctx::AppContext;
 #[my_http_server_swagger::http_route(
     method: "POST",
     route: "/api/templates/delete",
-    description: "Delete",
+    description: "Delete template",
+    summary: "Deletes template",
     controller: "Templates",
     input_data: "DeleteTemplateContract",
 

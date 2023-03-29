@@ -25,7 +25,7 @@ impl HttpServerMiddleware for SettingsMiddleware {
         ctx: &mut HttpContext,
         get_next: &mut HttpServerRequestFlow,
     ) -> Result<HttpOkResult, HttpFailResult> {
-        let path = ctx.request.get_path_lower_case();
+        let path = ctx.request.get_path().to_lowercase();
 
         let mut env = None;
         let mut name = None;

@@ -5,15 +5,15 @@ use crate::{app_ctx::AppContext, caches::SecretUsage, my_no_sql::SecretMyNoSqlEn
 
 #[derive(MyHttpInput)]
 pub struct PostSecretContract {
-    #[http_form(description = "Name")]
+    #[http_body(description = "Name")]
     pub name: String,
-    #[http_form(description = "Secret")]
+    #[http_body(description = "Secret")]
     pub secret: String,
 }
 
 #[derive(MyHttpInput)]
 pub struct GetSecretContract {
-    #[http_form(description = "Name")]
+    #[http_body(description = "Name")]
     pub name: String,
 }
 
@@ -58,7 +58,7 @@ impl SecretModel {
 
 #[derive(MyHttpInput)]
 pub struct ShowUsageInputContract {
-    #[http_form(description = "Name")]
+    #[http_body(description = "Name")]
     pub name: String,
 }
 
@@ -93,6 +93,6 @@ pub struct SecretUsageModel {
 // Delete secret
 #[derive(MyHttpInput)]
 pub struct DeleteSecretInputContract {
-    #[http_form(description = "Name")]
+    #[http_body(description = "Name")]
     pub name: String,
 }

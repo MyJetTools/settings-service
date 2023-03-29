@@ -7,27 +7,27 @@ use crate::{app_ctx::AppContext, my_no_sql::TemplateMyNoSqlEntity};
 
 #[derive(MyHttpInput)]
 pub struct DeleteTemplateContract {
-    #[http_form(description = "Environment")]
+    #[http_body(description = "Environment")]
     pub env: String,
-    #[http_form(description = "Service name")]
+    #[http_body(description = "Service name")]
     pub name: String,
 }
 
 #[derive(MyHttpInput)]
 pub struct PostTemplateContract {
-    #[http_form(description = "Environment")]
+    #[http_body(description = "Environment")]
     pub env: String,
-    #[http_form(description = "Service name")]
+    #[http_body(description = "Service name")]
     pub name: String,
-    #[http_form(description = "Yaml template")]
+    #[http_body(description = "Yaml template")]
     pub yaml: String,
 }
 
 #[derive(MyHttpInput)]
 pub struct GetTemplateContract {
-    #[http_form(description = "Environment")]
+    #[http_body(description = "Environment")]
     pub env: String,
-    #[http_form(description = "Service name")]
+    #[http_body(description = "Service name")]
     pub name: String,
 }
 
