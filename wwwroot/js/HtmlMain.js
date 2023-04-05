@@ -24,7 +24,7 @@ var HtmlMain = /** @class */ (function () {
         return result + "</table><h3>Total:".concat(templates.length, "</h3>");
     };
     HtmlMain.generateSecretesContent = function (secrets) {
-        var result = "<table class=\"table table-striped\"><tr><th>Used</th><th>Name</th><th>Show</th><th>Created</th><th>Updated</th><th><button class=\"btn btn-sm btn-primary\" onclick=\"Actions.addSecret()\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n        <use xlink:href=\"bootstrap-icons.svg#plus-circle-dotted\"></use>\n        </svg></button></th></tr>";
+        var result = "<table class=\"table table-striped\"><tr><th>Used</th><th></th><th>Name</th><th>Show</th><th>Created</th><th>Updated</th><th><button class=\"btn btn-sm btn-primary\" onclick=\"Actions.addSecret()\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n        <use xlink:href=\"bootstrap-icons.svg#plus-circle-dotted\"></use>\n        </svg></button></th></tr>";
         for (var _i = 0, secrets_1 = secrets; _i < secrets_1.length; _i++) {
             var secret = secrets_1[_i];
             var data = "data-name=\"" + secret.name + "\"";
@@ -43,7 +43,7 @@ var HtmlMain = /** @class */ (function () {
                 deleteCommandButtonStyle = "btn-danger";
                 deleteAttrs = "onclick=\"Actions.deleteSecret(this)\"";
             }
-            result += "<tr" + bg + "><td>" + secretsAmount + "</td><td>".concat(secret.name, "</td><td id=\"secret-value-") + secret.name + "\"><div style=\"cursor:pointer\" " + data + " onclick=\"Actions.showSecretValue(this)\">***</div></td><td>".concat(secret.created, "</td><td>").concat(secret.updated, "</td>\n            <td><div class=\"btn-group\"><button class=\"btn btn-sm btn-primary\" ") + data + " onclick=\"Actions.editSecret(this)\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n            <use xlink:href=\"bootstrap-icons.svg#pen\"></use>\n            </svg></button><button class=\"btn btn-sm " + deleteCommandButtonStyle + "\" " + data + " " + deleteAttrs + "><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n            <use xlink:href=\"bootstrap-icons.svg#eraser-fill\"></use>\n            </svg></button></div></td></tr>";
+            result += "<tr" + bg + "><td>" + secretsAmount + "</td><td>".concat(secret.level, "</td><td>").concat(secret.name, "</td><td id=\"secret-value-") + secret.name + "\"><div style=\"cursor:pointer\" " + data + " onclick=\"Actions.showSecretValue(this)\">***</div></td><td>".concat(secret.created, "</td><td>").concat(secret.updated, "</td>\n            <td><div class=\"btn-group\"><button class=\"btn btn-sm btn-primary\" ") + data + " onclick=\"Actions.editSecret(this)\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n            <use xlink:href=\"bootstrap-icons.svg#pen\"></use>\n            </svg></button><button class=\"btn btn-sm " + deleteCommandButtonStyle + "\" " + data + " " + deleteAttrs + "><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n            <use xlink:href=\"bootstrap-icons.svg#eraser-fill\"></use>\n            </svg></button></div></td></tr>";
         }
         return result + "</table><h3>Total:".concat(secrets.length, "</h3>");
     };
