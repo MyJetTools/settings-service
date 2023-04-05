@@ -1,6 +1,6 @@
 use crate::app_ctx::AppContext;
 
-pub async fn get_used_secret_amount(app: &AppContext, secret_name: &str) -> usize {
+pub async fn get_used_secret_amount_by_template(app: &AppContext, secret_name: &str) -> usize {
     if !app.templates_cache.is_initialized() {
         let templates = app.templates_storage.get_all().await.unwrap();
         app.templates_cache.init(templates).await;
@@ -11,4 +11,21 @@ pub async fn get_used_secret_amount(app: &AppContext, secret_name: &str) -> usiz
     app.templates_cache
         .get_used_secret_amount(secret_name.as_str())
         .await
+}
+
+pub async fn get_used_secret_amount_by_secret(app: &AppContext, secret_name: &str) -> usize {
+    let secrets = app.key_value_repository.get_all().await;
+
+    let secret_name = format!("${{{}}}", secret_name);
+
+    let mut amount = 0;
+    for secret in secrets {
+        if let Some(value) = &secret.value {
+            if value.contains(secret_name.as_str()) {
+                amount += 1;
+            }
+        }
+    }
+
+    amount
 }

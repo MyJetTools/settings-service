@@ -64,7 +64,10 @@ impl ListOfSecretsContract {
 
 #[derive(Serialize, Deserialize, Debug, MyHttpObjectStructure)]
 pub struct SecretModel {
-    amount: usize,
+    #[serde(rename = "templatesAmount")]
+    templates_amount: usize,
+    #[serde(rename = "secretsAmount")]
+    secrets_amount: usize,
     name: String,
     created: String,
     updated: String,
@@ -77,8 +80,17 @@ impl SecretModel {
             name: itm.row_key.to_string(),
             created: itm.create_date.to_string(),
             updated: itm.last_update_date.to_string(),
-            amount: crate::operations::secrets::get_used_secret_amount(app, itm.row_key.as_str())
-                .await,
+            templates_amount: crate::operations::secrets::get_used_secret_amount_by_template(
+                app,
+                itm.row_key.as_str(),
+            )
+            .await,
+
+            secrets_amount: crate::operations::secrets::get_used_secret_amount_by_secret(
+                app,
+                itm.row_key.as_str(),
+            )
+            .await,
             level: itm.level.unwrap_or(0),
         }
     }

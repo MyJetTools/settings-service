@@ -8,7 +8,8 @@ interface ITemplate {
 
 
 interface ISecret {
-    amount: number,
+    templatesAmount: number,
+    secretsAmount: number,
     name: string,
     created: string,
     updated: string,

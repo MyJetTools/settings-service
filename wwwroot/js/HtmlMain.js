@@ -32,18 +32,19 @@ var HtmlMain = /** @class */ (function () {
             var bg = "";
             var deleteCommandButtonStyle = "";
             var deleteAttrs = "";
-            if (secret.amount > 0) {
-                secretsAmount = "<span class=\"badge badge-success\" " + data + " style=\"background: green;cursor:pointer;\" onclick=\"Actions.showSecretUsage(this)\">".concat(secret.amount, "</span>");
-                deleteCommandButtonStyle = "btn-default";
-                deleteAttrs = "disabled=\"disabled\"";
-            }
-            else {
+            var usedAmount = secret.templatesAmount + secret.secretsAmount;
+            if (usedAmount == 0) {
                 bg = ' style="background: #ff000017;"';
-                secretsAmount = "<span class=\"badge badge-success\" style=\"background: red;\">0</span>";
+                secretsAmount = "<span class=\"badge badge-success\" style=\"background: red;\">0</span><span class=\"badge badge-success\" style=\"background: red;\">0</span>";
                 deleteCommandButtonStyle = "btn-danger";
                 deleteAttrs = "onclick=\"Actions.deleteSecret(this)\"";
             }
-            result += "<tr" + bg + "><td>" + secretsAmount + "</td><td>".concat(secret.level, "</td><td>").concat(secret.name, "</td><td id=\"secret-value-") + secret.name + "\"><div style=\"cursor:pointer\" " + data + " onclick=\"Actions.showSecretValue(this)\">***</div></td><td>".concat(secret.created, "</td><td>").concat(secret.updated, "</td>\n            <td><div class=\"btn-group\"><button class=\"btn btn-sm btn-primary\" ") + data + " onclick=\"Actions.editSecret(this)\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n            <use xlink:href=\"bootstrap-icons.svg#pen\"></use>\n            </svg></button><button class=\"btn btn-sm " + deleteCommandButtonStyle + "\" " + data + " " + deleteAttrs + "><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n            <use xlink:href=\"bootstrap-icons.svg#eraser-fill\"></use>\n            </svg></button></div></td></tr>";
+            else {
+                secretsAmount = "<span class=\"badge badge-success\" ".concat(data, " style=\"background: green;cursor:pointer;\" onclick=\"Actions.showSecretUsage(this)\">").concat(secret.templatesAmount, "</span><span class=\"badge badge-success\" ").concat(data, " style=\"background: green;cursor:pointer;\">").concat(secret.secretsAmount, "</span>");
+                deleteCommandButtonStyle = "btn-default";
+                deleteAttrs = "disabled=\"disabled\"";
+            }
+            result += "<tr" + bg + "><td>".concat(secretsAmount, "</td><td>").concat(secret.level, "</td><td>").concat(secret.name, "</td><td id=\"secret-value-") + secret.name + "\"><div style=\"cursor:pointer\" " + data + " onclick=\"Actions.showSecretValue(this)\">***</div></td><td>".concat(secret.created, "</td><td>").concat(secret.updated, "</td>\n            <td><div class=\"btn-group\"><button class=\"btn btn-sm btn-primary\" ") + data + " onclick=\"Actions.editSecret(this)\"><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n            <use xlink:href=\"bootstrap-icons.svg#pen\"></use>\n            </svg></button><button class=\"btn btn-sm " + deleteCommandButtonStyle + "\" " + data + " " + deleteAttrs + "><svg class=\"bi\" width=\"1em\" height=\"1em\" fill=\"currentColor\">\n            <use xlink:href=\"bootstrap-icons.svg#eraser-fill\"></use>\n            </svg></button></div></td></tr>";
         }
         return result + "</table><h3>Total:".concat(secrets.length, "</h3>");
     };
