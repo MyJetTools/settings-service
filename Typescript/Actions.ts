@@ -135,9 +135,9 @@ class Actions {
 
         let data = { name };
 
-        $.ajax({ type: "POST", url: "/api/secrets/get", data })
-            .then((data: ISecretValue) => {
-                elToUpdate.innerHTML = data.value;
+        $.ajax({ type: "POST", url: "/api/secrets/show", data })
+            .then((data) => {
+                elToUpdate.innerHTML = data;
             })
             .fail(() => {
 

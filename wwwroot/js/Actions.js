@@ -104,9 +104,9 @@ var Actions = /** @class */ (function () {
         var elToUpdate = document.getElementById("secret-value-" + name);
         elToUpdate.innerHTML = '<img src="/img/loading.gif" style="height:32px"></img>';
         var data = { name: name };
-        $.ajax({ type: "POST", url: "/api/secrets/get", data: data })
+        $.ajax({ type: "POST", url: "/api/secrets/show", data: data })
             .then(function (data) {
-            elToUpdate.innerHTML = data.value;
+            elToUpdate.innerHTML = data;
         })
             .fail(function () {
         });
