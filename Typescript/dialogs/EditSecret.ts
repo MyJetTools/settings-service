@@ -37,7 +37,7 @@ class EditSecretDialog implements IDialog {
     }
 
 
-    populate(viewModel: IEditSecret) {
+    populate(viewModel: IEditSecretDialogModel) {
         this.viewModel = viewModel;
         this.edtName = document.getElementById('edtName') as HTMLInputElement;
         this.edtSecret = document.getElementById('edtSecret') as HTMLInputElement;
@@ -50,7 +50,7 @@ class EditSecretDialog implements IDialog {
         }
     };
 
-    check(): IEditSecret {
+    check(): IEditSecretDialogModel {
 
         if (!passElement(this.edtName)) {
             return undefined;
@@ -72,7 +72,7 @@ class EditSecretDialog implements IDialog {
         }
     }
 
-    public ok(data: IEditSecret) {
+    public ok(data: IEditSecretDialogModel) {
         $.ajax({ type: "POST", url: "/api/secrets/post", data })
             .then(() => {
                 Actions.loadSecrets();
@@ -82,7 +82,7 @@ class EditSecretDialog implements IDialog {
             });
     }
 
-    viewModel: IEditSecret;
+    viewModel: IEditSecretDialogModel;
 
     constructor(title: string) {
         this.title = title;

@@ -27,7 +27,7 @@ class Actions {
 
     public static addTemplate() {
 
-        let dialog = new EditTemlateDialog("Add template");
+        let dialog = new EditTemplateDialog("Add template");
         Dialog.show(dialog);
         Dialog.populateData(undefined);
     }
@@ -38,7 +38,7 @@ class Actions {
 
         let data = { env, name };
 
-        let dialog = new EditTemlateDialog("Edit template");
+        let dialog = new EditTemplateDialog("Edit template");
         Dialog.show(dialog);
         $.ajax({ type: "POST", url: "/api/templates/get", data })
             .then(data => {
@@ -91,8 +91,11 @@ class Actions {
         Dialog.show(dialog);
 
         $.ajax({ type: "POST", url: "/api/secrets/get", data })
-            .then(data => {
-                Dialog.populateData({ name, secret: data });
+            .then((data: ISecretValue) => {
+                let value: IEditSecretDialogModel = {
+                    name, secret: data.value, level: data.level
+                };
+                Dialog.populateData(value);
             })
             .fail(() => {
 
@@ -133,8 +136,8 @@ class Actions {
         let data = { name };
 
         $.ajax({ type: "POST", url: "/api/secrets/get", data })
-            .then(data => {
-                elToUpdate.innerHTML = data;
+            .then((data: ISecretValue) => {
+                elToUpdate.innerHTML = data.value;
             })
             .fail(() => {
 
@@ -168,6 +171,9 @@ class Actions {
             });
 
     }
+
+
+
 }
 
 

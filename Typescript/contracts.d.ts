@@ -26,9 +26,14 @@ interface IDeleteTemplateModel {
     name: string,
 }
 
-interface IEditSecret {
+interface IEditSecretDialogModel {
     name: string,
     secret: string,
+    level: number,
+}
+
+interface ISecretValue {
+    value: string,
     level: number,
 }
 

@@ -1,7 +1,10 @@
 use my_http_server_swagger::{MyHttpInput, MyHttpObjectStructure};
 use serde::{Deserialize, Serialize};
 
-use crate::{app_ctx::AppContext, caches::SecretUsage, my_no_sql::SecretMyNoSqlEntity};
+use crate::{
+    app_ctx::AppContext, caches::SecretUsage, key_value_repository::SecretValue,
+    my_no_sql::SecretMyNoSqlEntity,
+};
 
 #[derive(MyHttpInput)]
 pub struct PostSecretContract {
@@ -13,10 +16,33 @@ pub struct PostSecretContract {
     pub level: u8,
 }
 
+impl Into<SecretValue> for PostSecretContract {
+    fn into(self) -> SecretValue {
+        SecretValue {
+            value: self.secret,
+            level: self.level,
+        }
+    }
+}
+
 #[derive(MyHttpInput)]
 pub struct GetSecretContract {
     #[http_body(description = "Name")]
     pub name: String,
+}
+#[derive(Serialize, Debug, MyHttpObjectStructure)]
+pub struct SecretHttpModel {
+    pub value: String,
+    pub level: u8,
+}
+
+impl Into<SecretHttpModel> for SecretValue {
+    fn into(self) -> SecretHttpModel {
+        SecretHttpModel {
+            value: self.value,
+            level: self.level,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, MyHttpObjectStructure)]

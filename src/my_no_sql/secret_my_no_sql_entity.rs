@@ -1,5 +1,7 @@
 use serde::*;
 
+use crate::key_value_repository::SecretValue;
+
 #[my_no_sql_macros::my_no_sql_entity("settingssecrets")]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SecretMyNoSqlEntity {
@@ -16,5 +18,16 @@ pub struct SecretMyNoSqlEntity {
 impl SecretMyNoSqlEntity {
     pub fn generate_partition_key() -> &'static str {
         "SettingsSecrets"
+    }
+
+    pub fn get_level(&self) -> u8 {
+        self.level.unwrap_or(0)
+    }
+
+    pub fn to_empty_value(&self) -> SecretValue {
+        SecretValue {
+            value: "".to_string(),
+            level: self.get_level(),
+        }
     }
 }

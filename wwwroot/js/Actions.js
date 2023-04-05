@@ -21,7 +21,7 @@ var Actions = /** @class */ (function () {
         }
     };
     Actions.addTemplate = function () {
-        var dialog = new EditTemlateDialog("Add template");
+        var dialog = new EditTemplateDialog("Add template");
         Dialog.show(dialog);
         Dialog.populateData(undefined);
     };
@@ -29,7 +29,7 @@ var Actions = /** @class */ (function () {
         var env = el.getAttribute('data-env');
         var name = el.getAttribute('data-name');
         var data = { env: env, name: name };
-        var dialog = new EditTemlateDialog("Edit template");
+        var dialog = new EditTemplateDialog("Edit template");
         Dialog.show(dialog);
         $.ajax({ type: "POST", url: "/api/templates/get", data: data })
             .then(function (data) {
@@ -71,7 +71,11 @@ var Actions = /** @class */ (function () {
         Dialog.show(dialog);
         $.ajax({ type: "POST", url: "/api/secrets/get", data: data })
             .then(function (data) {
-            Dialog.populateData({ name: name, secret: data });
+            var value = {
+                name: name,
+                secret: data.value, level: data.level
+            };
+            Dialog.populateData(value);
         })
             .fail(function () {
         });
@@ -102,7 +106,7 @@ var Actions = /** @class */ (function () {
         var data = { name: name };
         $.ajax({ type: "POST", url: "/api/secrets/get", data: data })
             .then(function (data) {
-            elToUpdate.innerHTML = data;
+            elToUpdate.innerHTML = data.value;
         })
             .fail(function () {
         });

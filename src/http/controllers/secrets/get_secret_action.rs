@@ -13,7 +13,7 @@ use crate::app_ctx::AppContext;
     controller: "Secrets",
     input_data: "GetSecretContract",
     result:[
-        {status_code: 200, description: "Ok response"},
+        {status_code: 200, description: "Ok response", model: "SecretHttpModel"},
     ]
 )]
 pub struct GetSecretAction {
@@ -38,7 +38,10 @@ async fn handle_request(
         .await;
 
     match result {
-        Some(result) => HttpOutput::as_text(result).into_ok_result(false),
+        Some(result) => {
+            let model: SecretHttpModel = result.into();
+            HttpOutput::as_json(model).into_ok_result(false)
+        }
         None => Err(HttpFailResult::as_not_found(
             "Secret not found".to_string(),
             false,

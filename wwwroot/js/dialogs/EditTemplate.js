@@ -1,18 +1,18 @@
-var EditTemlateDialog = /** @class */ (function () {
-    function EditTemlateDialog(title) {
+var EditTemplateDialog = /** @class */ (function () {
+    function EditTemplateDialog(title) {
         this.hideCancelBtn = false;
         this.title = title;
     }
-    EditTemlateDialog.prototype.getWidth = function () {
+    EditTemplateDialog.prototype.getWidth = function () {
         return undefined;
     };
-    EditTemlateDialog.prototype.getOkBtnName = function () {
+    EditTemplateDialog.prototype.getOkBtnName = function () {
         return "Save";
     };
-    EditTemlateDialog.prototype.getContent = function () {
+    EditTemplateDialog.prototype.getContent = function () {
         return "\n        <div class=\"form-floating mb-3\">\n        <input class=\"form-control\" id=\"edtEnv\" name=\"env\">\n        <label for=\"edtEnv\">Env</label>\n        </div>\n\n        <div class=\"form-floating mb-3\">\n        <input class=\"form-control\" id=\"edtName\" name=\"name\">\n        <label for=\"edtName\">Name</label>\n        </div>\n\n        <div class=\"form-floating\">\n        <textarea class=\"form-control\" style=\"min-height:500px;font-family: monospace;\" id=\"edtYaml\"  name=\"yaml\"></textarea>\n        <label for=\"edtYaml\">Yaml</label>\n        </div>";
     };
-    EditTemlateDialog.prototype.populate = function (viewModel) {
+    EditTemplateDialog.prototype.populate = function (viewModel) {
         this.viewModel = viewModel;
         this.edtEnv = document.getElementById('edtEnv');
         this.edtName = document.getElementById('edtName');
@@ -26,7 +26,7 @@ var EditTemlateDialog = /** @class */ (function () {
         }
     };
     ;
-    EditTemlateDialog.prototype.check = function () {
+    EditTemplateDialog.prototype.check = function () {
         if (!passElement(this.edtEnv)) {
             return undefined;
         }
@@ -42,7 +42,7 @@ var EditTemlateDialog = /** @class */ (function () {
             yaml: this.edtYaml.value
         };
     };
-    EditTemlateDialog.prototype.ok = function (data) {
+    EditTemplateDialog.prototype.ok = function (data) {
         $.ajax({ type: "POST", url: "/api/templates/post", data: data })
             .then(function () {
             Actions.loadTemplates();
@@ -50,7 +50,7 @@ var EditTemlateDialog = /** @class */ (function () {
             .fail(function () {
         });
     };
-    return EditTemlateDialog;
+    return EditTemplateDialog;
 }());
 function passElement(edt) {
     console.log(edt.id);

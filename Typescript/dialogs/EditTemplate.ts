@@ -1,4 +1,4 @@
-class EditTemlateDialog implements IDialog {
+class EditTemplateDialog implements IDialog {
     title: string;
 
     hideCancelBtn = false;
