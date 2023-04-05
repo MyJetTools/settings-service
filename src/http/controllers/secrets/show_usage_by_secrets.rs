@@ -7,7 +7,7 @@ use crate::app_ctx::AppContext;
 
 #[my_http_server_swagger::http_route(
     method: "POST",
-    route: "/api/secrets/usage",
+    route: "/api/secrets/usageBySecrets",
     description: "Get secret",
     summary: "Returns secret",
     controller: "Secrets",
