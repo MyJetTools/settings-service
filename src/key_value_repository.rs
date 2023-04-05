@@ -108,7 +108,7 @@ impl KeyValueRepository {
             );
         }
     }
-    pub async fn set_secret(&self, secret_name: &str, secret_value: &str) {
+    pub async fn set_secret(&self, secret_name: &str, secret_value: &str, level: u8) {
         let now = DateTimeAsMicroseconds::now().to_rfc3339();
 
         let mut entity = SecretMyNoSqlEntity {
@@ -118,6 +118,7 @@ impl KeyValueRepository {
             create_date: now.clone(),
             last_update_date: now,
             value: None,
+            level: Some(level),
         };
 
         match &self.storage {

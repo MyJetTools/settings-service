@@ -34,7 +34,11 @@ async fn handle_request(
     action
         .app
         .key_value_repository
-        .set_secret(input_data.name.as_str(), input_data.secret.as_str())
+        .set_secret(
+            input_data.name.as_str(),
+            input_data.secret.as_str(),
+            input_data.level,
+        )
         .await;
 
     HttpOutput::Empty.into_ok_result(false)

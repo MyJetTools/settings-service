@@ -14,6 +14,7 @@ class EditSecretDialog implements IDialog {
 
     edtName: HTMLInputElement
     edtSecret: HTMLInputElement
+    edtLevel: HTMLInputElement
 
     getContent() {
         return `
@@ -25,7 +26,14 @@ class EditSecretDialog implements IDialog {
       <div class="form-floating">
       <input class="form-control" id="edtSecret" name="secret">
       <label for="edtSecret">Secret</label>
+      </div>
+      
+      
+      <div class="form-floating">
+      <input class="form-control" id="edtLevel" name="secret">
+      <label for="edtLevel">Level</label>
       </div>`;
+
     }
 
 
@@ -33,10 +41,12 @@ class EditSecretDialog implements IDialog {
         this.viewModel = viewModel;
         this.edtName = document.getElementById('edtName') as HTMLInputElement;
         this.edtSecret = document.getElementById('edtSecret') as HTMLInputElement;
+        this.edtLevel = document.getElementById('edtLevel') as HTMLInputElement;
         if (this.viewModel) {
             this.edtName.value = this.viewModel.name;
             this.edtName.readOnly = true;
             this.edtSecret.value = this.viewModel.secret;
+            this.edtSecret.value = this.viewModel.level.toString();
         }
     };
 
@@ -50,9 +60,15 @@ class EditSecretDialog implements IDialog {
             return undefined;
         }
 
+
+        if (!passElement(this.edtLevel)) {
+            return undefined;
+        }
+
         return {
             name: this.edtName.value,
-            secret: this.edtSecret.value
+            secret: this.edtSecret.value,
+            level: parseInt(this.edtLevel.value)
         }
     }
 

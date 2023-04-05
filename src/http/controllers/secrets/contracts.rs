@@ -9,6 +9,8 @@ pub struct PostSecretContract {
     pub name: String,
     #[http_body(description = "Secret")]
     pub secret: String,
+    #[http_body(description = "Level")]
+    pub level: u8,
 }
 
 #[derive(MyHttpInput)]
@@ -40,6 +42,7 @@ pub struct SecretModel {
     name: String,
     created: String,
     updated: String,
+    level: u8,
 }
 
 impl SecretModel {
@@ -50,6 +53,7 @@ impl SecretModel {
             updated: itm.last_update_date.to_string(),
             amount: crate::operations::secrets::get_used_secret_amount(app, itm.row_key.as_str())
                 .await,
+            level: itm.level.unwrap_or(0),
         }
     }
 }

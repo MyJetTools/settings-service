@@ -12,6 +12,7 @@ interface ISecret {
     name: string,
     created: string,
     updated: string,
+    level: number,
 }
 
 interface IEditTemplateModel {
@@ -28,6 +29,7 @@ interface IDeleteTemplateModel {
 interface IEditSecret {
     name: string,
     secret: string,
+    level: number,
 }
 
 interface IDeleteSecretModel {
