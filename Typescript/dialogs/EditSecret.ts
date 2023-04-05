@@ -23,13 +23,13 @@ class EditSecretDialog implements IDialog {
         <label for="edtName">Name</label>
         </div>
 
-      <div class="form-floating">
+      <div class="form-floating mb-3">
       <input class="form-control" id="edtSecret" name="secret">
       <label for="edtSecret">Secret</label>
       </div>
       
       
-      <div class="form-floating">
+      <div class="form-floating mb-3">
       <input class="form-control" id="edtLevel" name="secret">
       <label for="edtLevel">Level</label>
       </div>`;
@@ -46,7 +46,7 @@ class EditSecretDialog implements IDialog {
             this.edtName.value = this.viewModel.name;
             this.edtName.readOnly = true;
             this.edtSecret.value = this.viewModel.secret;
-            this.edtSecret.value = this.viewModel.level.toString();
+            this.edtLevel.value = this.viewModel.level.toString();
         }
     };
 

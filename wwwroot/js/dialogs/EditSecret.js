@@ -10,7 +10,7 @@ var EditSecretDialog = /** @class */ (function () {
         return "Save";
     };
     EditSecretDialog.prototype.getContent = function () {
-        return "\n        <div class=\"form-floating mb-3\">\n        <input class=\"form-control\" id=\"edtName\" name=\"name\">\n        <label for=\"edtName\">Name</label>\n        </div>\n\n      <div class=\"form-floating\">\n      <input class=\"form-control\" id=\"edtSecret\" name=\"secret\">\n      <label for=\"edtSecret\">Secret</label>\n      </div>\n      \n      \n      <div class=\"form-floating\">\n      <input class=\"form-control\" id=\"edtLevel\" name=\"secret\">\n      <label for=\"edtLevel\">Level</label>\n      </div>";
+        return "\n        <div class=\"form-floating mb-3\">\n        <input class=\"form-control\" id=\"edtName\" name=\"name\">\n        <label for=\"edtName\">Name</label>\n        </div>\n\n      <div class=\"form-floating mb-3\">\n      <input class=\"form-control\" id=\"edtSecret\" name=\"secret\">\n      <label for=\"edtSecret\">Secret</label>\n      </div>\n      \n      \n      <div class=\"form-floating mb-3\">\n      <input class=\"form-control\" id=\"edtLevel\" name=\"secret\">\n      <label for=\"edtLevel\">Level</label>\n      </div>";
     };
     EditSecretDialog.prototype.populate = function (viewModel) {
         this.viewModel = viewModel;
@@ -21,7 +21,7 @@ var EditSecretDialog = /** @class */ (function () {
             this.edtName.value = this.viewModel.name;
             this.edtName.readOnly = true;
             this.edtSecret.value = this.viewModel.secret;
-            this.edtSecret.value = this.viewModel.level.toString();
+            this.edtLevel.value = this.viewModel.level.toString();
         }
     };
     ;
