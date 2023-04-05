@@ -32,10 +32,10 @@ async fn handle_request(
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
     let result =
-        crate::operations::show_populated_secret(&action.app, input_data.name.as_str()).await;
+        crate::operations::get_populated_secret(&action.app, input_data.name.as_str()).await;
 
     match result {
-        Some(result) => HttpOutput::as_text(result).into_ok_result(false),
+        Some(result) => HttpOutput::as_text(result.value).into_ok_result(false),
         None => Err(HttpFailResult::as_not_found(
             "Secret not found".to_string(),
             false,

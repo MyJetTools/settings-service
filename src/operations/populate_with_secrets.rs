@@ -37,8 +37,8 @@ pub async fn populate_with_secrets(
                     } else {
                         result.extend_from_slice(
                             format!(
-                                "Secret has {} level. But minimum level required: {}",
-                                value.level, min_level,
+                                "Secret has {} level. But required level is {}",
+                                value.level, min_level
                             )
                             .as_bytes(),
                         );
