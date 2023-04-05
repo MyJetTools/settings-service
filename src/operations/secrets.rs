@@ -19,11 +19,18 @@ pub async fn get_used_secret_amount_by_secret(app: &AppContext, secret_name: &st
     let secret_name = format!("${{{}}}", secret_name);
 
     let mut amount = 0;
+
     for secret in secrets {
-        if let Some(value) = &secret.value {
-            if value.contains(secret_name.as_str()) {
+        let value = app
+            .key_value_repository
+            .get_secret(&secret.get_secret_name())
+            .await;
+
+        if let Some(value) = value {
+            if value.value.contains(secret_name.as_str()) {
                 amount += 1;
             }
+        } else {
         }
     }
 

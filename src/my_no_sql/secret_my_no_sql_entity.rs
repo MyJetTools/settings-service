@@ -20,6 +20,10 @@ impl SecretMyNoSqlEntity {
         "SettingsSecrets"
     }
 
+    pub fn get_secret_name(&self) -> &str {
+        self.row_key.as_str()
+    }
+
     pub fn get_level(&self) -> u8 {
         self.level.unwrap_or(0)
     }

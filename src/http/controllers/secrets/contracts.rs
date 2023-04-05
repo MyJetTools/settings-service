@@ -82,13 +82,13 @@ impl SecretModel {
             updated: itm.last_update_date.to_string(),
             templates_amount: crate::operations::secrets::get_used_secret_amount_by_template(
                 app,
-                itm.row_key.as_str(),
+                itm.get_secret_name(),
             )
             .await,
 
             secrets_amount: crate::operations::secrets::get_used_secret_amount_by_secret(
                 app,
-                itm.row_key.as_str(),
+                itm.get_secret_name(),
             )
             .await,
             level: itm.level.unwrap_or(0),
