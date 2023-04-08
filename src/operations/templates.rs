@@ -4,15 +4,6 @@ use rust_extensions::date_time::DateTimeAsMicroseconds;
 
 use crate::{app_ctx::AppContext, my_no_sql::TemplateMyNoSqlEntity};
 
-pub async fn get_all(app: &AppContext) -> Vec<Arc<TemplateMyNoSqlEntity>> {
-    if !app.templates_cache.is_initialized() {
-        let templates = app.templates_storage.get_all().await.unwrap();
-        app.templates_cache.init(templates).await;
-    }
-
-    app.templates_cache.get_all().await
-}
-
 pub async fn get(app: &AppContext, evn: &str, name: &str) -> Option<Arc<TemplateMyNoSqlEntity>> {
     if !app.templates_cache.is_initialized() {
         let templates = app.templates_storage.get_all().await.unwrap();
@@ -67,7 +58,7 @@ pub async fn delete(app: &AppContext, evn: String, name: String) {
 
 pub async fn get_populated_template(app: &AppContext, evn: &str, name: &str) -> Option<String> {
     let template = get(app, evn, name).await?;
-    super::populate_with_secrets(app, template.yaml_template.as_str(), 0)
+    super::populate_with_secrets(app, template.yaml_template.as_str(), None)
         .await
         .into()
 }

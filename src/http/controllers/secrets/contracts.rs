@@ -2,7 +2,8 @@ use my_http_server_swagger::{MyHttpInput, MyHttpObjectStructure};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    app_ctx::AppContext, caches::SecretUsage, key_value_repository::SecretValue,
+    app_ctx::AppContext,
+    caches::{SecretUsage, SecretValue},
     my_no_sql::SecretMyNoSqlEntity,
 };
 
@@ -137,4 +138,10 @@ pub struct SecretUsageModel {
 pub struct DeleteSecretInputContract {
     #[http_body(description = "Name")]
     pub name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, MyHttpObjectStructure)]
+pub struct SecretSecretUsageHttpModel {
+    pub name: String,
+    pub value: String,
 }

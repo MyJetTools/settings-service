@@ -106,23 +106,6 @@ impl TemplatesCache {
 
         result
     }
-
-    pub async fn get_secret_usages(&self, contains: &str) -> Vec<SecretUsage> {
-        let mut result = Vec::new();
-        let read_access = self.items.lock().await;
-
-        for itm in read_access.as_ref().unwrap() {
-            if itm.yaml_template.contains(contains) {
-                result.push(SecretUsage {
-                    env: itm.partition_key.clone(),
-                    name: itm.row_key.clone(),
-                    yaml: itm.yaml_template.clone(),
-                });
-            }
-        }
-
-        result
-    }
 }
 
 fn get_no(src: &Vec<Arc<TemplateMyNoSqlEntity>>, env: &str, name: &str) -> Option<usize> {

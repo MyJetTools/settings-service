@@ -5,9 +5,9 @@ use my_no_sql_data_writer::{CreateTableParams, MyNoSqlDataWriter};
 use rust_extensions::AppStates;
 
 use crate::{
-    caches::{LastRequestTimeCache, TemplatesCache},
+    caches::{LastRequestTimeCache, SecretsValuesCache, TemplatesCache},
     env_settings::EnvSettings,
-    key_value_repository::{KeyValueRepository, KeyValueRepositoryStorage},
+    key_value_repository::{KeyValueRepositoryStorage, SecretsRepository},
     my_no_sql::TemplateMyNoSqlEntity,
     settings_model::SettingsModel,
 };
@@ -17,11 +17,13 @@ pub const APP_NAME: &'static str = env!("CARGO_PKG_NAME");
 
 pub struct AppContext {
     pub settings: SettingsModel,
+
+    pub secret_values_cache: SecretsValuesCache,
     pub app_states: Arc<AppStates>,
     pub templates_storage: MyNoSqlDataWriter<TemplateMyNoSqlEntity>,
     pub process_id: String,
     pub templates_cache: TemplatesCache,
-    pub key_value_repository: KeyValueRepository,
+    pub secrets_repository: SecretsRepository,
     pub last_request: LastRequestTimeCache,
 }
 
@@ -49,24 +51,24 @@ impl AppContext {
             my_no_sql_server_abstractions::DataSynchronizationPeriod::Sec5,
         );
 
-        let key_value_repository = if let Some(key_value_url) = &settings.key_vault_url {
+        let secrets_repository = if let Some(key_value_url) = &settings.key_vault_url {
             let env_settings = EnvSettings::load();
 
             let token_manager = BearerTokenManager::new(
-                env_settings.azure_tennant_id,
+                env_settings.azure_tenant_id,
                 env_settings.azure_client_id,
                 env_settings.azure_client_secret,
             );
             let key_vault_client =
                 MyAzureKeyVault::new(Arc::new(token_manager), key_value_url.to_string());
 
-            KeyValueRepository::new(
+            SecretsRepository::new(
                 KeyValueRepositoryStorage::KeyValue(key_vault_client),
                 secrets_storage,
             )
         } else if let Some(key_value_key) = &settings.key_vault_key {
             let aes_key = encryption::aes::AesKey::new(key_value_key.as_bytes());
-            KeyValueRepository::new(
+            SecretsRepository::new(
                 KeyValueRepositoryStorage::EncodingKey(aes_key),
                 secrets_storage,
             )
@@ -79,9 +81,11 @@ impl AppContext {
             app_states: Arc::new(AppStates::create_initialized()),
             templates_storage,
             process_id: uuid::Uuid::new_v4().to_string(),
-            key_value_repository,
+            secrets_repository,
             templates_cache: TemplatesCache::new(),
             last_request: LastRequestTimeCache::new(),
+
+            secret_values_cache: SecretsValuesCache::new(),
         }
     }
 }

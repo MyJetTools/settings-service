@@ -1,11 +1,11 @@
-use std::collections::BTreeMap;
-
 use my_azure_key_vault::MyAzureKeyVault;
 use my_no_sql_data_writer::MyNoSqlDataWriter;
 use rust_extensions::date_time::DateTimeAsMicroseconds;
-use tokio::sync::Mutex;
 
-use crate::my_no_sql::SecretMyNoSqlEntity;
+use crate::{
+    caches::{SecretValue, SecretsCache},
+    my_no_sql::SecretMyNoSqlEntity,
+};
 use encryption::aes::{AesEncryptedData, AesKey};
 
 pub enum KeyValueRepositoryStorage {
@@ -13,25 +13,13 @@ pub enum KeyValueRepositoryStorage {
     EncodingKey(AesKey),
 }
 
-#[derive(Debug, Clone)]
-pub struct SecretValue {
-    pub value: String,
-    pub level: u8,
-}
-
-pub enum SecretCacheValue {
-    Unknown,
-    None,
-    Some(SecretValue),
-}
-
-pub struct KeyValueRepository {
-    cache: Mutex<Option<BTreeMap<String, SecretCacheValue>>>,
+pub struct SecretsRepository {
+    secrets_cache: SecretsCache,
     storage: KeyValueRepositoryStorage,
     pub secrets_storage: MyNoSqlDataWriter<SecretMyNoSqlEntity>,
 }
 
-impl KeyValueRepository {
+impl SecretsRepository {
     pub fn new(
         storage: KeyValueRepositoryStorage,
         secrets_storage: MyNoSqlDataWriter<SecretMyNoSqlEntity>,
@@ -39,36 +27,26 @@ impl KeyValueRepository {
         Self {
             storage,
             secrets_storage,
-            cache: Mutex::new(None),
+            secrets_cache: SecretsCache::new(),
         }
     }
 
-    pub async fn get_secret(&self, secret_name: &str) -> Option<SecretValue> {
-        {
-            let mut cache = self.cache.lock().await;
-
-            if cache.is_none() {
-                *cache = Some(self.init_all().await);
-            }
-
-            if let Some(cache) = cache.as_ref() {
-                if let Some(value) = cache.get(secret_name) {
-                    if let SecretCacheValue::Some(value) = value {
-                        return Some(value.clone());
-                    }
-                }
-            }
+    async fn initialize(&self) {
+        if self.secrets_cache.is_initialized() {
+            return;
         }
-
-        let entity = self
+        let secrets = self
             .secrets_storage
-            .get_entity(
-                SecretMyNoSqlEntity::generate_partition_key(),
-                secret_name,
-                None,
-            )
+            .get_by_partition_key(SecretMyNoSqlEntity::generate_partition_key(), None)
             .await
-            .unwrap()?;
+            .unwrap();
+
+        self.secrets_cache.init(secrets).await;
+    }
+
+    pub async fn get_secret(&self, secret_name: &str) -> Option<SecretValue> {
+        self.initialize().await;
+        let entity = self.secrets_cache.get(secret_name).await?;
 
         match &self.storage {
             KeyValueRepositoryStorage::KeyValue(vault) => {
@@ -85,8 +63,6 @@ impl KeyValueRepository {
                     level: entity.get_level(),
                 };
 
-                self.update_cache(secret_name, result.clone()).await;
-
                 return Some(result);
             }
             KeyValueRepositoryStorage::EncodingKey(aes_key) => {
@@ -99,8 +75,7 @@ impl KeyValueRepository {
                     let value = decode_value(&entity, aes_key);
 
                     match value {
-                        SecretCacheValue::Some(result) => {
-                            self.update_cache(secret_name, result.clone()).await;
+                        Some(result) => {
                             return Some(result);
                         }
                         _ => return Some(entity.to_empty_value()),
@@ -112,18 +87,8 @@ impl KeyValueRepository {
         }
     }
 
-    async fn update_cache(&self, secret_name: &str, value: SecretValue) {
-        let mut cache = self.cache.lock().await;
-
-        if cache.is_none() {
-            *cache = Some(self.init_all().await);
-        }
-
-        if let Some(cache) = cache.as_mut() {
-            cache.insert(secret_name.to_string(), SecretCacheValue::Some(value));
-        }
-    }
-    pub async fn set_secret(&self, secret_name: String, secret_value: SecretValue) {
+    pub async fn set_secret(&self, secret_name: String, secret_value: &SecretValue) {
+        self.initialize().await;
         let now = DateTimeAsMicroseconds::now().to_rfc3339();
 
         let mut entity = SecretMyNoSqlEntity {
@@ -134,6 +99,9 @@ impl KeyValueRepository {
             last_update_date: now,
             value: None,
             level: Some(secret_value.level),
+            secret_usages: serde_json::to_string(&secret_value.get_usages())
+                .unwrap()
+                .into(),
         };
 
         match &self.storage {
@@ -151,8 +119,7 @@ impl KeyValueRepository {
             .insert_or_replace_entity(&entity)
             .await
             .unwrap();
-
-        self.update_cache(secret_name.as_str(), secret_value).await;
+        self.secrets_cache.save(entity).await;
     }
 
     pub async fn delete_secret(&self, secret_name: &str) {
@@ -168,56 +135,16 @@ impl KeyValueRepository {
             KeyValueRepositoryStorage::EncodingKey(_) => {}
         }
 
-        let mut cache = self.cache.lock().await;
-        if cache.is_none() {
-            *cache = Some(self.init_all().await);
-        }
-
-        if let Some(cache) = cache.as_mut() {
-            cache.remove(secret_name);
-        }
+        self.secrets_cache.delete(secret_name).await;
     }
 
-    pub async fn get_all(&self) -> Vec<SecretMyNoSqlEntity> {
-        let secrets = self
-            .secrets_storage
-            .get_by_partition_key(SecretMyNoSqlEntity::generate_partition_key(), None)
-            .await
-            .unwrap();
-
-        match secrets {
-            Some(result) => result,
-            None => Vec::new(),
-        }
-    }
-
-    async fn init_all(&self) -> BTreeMap<String, SecretCacheValue> {
-        let secrets = self
-            .secrets_storage
-            .get_by_partition_key(SecretMyNoSqlEntity::generate_partition_key(), None)
-            .await
-            .unwrap();
-
-        let mut result = BTreeMap::new();
-
-        if let Some(secrets) = secrets {
-            for entity in secrets {
-                match &self.storage {
-                    KeyValueRepositoryStorage::KeyValue(_) => {
-                        result.insert(entity.row_key.clone(), SecretCacheValue::Unknown);
-                    }
-                    KeyValueRepositoryStorage::EncodingKey(aes_key) => {
-                        result.insert(entity.row_key.clone(), decode_value(&entity, aes_key));
-                    }
-                }
-            }
-        }
-
-        return result;
+    pub async fn get_all(&self) -> Option<Vec<SecretMyNoSqlEntity>> {
+        self.initialize().await;
+        self.secrets_cache.get_all().await
     }
 }
 
-fn decode_value(entity: &SecretMyNoSqlEntity, aes_key: &AesKey) -> SecretCacheValue {
+fn decode_value(entity: &SecretMyNoSqlEntity, aes_key: &AesKey) -> Option<SecretValue> {
     let value = entity.value.as_ref();
 
     match value {
@@ -225,19 +152,20 @@ fn decode_value(entity: &SecretMyNoSqlEntity, aes_key: &AesKey) -> SecretCacheVa
             let encrypted_data = AesEncryptedData::from_base_64(value);
 
             if encrypted_data.is_err() {
-                return SecretCacheValue::None;
+                return None;
             }
 
             let encrypted_data = encrypted_data.unwrap();
             let result = aes_key.decrypt(&encrypted_data);
             match result {
-                Ok(result) => SecretCacheValue::Some(SecretValue {
+                Ok(result) => SecretValue {
                     value: result.into_string(),
                     level: entity.get_level(),
-                }),
-                Err(_) => SecretCacheValue::None,
+                }
+                .into(),
+                Err(_) => None,
             }
         }
-        None => SecretCacheValue::Unknown,
+        None => None,
     }
 }

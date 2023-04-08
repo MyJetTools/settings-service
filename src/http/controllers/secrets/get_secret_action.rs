@@ -3,7 +3,7 @@ use std::sync::Arc;
 use my_http_server::{HttpContext, HttpFailResult, HttpOkResult, HttpOutput};
 
 use super::contracts::*;
-use crate::app_ctx::AppContext;
+use crate::app_ctx::{AppContext, SecretsValueReader};
 
 #[my_http_server_swagger::http_route(
     method: "POST",
@@ -31,11 +31,7 @@ async fn handle_request(
     input_data: GetSecretContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let result = action
-        .app
-        .key_value_repository
-        .get_secret(input_data.name.as_str())
-        .await;
+    let result = action.app.get_secret_value(&input_data.name).await;
 
     match result {
         Some(result) => {

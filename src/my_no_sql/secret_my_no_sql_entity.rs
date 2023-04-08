@@ -1,6 +1,6 @@
 use serde::*;
 
-use crate::key_value_repository::SecretValue;
+use crate::caches::SecretValue;
 
 #[my_no_sql_macros::my_no_sql_entity("settingssecrets")]
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -13,6 +13,8 @@ pub struct SecretMyNoSqlEntity {
     pub value: Option<String>,
     #[serde(rename = "Level")]
     pub level: Option<u8>,
+    #[serde(rename = "SecretUsages")]
+    pub secret_usages: Option<String>,
 }
 
 impl SecretMyNoSqlEntity {
@@ -32,6 +34,18 @@ impl SecretMyNoSqlEntity {
         SecretValue {
             value: "".to_string(),
             level: self.get_level(),
+        }
+    }
+
+    pub fn get_secret_usages(&self) -> Vec<String> {
+        let value = self.secret_usages.as_ref();
+        if value.is_none() {
+            return vec![];
+        }
+
+        match serde_json::from_str(value.unwrap()) {
+            Ok(result) => result,
+            Err(_) => vec![],
         }
     }
 }

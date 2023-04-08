@@ -42,3 +42,4 @@ async-trait = "*"
 uuid = { version = "*", features = ["serde", "v4"] }
 libaes = "*"
 base64 = "*"
+serde_json = "*"

@@ -30,7 +30,9 @@ async fn handle_request(
     action: &GetSecretsAction,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let secrets = action.app.key_value_repository.get_all().await;
+    let secrets = crate::operations::get_all_secrets(&action.app)
+        .await
+        .unwrap_or(vec![]);
 
     let result = ListOfSecretsContract::new(&action.app, secrets).await;
     HttpOutput::as_json(result).into_ok_result(false)

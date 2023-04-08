@@ -31,11 +31,6 @@ async fn handle_request(
     input_data: DeleteSecretInputContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    action
-        .app
-        .key_value_repository
-        .delete_secret(input_data.name.as_str())
-        .await;
-
+    crate::operations::delete_secret(&action.app, &input_data.name).await;
     HttpOutput::Empty.into_ok_result(false)
 }
