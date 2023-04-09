@@ -97,7 +97,7 @@ var Actions = /** @class */ (function () {
         })
             .fail(function () {
         });
-        Dialog.populateData({ name: name });
+        //  Dialog.populateData({ name });
     };
     Actions.showSecretValue = function (el) {
         var name = el.getAttribute('data-name');
@@ -135,11 +135,10 @@ var Actions = /** @class */ (function () {
         Dialog.show(dialog);
         $.ajax({ type: "POST", url: "/api/secrets/usageBySecrets", data: data })
             .then(function (data) {
-            Dialog.populateData(data.data);
+            Dialog.populateData(data);
         })
             .fail(function () {
         });
-        Dialog.populateData({ name: name });
     };
     return Actions;
 }());

@@ -123,7 +123,7 @@ class Actions {
             .fail(() => {
 
             });
-        Dialog.populateData({ name });
+        //  Dialog.populateData({ name });
     }
 
     public static showSecretValue(el: HTMLElement) {
@@ -182,12 +182,11 @@ class Actions {
 
         $.ajax({ type: "POST", url: "/api/secrets/usageBySecrets", data })
             .then(data => {
-                Dialog.populateData(data.data);
+                Dialog.populateData(data);
             })
             .fail(() => {
 
             });
-        Dialog.populateData({ name });
     }
 
 
