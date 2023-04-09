@@ -6,13 +6,13 @@ use crate::my_no_sql::SecretMyNoSqlEntity;
 
 #[derive(Debug, Clone)]
 pub struct SecretValue {
-    pub value: String,
+    pub content: String,
     pub level: u8,
 }
 
 impl SecretValue {
     pub fn get_usages(&self) -> Vec<String> {
-        let value = self.value.as_str();
+        let value = self.content.as_str();
         match serde_json::from_str(value) {
             Ok(result) => result,
             Err(_) => vec![],

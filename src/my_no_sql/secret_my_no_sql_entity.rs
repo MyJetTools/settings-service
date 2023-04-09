@@ -32,7 +32,7 @@ impl SecretMyNoSqlEntity {
 
     pub fn to_empty_value(&self) -> SecretValue {
         SecretValue {
-            value: "".to_string(),
+            content: "".to_string(),
             level: self.get_level(),
         }
     }

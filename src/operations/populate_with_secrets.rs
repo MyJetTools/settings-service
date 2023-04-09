@@ -5,82 +5,32 @@ use super::ContentToken;
 pub async fn populate_with_secrets(
     secrets_value_reader: &impl SecretsValueReader,
     content_to_populate: &str,
-    min_value: Option<u8>,
 ) -> String {
     if !has_secrets_to_populate(content_to_populate) {
         return content_to_populate.to_string();
     }
 
-    let mut result = if let Some(min_value) = min_value {
-        let mut result = String::new();
-        for item in super::get_tokens_with_placeholders(content_to_populate) {
-            match item {
-                ContentToken::Text(text) => {
-                    result.push_str(text);
-                }
-                ContentToken::Placeholder(secret_name) => {
-                    result.push_str(secret_name);
-                    result.push(':');
-                    result.push_str(min_value.to_string().as_str());
-                }
-            }
-        }
-
-        result
-    } else {
-        content_to_populate.to_string()
-    };
-
-    loop {
-        result = populate_template_with_secrets(secrets_value_reader, result.as_str()).await;
-
-        if !has_secrets_to_populate(result.as_str()) {
-            return result;
-        }
-    }
-}
-
-async fn populate_template_with_secrets(
-    secrets_value_reader: &impl SecretsValueReader,
-    content_to_populate: &str,
-) -> String {
-    let tokens = super::get_tokens_with_placeholders(content_to_populate);
     let mut result = String::new();
 
-    for template_token in tokens {
-        match template_token {
+    for item in super::get_tokens_with_placeholders(content_to_populate) {
+        match item {
             ContentToken::Text(text) => {
                 result.push_str(text);
             }
             ContentToken::Placeholder(secret_name) => {
-                let (secret_name, secret_min_level) = parse_secret_line(secret_name);
+                let secret_value = secrets_value_reader.get_secret_value(secret_name).await;
 
-                match secrets_value_reader.get_secret_value(secret_name).await {
-                    Some(secret_value) => {
-                        if let Some(secret_min_level) = secret_min_level {
-                            if secret_value.level > secret_min_level {
-                                if has_secrets_to_populate(&secret_value.value) {
-                                    recompile_token(secret_value, &mut result);
-                                } else {
-                                    result.push_str(secret_value.value.as_str());
-                                }
-                            } else {
-                                result.push_str(&format!(
-                                    "/*Secret {} has lower level {} than required {}*/",
-                                    secret_name, secret_value.level, secret_min_level
-                                ));
-                            }
-                        } else {
-                            if has_secrets_to_populate(&secret_value.value) {
-                                recompile_token(secret_value, &mut result);
-                            } else {
-                                result.push_str(secret_value.value.as_str());
-                            }
-                        }
+                if let Some(secret_value) = secret_value {
+                    if has_secrets_to_populate(&secret_value.content) {
+                        let secret_value =
+                            super::populate_secrets_recursively(secrets_value_reader, secret_value)
+                                .await;
+                        result.push_str(&secret_value);
+                    } else {
+                        result.push_str(&secret_value.content);
                     }
-                    None => {
-                        result.push_str(&format!("/*Secret {} not found*/", secret_name));
-                    }
+                } else {
+                    populate_secret_not_found(&mut result, secret_name)
                 }
             }
         }
@@ -89,25 +39,26 @@ async fn populate_template_with_secrets(
     result
 }
 
-fn has_secrets_to_populate(src: &str) -> bool {
+pub fn populate_secret_not_found(result: &mut String, secret_name: &str) {
+    result.push_str("/*Secret ");
+    result.push_str(secret_name);
+    result.push_str(" is not found*/");
+}
+
+pub fn has_secrets_to_populate(src: &str) -> bool {
     src.contains("${")
 }
 
-fn recompile_token(secret_value: SecretValue, result: &mut String) {
-    for secret_token in super::get_tokens_with_placeholders(secret_value.value.as_str()) {
-        match secret_token {
-            ContentToken::Text(text) => {
-                result.push_str(text);
-            }
-            ContentToken::Placeholder(secret_name) => {
-                result.push_str("${");
-                result.push_str(secret_name);
-                result.push_str(":");
-                result.push_str(secret_value.level.to_string().as_str());
-                result.push_str("}");
-            }
-        }
-    }
+pub fn fill_token_has_wrong_level(
+    secret_name: &str,
+    secret_value: SecretValue,
+    secret_min_level: u8,
+    result: &mut String,
+) {
+    result.push_str(&format!(
+        "/*Secret {} has lower level {} than required {}*/",
+        secret_name, secret_value.level, secret_min_level
+    ));
 }
 
 pub fn parse_secret_line(src: &str) -> (&str, Option<u8>) {
@@ -190,13 +141,13 @@ mod test {
         secret_value_reader.add(
             "test",
             SecretValue {
-                value: "15".to_owned(),
+                content: "15".to_owned(),
                 level: 0,
             },
         );
 
         let result =
-            populate_with_secrets(&secret_value_reader, "myData: start${test}finish", None).await;
+            populate_with_secrets(&secret_value_reader, "myData: start${test}finish").await;
 
         assert_eq!(result, "myData: start15finish");
     }
@@ -208,7 +159,7 @@ mod test {
         secret_value_reader.add(
             "test",
             SecretValue {
-                value: "15${SubSecret}16".to_owned(),
+                content: "15${SubSecret}16".to_owned(),
                 level: 0,
             },
         );
@@ -216,13 +167,13 @@ mod test {
         secret_value_reader.add(
             "SubSecret",
             SecretValue {
-                value: "SubSecData".to_owned(),
+                content: "SubSecData".to_owned(),
                 level: 1,
             },
         );
 
         let result =
-            populate_with_secrets(&secret_value_reader, "myData: start${test}finish", None).await;
+            populate_with_secrets(&secret_value_reader, "myData: start${test}finish").await;
 
         assert_eq!(result, "myData: start15SubSecData16finish");
     }
@@ -234,7 +185,7 @@ mod test {
         secret_value_reader.add(
             "test",
             SecretValue {
-                value: "15${SubSecret}16".to_owned(),
+                content: "15${SubSecret}16".to_owned(),
                 level: 0,
             },
         );
@@ -242,13 +193,13 @@ mod test {
         secret_value_reader.add(
             "SubSecret",
             SecretValue {
-                value: "SubSecData".to_owned(),
+                content: "SubSecData".to_owned(),
                 level: 0,
             },
         );
 
         let result =
-            populate_with_secrets(&secret_value_reader, "myData: start${test}finish", None).await;
+            populate_with_secrets(&secret_value_reader, "myData: start${test}finish").await;
 
         assert_eq!(
             result,

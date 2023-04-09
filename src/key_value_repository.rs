@@ -59,7 +59,7 @@ impl SecretsRepository {
                 let result = result.unwrap();
 
                 let result = SecretValue {
-                    value: result,
+                    content: result,
                     level: entity.get_level(),
                 };
 
@@ -106,11 +106,11 @@ impl SecretsRepository {
 
         match &self.storage {
             KeyValueRepositoryStorage::KeyValue(vault) => vault
-                .set_secret(secret_name.as_str(), &secret_value.value)
+                .set_secret(secret_name.as_str(), &secret_value.content)
                 .await
                 .unwrap(),
             KeyValueRepositoryStorage::EncodingKey(aes_key) => {
-                let encrypted = aes_key.encrypt(secret_value.value.as_bytes());
+                let encrypted = aes_key.encrypt(secret_value.content.as_bytes());
                 entity.value = Some(encrypted.as_base_64());
             }
         };
@@ -159,7 +159,7 @@ fn decode_value(entity: &SecretMyNoSqlEntity, aes_key: &AesKey) -> Option<Secret
             let result = aes_key.decrypt(&encrypted_data);
             match result {
                 Ok(result) => SecretValue {
-                    value: result.into_string(),
+                    content: result.into_string(),
                     level: entity.get_level(),
                 }
                 .into(),

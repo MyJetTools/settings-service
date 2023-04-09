@@ -58,7 +58,7 @@ pub async fn delete(app: &AppContext, evn: String, name: String) {
 
 pub async fn get_populated_template(app: &AppContext, evn: &str, name: &str) -> Option<String> {
     let template = get(app, evn, name).await?;
-    super::populate_with_secrets(app, template.yaml_template.as_str(), None)
+    super::populate_with_secrets(app, template.yaml_template.as_str())
         .await
         .into()
 }

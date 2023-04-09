@@ -35,12 +35,8 @@ async fn handle_request(
 
     match result {
         Some(result) => {
-            let result = crate::operations::populate_with_secrets(
-                action.app.as_ref(),
-                &result.value,
-                Some(result.level),
-            )
-            .await;
+            let result =
+                crate::operations::populate_secrets_recursively(action.app.as_ref(), result).await;
             return HttpOutput::as_text(result).into_ok_result(false);
         }
         None => Err(HttpFailResult::as_not_found(

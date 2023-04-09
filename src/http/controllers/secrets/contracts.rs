@@ -20,7 +20,7 @@ pub struct PostSecretContract {
 impl Into<SecretValue> for PostSecretContract {
     fn into(self) -> SecretValue {
         SecretValue {
-            value: self.secret,
+            content: self.secret,
             level: self.level,
         }
     }
@@ -40,7 +40,7 @@ pub struct SecretHttpModel {
 impl Into<SecretHttpModel> for SecretValue {
     fn into(self) -> SecretHttpModel {
         SecretHttpModel {
-            value: self.value,
+            value: self.content,
             level: self.level,
         }
     }

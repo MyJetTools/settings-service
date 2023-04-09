@@ -28,7 +28,7 @@ pub async fn get_used_secret_amount_by_secret(app: &AppContext, secret_name: &st
         let value = app.get_secret_value(secret.get_secret_name()).await;
 
         if let Some(value) = value {
-            if value.value.contains(secret_name.as_str()) {
+            if value.content.contains(secret_name.as_str()) {
                 amount += 1;
             }
         } else {
