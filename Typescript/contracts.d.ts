@@ -47,3 +47,9 @@ interface ISecretModel {
     name: string,
     yaml: string
 }
+
+
+interface ISecretUsage {
+    name: String,
+    value: String,
+}

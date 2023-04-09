@@ -60,7 +60,7 @@ class HtmlMain {
 
             }
             else {
-                secretsAmount = `<span class="badge badge-success" ${data} style="background: green;cursor:pointer;" onclick="Actions.showSecretUsage(this)">${secret.templatesAmount}</span><span class="badge badge-success" ${data} style="background: green;cursor:pointer;">${secret.secretsAmount}</span>`;
+                secretsAmount = `<span class="badge badge-success" ${data} style="background: green;cursor:pointer;" onclick="Actions.showSecretUsage(this)">${secret.templatesAmount}</span><span class="badge badge-success" ${data} style="background: green;cursor:pointer;"  onclick="Actions.showUsageSecretsOfSecret(this)">${secret.secretsAmount}</span>`;
                 deleteCommandButtonStyle = "btn-default";
                 deleteAttrs = `disabled="disabled"`;
             }

@@ -54,7 +54,8 @@ async fn handle_request(
             <script src="/js/Dialog.js"></script>
             <script src="/js/dialogs/ShowYamlDialog.js"></script>
             <script src="/js/dialogs/EditTemplate.js"></script>
-            <script src="/js/dialogs/ShowSecretUsage.js"></script>                
+            <script src="/js/dialogs/ShowSecretUsage.js"></script>     
+            <script src="/js/dialogs/ShowUsageSecretOfSecrets.js"></script>                
             <script src="/js/dialogs/EditSecret.js"></script>
             <script src="/js/dialogs/ConfirmDeleteTemplate.js"></script>
             <script src="/js/dialogs/ConfirmDeleteSecret.js"></script>

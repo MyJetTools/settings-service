@@ -40,7 +40,7 @@ var HtmlMain = /** @class */ (function () {
                 deleteAttrs = "onclick=\"Actions.deleteSecret(this)\"";
             }
             else {
-                secretsAmount = "<span class=\"badge badge-success\" ".concat(data, " style=\"background: green;cursor:pointer;\" onclick=\"Actions.showSecretUsage(this)\">").concat(secret.templatesAmount, "</span><span class=\"badge badge-success\" ").concat(data, " style=\"background: green;cursor:pointer;\">").concat(secret.secretsAmount, "</span>");
+                secretsAmount = "<span class=\"badge badge-success\" ".concat(data, " style=\"background: green;cursor:pointer;\" onclick=\"Actions.showSecretUsage(this)\">").concat(secret.templatesAmount, "</span><span class=\"badge badge-success\" ").concat(data, " style=\"background: green;cursor:pointer;\"  onclick=\"Actions.showUsageSecretsOfSecret(this)\">").concat(secret.secretsAmount, "</span>");
                 deleteCommandButtonStyle = "btn-default";
                 deleteAttrs = "disabled=\"disabled\"";
             }

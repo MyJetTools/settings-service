@@ -128,6 +128,19 @@ var Actions = /** @class */ (function () {
             .fail(function () {
         });
     };
+    Actions.showUsageSecretsOfSecret = function (el) {
+        var name = el.getAttribute('data-name');
+        var data = { name: name };
+        var dialog = new ShowUsageSecretOfSecrets("Show secret [" + name + "] usage", name);
+        Dialog.show(dialog);
+        $.ajax({ type: "POST", url: "/api/secrets/usageBySecrets", data: data })
+            .then(function (data) {
+            Dialog.populateData(data.data);
+        })
+            .fail(function () {
+        });
+        Dialog.populateData({ name: name });
+    };
     return Actions;
 }());
 //# sourceMappingURL=Actions.js.map
