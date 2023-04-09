@@ -25,15 +25,11 @@ pub async fn get_secret_usage_in_secrets(
             .iter()
             .any(|itm| itm == secret_name)
         {
-            if let Some(value) = &secret.value {
-                let value = app.get_secret_value(value).await;
+            let value = app.get_secret_value(secret.get_secret_name()).await;
+            if let Some(value) = value {
                 result.push(SecretSecretUsage {
                     name: secret.get_secret_name().to_string(),
-                    value: if let Some(value) = value {
-                        value.content
-                    } else {
-                        String::new()
-                    },
+                    value: value.content,
                 });
             }
         }
