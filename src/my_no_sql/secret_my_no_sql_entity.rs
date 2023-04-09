@@ -38,14 +38,12 @@ impl SecretMyNoSqlEntity {
     }
 
     pub fn get_secret_usages(&self) -> Vec<String> {
-        let value = self.secret_usages.as_ref();
-        if value.is_none() {
-            return vec![];
-        }
-
-        match serde_json::from_str(value.unwrap()) {
-            Ok(result) => result,
-            Err(_) => vec![],
+        match &self.secret_usages {
+            Some(value) => match serde_json::from_str(value) {
+                Ok(result) => result,
+                Err(_) => vec![],
+            },
+            None => vec![],
         }
     }
 }
