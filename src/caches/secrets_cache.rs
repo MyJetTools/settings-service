@@ -11,12 +11,18 @@ pub struct SecretValue {
 }
 
 impl SecretValue {
-    pub fn get_usages(&self) -> Vec<String> {
-        let value = self.content.as_str();
-        match serde_json::from_str(value) {
-            Ok(result) => result,
-            Err(_) => vec![],
+    pub fn get_usages(&self) -> Vec<&str> {
+        let mut result = Vec::new();
+        for token in crate::operations::get_tokens_with_placeholders(&self.content) {
+            match token {
+                crate::operations::ContentToken::Text(_) => {}
+                crate::operations::ContentToken::Placeholder(secret_name) => {
+                    result.push(secret_name)
+                }
+            }
         }
+
+        result
     }
 }
 
