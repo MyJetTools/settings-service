@@ -2,6 +2,7 @@ use serde::*;
 
 use crate::caches::SecretValue;
 
+/* cspell: disable-next-line */
 #[my_no_sql_macros::my_no_sql_entity("settingssecrets")]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SecretMyNoSqlEntity {
