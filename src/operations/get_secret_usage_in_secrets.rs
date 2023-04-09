@@ -1,4 +1,4 @@
-use crate::app_ctx::AppContext;
+use crate::app_ctx::{AppContext, SecretsValueReader};
 
 pub struct SecretSecretUsage {
     pub name: String,
@@ -26,9 +26,14 @@ pub async fn get_secret_usage_in_secrets(
             .any(|itm| itm == secret_name)
         {
             if let Some(value) = &secret.value {
+                let value = app.get_secret_value(value).await;
                 result.push(SecretSecretUsage {
                     name: secret.get_secret_name().to_string(),
-                    value: value.to_string(),
+                    value: if let Some(value) = value {
+                        value.content
+                    } else {
+                        String::new()
+                    },
                 });
             }
         }

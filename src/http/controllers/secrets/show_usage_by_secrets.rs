@@ -13,7 +13,7 @@ use crate::app_ctx::AppContext;
     controller: "Secrets",
     input_data: "ShowUsageInputContract",
     result:[
-        {status_code: 200, description: "Ok response"},
+        {status_code: 200, description: "Ok response", model="Vec<SecretSecretUsageHttpModel>"},
     ]
 )]
 pub struct ShowUsageBySecretsAction {
