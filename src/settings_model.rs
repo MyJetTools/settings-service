@@ -1,3 +1,4 @@
+use my_no_sql_data_writer::MyNoSqlWriterSettings;
 use serde::{Deserialize, Serialize};
 
 pub enum FaviconColor {
@@ -22,6 +23,13 @@ pub struct SettingsModel {
     pub env: String,
     #[serde(rename = "FaviconColour")]
     favicon_colour: Option<String>,
+}
+
+#[async_trait::async_trait]
+impl MyNoSqlWriterSettings for SettingsModel {
+    async fn get_url(&self) -> String{
+        self.my_no_sql_server.clone()
+    }
 }
 
 impl SettingsModel {

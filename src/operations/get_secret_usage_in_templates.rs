@@ -4,7 +4,7 @@ pub async fn get_secret_usage_in_templates(
     app: &AppContext,
     secret_name: &str,
 ) -> Vec<SecretUsage> {
-    super::initialize_templates(app).await;
+    super::initialize_templates(app, false).await;
 
     let templates = app.templates_cache.get_all().await;
 

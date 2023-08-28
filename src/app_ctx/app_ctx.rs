@@ -29,8 +29,9 @@ pub struct AppContext {
 
 impl AppContext {
     pub fn new(settings: SettingsModel) -> Self {
+        let settings_ark = Arc::new(settings.clone());
         let templates_storage = MyNoSqlDataWriter::new(
-            settings.my_no_sql_server.clone(),
+            settings_ark.clone(),
             CreateTableParams {
                 persist: true,
                 max_partitions_amount: None,
@@ -41,7 +42,7 @@ impl AppContext {
         );
 
         let secrets_storage = MyNoSqlDataWriter::new(
-            settings.my_no_sql_server.clone(),
+            settings_ark.clone(),
             CreateTableParams {
                 persist: true,
                 max_partitions_amount: None,
