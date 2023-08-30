@@ -17,6 +17,11 @@ pub mod templates_grpc {
     tonic::include_proto!("templates");
 }
 
+#[allow(non_snake_case)]
+pub mod secrets_grpc {
+    tonic::include_proto!("secrets");
+}
+
 #[tokio::main]
 async fn main() {
     let settings = SettingsModel::first_load(".settings-service").await.into();

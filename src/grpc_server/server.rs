@@ -1,4 +1,5 @@
 use crate::app_ctx::AppContext;
+use crate::secrets_grpc::secrets_server::SecretsServer;
 use crate::templates_grpc::templates_server::TemplatesServer;
 
 use std::net::SocketAddr;
@@ -27,6 +28,7 @@ pub async fn start(app: Arc<AppContext>, port: u16) {
     anyhow::Context::context(
         Server::builder()
             .add_service(TemplatesServer::new(service.clone()))
+            .add_service(SecretsServer::new(service.clone()))
             .serve(addr)
             .await,
         "Server error",
