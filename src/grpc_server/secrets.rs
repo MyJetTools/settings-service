@@ -29,6 +29,49 @@ impl Secrets for GrpcService {
         Ok(tonic::Response::new(result))
     }
 
+    async fn get_templates_usage(
+        &self,
+        request: tonic::Request<GetTemplatesUsageRequest>,
+    ) -> Result<tonic::Response<GetTemplatesUsageResponse>, tonic::Status> {
+        let request = request.into_inner();
+
+        let result =
+            crate::operations::get_secret_usage_in_templates(&self.app, &request.name).await;
+
+        let templates = result
+            .into_iter()
+            .map(|x| TemplateModel {
+                env: x.env,
+                name: x.name,
+                yaml: x.yaml,
+            })
+            .collect();
+
+        Ok(tonic::Response::new(GetTemplatesUsageResponse {
+            templates,
+        }))
+    }
+
+    async fn get_secrets_usage(
+        &self,
+        request: tonic::Request<GetSecretsUsageRequest>,
+    ) -> Result<tonic::Response<GetSecretsUsageResponse>, tonic::Status> {
+        let request = request.into_inner();
+
+        let result = crate::operations::get_secret_usage_in_secrets(&self.app, &request.name).await;
+
+        let secrets = result
+            .into_iter()
+            .map(|x| SecretModel {
+                name: x.name,
+                value: x.value,
+                level: 0,
+            })
+            .collect();
+
+        Ok(tonic::Response::new(GetSecretsUsageResponse { secrets }))
+    }
+
     async fn ping(&self, _: tonic::Request<()>) -> Result<tonic::Response<()>, tonic::Status> {
         Ok(tonic::Response::new(()))
     }
