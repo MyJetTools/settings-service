@@ -40,7 +40,7 @@ impl Secrets for GrpcService {
 
         let templates = result
             .into_iter()
-            .map(|x| TemplateModel {
+            .map(|x| TemplateUsageModel {
                 env: x.env,
                 name: x.name,
                 yaml: x.yaml,
@@ -62,10 +62,9 @@ impl Secrets for GrpcService {
 
         let secrets = result
             .into_iter()
-            .map(|x| SecretModel {
+            .map(|x| SecretUsageModel {
                 name: x.name,
                 value: x.value,
-                level: 0,
             })
             .collect();
 
