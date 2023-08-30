@@ -38,6 +38,17 @@ impl Templates for GrpcService {
         Ok(tonic::Response::new(()))
     }
 
+    async fn delete(
+        &self,
+        request: tonic::Request<DeleteTemplateRequest>,
+    ) -> Result<tonic::Response<()>, tonic::Status> {
+        let request = request.into_inner();
+
+        crate::operations::templates::delete(&self.app, request.env, request.name).await;
+
+        Ok(tonic::Response::new(()))
+    }
+
     async fn compile_yaml(
         &self,
         request: tonic::Request<CompileYamlRequest>,

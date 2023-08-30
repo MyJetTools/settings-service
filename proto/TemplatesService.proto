@@ -18,7 +18,7 @@ message GetTemplateResponse {
 message CompileYamlRequest {
     string Env = 1;
     string Name = 2;
- }
+}
 
  message  CompileYamlResponse {
     string Yaml = 1;
@@ -31,9 +31,15 @@ message CompileYamlRequest {
    string Yaml = 3;
 }
 
+message DeleteTemplateRequest {
+   string Env = 1;
+   string Name = 2;
+}
+
 service Templates {
     rpc Get(GetTemplateRequest) returns (GetTemplateResponse);
     rpc Save(SaveTemplateRequest) returns (google.protobuf.Empty);
     rpc CompileYaml(CompileYamlRequest) returns (CompileYamlResponse);
+    rpc Delete(DeleteTemplateRequest) returns (google.protobuf.Empty);
     rpc Ping(google.protobuf.Empty) returns (google.protobuf.Empty);
  }
