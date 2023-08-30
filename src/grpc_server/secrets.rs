@@ -4,6 +4,7 @@ use futures_core::Stream;
 
 use super::server::GrpcService;
 use crate::app_ctx::SecretsValueReader;
+use crate::caches::SecretValue;
 use crate::secrets_grpc::secrets_server::Secrets;
 use crate::secrets_grpc::*;
 
@@ -69,6 +70,36 @@ impl Secrets for GrpcService {
         };
 
         Ok(tonic::Response::new(result))
+    }
+
+    async fn save(
+        &self,
+        request: tonic::Request<SaveSecretRequest>,
+    ) -> Result<tonic::Response<()>, tonic::Status> {
+        let request = request.into_inner();
+
+        let model = request.model.unwrap();
+
+        crate::operations::update_secret(
+            &self.app,
+            model.name,
+            SecretValue {
+                content: model.value,
+                level: model.level as u8,
+            },
+        )
+        .await;
+
+        Ok(tonic::Response::new(()))
+    }
+
+    async fn delete(
+        &self,
+        request: tonic::Request<DeleteSecretRequest>,
+    ) -> Result<tonic::Response<()>, tonic::Status> {
+        let request = request.into_inner();
+        crate::operations::delete_secret(&self.app, &request.name).await;
+        Ok(tonic::Response::new(()))
     }
 
     async fn get_templates_usage(
