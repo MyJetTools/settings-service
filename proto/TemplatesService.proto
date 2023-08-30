@@ -36,8 +36,18 @@ message DeleteTemplateRequest {
    string Name = 2;
 }
 
+message TemplateListItem{
+   string Env = 1;
+   string Name = 2;
+   string Created = 3;
+   string Updated = 4;
+   int64 LastRequests = 5;
+}
+
 service Templates {
     rpc Get(GetTemplateRequest) returns (GetTemplateResponse);
+    rpc GetAll(google.protobuf.Empty) returns (stream TemplateListItem);
+
     rpc Save(SaveTemplateRequest) returns (google.protobuf.Empty);
     rpc CompileYaml(CompileYamlRequest) returns (CompileYamlResponse);
     rpc Delete(DeleteTemplateRequest) returns (google.protobuf.Empty);

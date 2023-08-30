@@ -21,7 +21,9 @@ my-no-sql-macros = { tag = "0.1.0", git = "https://github.com/MyJetTools/my-no-s
 my-no-sql-data-writer = { tag = "0.3.0", git = "https://github.com/MyJetTools/my-no-sql-data-writer.git" }
 my-no-sql-server-abstractions = { tag = "0.1.1", git = "https://github.com/MyJetTools/my-no-sql-server-abstractions.git" }
 
-flurl = { tag = "0.2.3", git = "https://github.com/MyJetTools/fl-url.git" }
+my-grpc-extensions = { tag = "0.4.0", git = "https://github.com/MyJetTools/my-grpc-extensions.git" }
+
+flurl = { tag = "0.4.0", git = "https://github.com/MyJetTools/fl-url.git" }
 my-settings-reader = { tag = "0.1.5", git = "https://github.com/MyJetTools/my-settings-reader.git" }
 my-azure-key-vault = { tag = "0.1.0", git = "https://github.com/MyJetTools/my-azure-key-valut.git" }
 encryption = { tag = "0.1.0", git = "https://github.com/MyJetTools/encryption.git" }
