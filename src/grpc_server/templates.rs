@@ -26,6 +26,18 @@ impl Templates for GrpcService {
         Ok(tonic::Response::new(result))
     }
 
+    async fn save(
+        &self,
+        request: tonic::Request<SaveTemplateRequest>,
+    ) -> Result<tonic::Response<()>, tonic::Status> {
+        let request = request.into_inner();
+
+        crate::operations::templates::post(&self.app, request.env, request.name, request.yaml)
+            .await;
+
+        Ok(tonic::Response::new(()))
+    }
+
     async fn compile_yaml(
         &self,
         request: tonic::Request<CompileYamlRequest>,
