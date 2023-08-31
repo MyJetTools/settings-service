@@ -10,7 +10,7 @@ pub async fn get_secret_usage_in_templates(
 
     let mut result = Vec::new();
     for template in templates {
-        if super::has_usage_of_secret(&template.yaml_template, secret_name) {
+        if crate::placeholders::has_usage_of_secret(&template.yaml_template, secret_name) {
             result.push(SecretUsage {
                 env: template.partition_key.clone(),
                 name: template.row_key.clone(),

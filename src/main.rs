@@ -10,6 +10,7 @@ mod http;
 mod key_value_repository;
 mod my_no_sql;
 mod operations;
+mod placeholders;
 mod settings_model;
 
 #[allow(non_snake_case)]

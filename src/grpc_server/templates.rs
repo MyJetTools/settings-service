@@ -19,6 +19,8 @@ impl Templates for GrpcService {
         let result = crate::operations::get_all_templates(&self.app).await;
         let time_snapshot = self.app.last_request.get_snapshot().await;
 
+        let secrets = self.app.secrets_repository.get_as_hash_map().await;
+
         my_grpc_extensions::grpc_server::send_vec_to_stream(result, move |item| {
             let last_time = if let Some(sub_items) = time_snapshot.get(&item.partition_key) {
                 if let Some(value) = sub_items.get(&item.row_key) {
@@ -30,12 +32,35 @@ impl Templates for GrpcService {
                 0
             };
 
+            let mut has_missing_placeholders = false;
+
+            for itm in crate::placeholders::get_tokens_with_placeholders(&item.yaml_template) {
+                match itm {
+                    crate::placeholders::ContentToken::Text(_) => {}
+                    crate::placeholders::ContentToken::Placeholder(secret_name) => {
+                        match secrets.as_ref() {
+                            Some(secrets) => {
+                                if !secrets.contains_key(secret_name) {
+                                    has_missing_placeholders = true;
+                                    break;
+                                }
+                            }
+                            None => {
+                                has_missing_placeholders = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
             TemplateListItem {
                 env: item.partition_key.clone(),
                 name: item.row_key.clone(),
                 created: item.create_date.clone(),
                 updated: item.last_update_date.clone(),
                 last_requests: last_time,
+                has_missing_placeholders,
             }
         })
         .await

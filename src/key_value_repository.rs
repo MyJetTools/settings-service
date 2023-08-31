@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use my_azure_key_vault::MyAzureKeyVault;
 use my_no_sql_data_writer::MyNoSqlDataWriter;
 use rust_extensions::date_time::DateTimeAsMicroseconds;
@@ -141,6 +143,20 @@ impl SecretsRepository {
     pub async fn get_all(&self) -> Option<Vec<SecretMyNoSqlEntity>> {
         self.initialize().await;
         self.secrets_cache.get_all().await
+    }
+
+    pub async fn get_as_hash_map(&self) -> Option<HashMap<String, SecretMyNoSqlEntity>> {
+        self.initialize().await;
+
+        let all = self.secrets_cache.get_all().await?;
+
+        let mut result = HashMap::new();
+
+        for entity in all {
+            result.insert(entity.get_secret_name().to_string(), entity);
+        }
+
+        Some(result)
     }
 }
 

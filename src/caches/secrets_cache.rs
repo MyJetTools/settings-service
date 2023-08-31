@@ -2,7 +2,7 @@ use std::{collections::BTreeMap, sync::atomic::AtomicBool};
 
 use tokio::sync::RwLock;
 
-use crate::my_no_sql::SecretMyNoSqlEntity;
+use crate::{my_no_sql::SecretMyNoSqlEntity, placeholders::ContentToken};
 
 #[derive(Debug, Clone)]
 pub struct SecretValue {
@@ -13,12 +13,10 @@ pub struct SecretValue {
 impl SecretValue {
     pub fn get_usages(&self) -> Vec<&str> {
         let mut result = Vec::new();
-        for token in crate::operations::get_tokens_with_placeholders(&self.content) {
+        for token in crate::placeholders::get_tokens_with_placeholders(&self.content) {
             match token {
-                crate::operations::ContentToken::Text(_) => {}
-                crate::operations::ContentToken::Placeholder(secret_name) => {
-                    result.push(secret_name)
-                }
+                ContentToken::Text(_) => {}
+                ContentToken::Placeholder(secret_name) => result.push(secret_name),
             }
         }
 
