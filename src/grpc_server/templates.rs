@@ -66,6 +66,19 @@ impl Templates for GrpcService {
         .await
     }
 
+    async fn get_server_info(
+        &self,
+        request: tonic::Request<()>,
+    ) -> Result<tonic::Response<ServerInfoResponse>, tonic::Status> {
+        let request = request.into_inner();
+
+        let result = ServerInfoResponse {
+            env_name: self.app.settings.env.to_string(),
+        };
+
+        Ok(tonic::Response::new(result))
+    }
+
     async fn get(
         &self,
         request: tonic::Request<GetTemplateRequest>,
