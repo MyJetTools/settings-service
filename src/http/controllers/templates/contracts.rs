@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use my_http_server_swagger::{MyHttpInput, MyHttpObjectStructure};
+use my_http_server::macros::*;
 use serde::{Deserialize, Serialize};
 
 use crate::{app_ctx::AppContext, my_no_sql::TemplateMyNoSqlEntity};

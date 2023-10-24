@@ -1,16 +1,15 @@
-use my_http_server::types::FileContent;
-use my_http_server_swagger::MyHttpInput;
-use serde_derive::{Serialize, Deserialize};
-use rust_extensions::date_time::DateTimeAsMicroseconds;
+use my_http_server::{macros::MyHttpInput, types::FileContent};
+
 use crate::my_no_sql::TemplateMyNoSqlEntity;
+use rust_extensions::date_time::DateTimeAsMicroseconds;
+use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SettingTemplateDumpModel {
     env: String,
     name: String,
-    template: String
+    template: String,
 }
-
 
 impl SettingTemplateDumpModel {
     pub fn new(itm: &TemplateMyNoSqlEntity) -> Self {
@@ -24,7 +23,7 @@ impl SettingTemplateDumpModel {
 
 impl Into<TemplateMyNoSqlEntity> for SettingTemplateDumpModel {
     fn into(self) -> TemplateMyNoSqlEntity {
-        TemplateMyNoSqlEntity{
+        TemplateMyNoSqlEntity {
             partition_key: self.env,
             row_key: self.name,
             time_stamp: "".to_string(),

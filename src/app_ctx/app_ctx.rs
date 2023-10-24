@@ -1,7 +1,10 @@
 use std::sync::Arc;
 
 use my_azure_key_vault::{BearerTokenManager, MyAzureKeyVault};
-use my_no_sql_data_writer::{CreateTableParams, MyNoSqlDataWriter};
+use my_no_sql_sdk::{
+    abstractions::DataSynchronizationPeriod,
+    data_writer::{CreateTableParams, MyNoSqlDataWriter},
+};
 use rust_extensions::AppStates;
 
 use crate::{
@@ -38,7 +41,7 @@ impl AppContext {
                 max_rows_per_partition_amount: None,
             }
             .into(),
-            my_no_sql_server_abstractions::DataSynchronizationPeriod::Sec5,
+            DataSynchronizationPeriod::Sec5,
         );
 
         let secrets_storage = MyNoSqlDataWriter::new(
@@ -49,7 +52,7 @@ impl AppContext {
                 max_rows_per_partition_amount: None,
             }
             .into(),
-            my_no_sql_server_abstractions::DataSynchronizationPeriod::Sec5,
+            DataSynchronizationPeriod::Sec5,
         );
 
         let secrets_repository = if let Some(key_value_url) = &settings.key_vault_url {

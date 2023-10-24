@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use my_azure_key_vault::MyAzureKeyVault;
-use my_no_sql_data_writer::MyNoSqlDataWriter;
+use my_no_sql_sdk::data_writer::MyNoSqlDataWriter;
 use rust_extensions::date_time::DateTimeAsMicroseconds;
 
 use crate::{

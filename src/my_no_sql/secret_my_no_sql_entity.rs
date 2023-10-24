@@ -1,9 +1,10 @@
+use my_no_sql_sdk::macros::my_no_sql_entity;
 use serde::*;
 
 use crate::caches::SecretValue;
 
 /* cspell: disable-next-line */
-#[my_no_sql_macros::my_no_sql_entity("settingssecrets")]
+#[my_no_sql_entity("settingssecrets")]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SecretMyNoSqlEntity {
     #[serde(rename = "CreateDate")]

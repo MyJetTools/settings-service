@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
-use my_http_server::{HttpContext, HttpFailResult, HttpOkResult, HttpOutput};
+use my_http_server::{macros::http_route, HttpContext, HttpFailResult, HttpOkResult, HttpOutput};
 
 use super::contracts::*;
 use crate::app_ctx::AppContext;
 
-#[my_http_server_swagger::http_route(
+#[http_route(
     method: "POST",
     route: "/api/templates/delete",
     description: "Delete template",

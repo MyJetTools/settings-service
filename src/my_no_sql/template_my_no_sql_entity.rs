@@ -1,7 +1,7 @@
+use my_no_sql_sdk::macros::my_no_sql_entity;
 use rust_extensions::date_time::DateTimeAsMicroseconds;
 use serde::*;
-
-#[my_no_sql_macros::my_no_sql_entity("settingstemplate")]
+#[my_no_sql_entity("settingstemplate")]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TemplateMyNoSqlEntity {
     #[serde(rename = "CreateDate")]

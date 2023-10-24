@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
-use my_http_server::{HttpContext, HttpFailResult, HttpOkResult, HttpOutput};
+use my_http_server::{macros::http_route, HttpContext, HttpFailResult, HttpOkResult, HttpOutput};
 
 use crate::{app_ctx::AppContext, my_no_sql::TemplateMyNoSqlEntity};
 
 use super::contracts::{ImportSettingsTemplateAction, SettingTemplateDumpModel};
 
-#[my_http_server_swagger::http_route(
+#[http_route(
     method: "POST",
     route: "/api/dump/import/templates",
     description: "Import Templates",

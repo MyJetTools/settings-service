@@ -42,9 +42,11 @@ impl Secrets for GrpcService {
                     used_by_templates: templates_amount as i32,
                 });
             }
-            my_grpc_extensions::grpc_server::send_vec_to_stream(result, |item| item).await
+            my_grpc_extensions::grpc_server::send_vec_to_stream(result.into_iter(), |item| item)
+                .await
         } else {
-            my_grpc_extensions::grpc_server::send_vec_to_stream(vec![], |item| item).await
+            my_grpc_extensions::grpc_server::send_vec_to_stream(vec![].into_iter(), |item| item)
+                .await
         }
     }
 

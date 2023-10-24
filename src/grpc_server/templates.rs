@@ -21,7 +21,7 @@ impl Templates for GrpcService {
 
         let secrets = self.app.secrets_repository.get_as_hash_map().await;
 
-        my_grpc_extensions::grpc_server::send_vec_to_stream(result, move |item| {
+        my_grpc_extensions::grpc_server::send_vec_to_stream(result.into_iter(), move |item| {
             let last_time = if let Some(sub_items) = time_snapshot.get(&item.partition_key) {
                 if let Some(value) = sub_items.get(&item.row_key) {
                     value.unix_microseconds / 1000
@@ -68,10 +68,8 @@ impl Templates for GrpcService {
 
     async fn get_server_info(
         &self,
-        request: tonic::Request<()>,
+        _request: tonic::Request<()>,
     ) -> Result<tonic::Response<ServerInfoResponse>, tonic::Status> {
-        let request = request.into_inner();
-
         let result = ServerInfoResponse {
             env_name: self.app.settings.env.to_string(),
         };

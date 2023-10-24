@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
-use my_http_server::{HttpContext, HttpFailResult, HttpOkResult, HttpOutput};
+use my_http_server::{macros::http_route, HttpContext, HttpFailResult, HttpOkResult, HttpOutput};
 
 use crate::app_ctx::AppContext;
 
 use super::contracts::SettingTemplateDumpModel;
 
-#[my_http_server_swagger::http_route(
+#[http_route(
     method: "GET",
     route: "/api/dump/export/templates",
     description: "Export Templates",
