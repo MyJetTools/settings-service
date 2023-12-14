@@ -3,7 +3,7 @@ use std::sync::Arc;
 use my_http_server::{macros::http_route, HttpContext, HttpFailResult, HttpOkResult, HttpOutput};
 
 use super::contracts::*;
-use crate::app_ctx::AppContext;
+use crate::{app_ctx::AppContext, caches::SecretValue};
 
 #[http_route(
     method: "POST",
@@ -31,8 +31,11 @@ async fn handle_request(
     input_data: GenerateRandomSecretContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    crate::operations::update_secret(&action.app, input_data.name.to_string(), input_data.into())
-        .await;
+    let secret_name = input_data.name.to_string();
+    let secret_value: SecretValue = input_data.into();
 
-    HttpOutput::Empty.into_ok_result(false)
+    let result = secret_value.content.to_string();
+    crate::operations::update_secret(&action.app, secret_name, secret_value).await;
+
+    HttpOutput::as_text(result).into_ok_result(false)
 }
