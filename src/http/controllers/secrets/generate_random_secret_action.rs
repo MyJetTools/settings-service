@@ -7,7 +7,7 @@ use crate::app_ctx::AppContext;
 
 #[http_route(
     method: "POST",
-    route: "/api/secrets/post",
+    route: "/api/secrets/generate",
     description: "Generate random secret",
     summary: "Generate random secret",
     controller: "Secrets",
