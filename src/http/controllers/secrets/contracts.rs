@@ -145,3 +145,22 @@ pub struct SecretSecretUsageHttpModel {
     pub name: String,
     pub value: String,
 }
+
+#[derive(MyHttpInput)]
+pub struct GenerateRandomSecretContract {
+    #[http_body(description = "Name")]
+    pub name: String,
+    #[http_body(description = "Level")]
+    pub level: u8,
+    #[http_body(description = "Length")]
+    pub length: usize,
+}
+
+impl Into<SecretValue> for GenerateRandomSecretContract {
+    fn into(self) -> SecretValue {
+        SecretValue {
+            content: crate::secret_generator::generate(self.length),
+            level: self.level,
+        }
+    }
+}

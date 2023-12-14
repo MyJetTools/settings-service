@@ -13,3 +13,5 @@ pub use post_secret_action::*;
 pub use show_secret_action::*;
 pub use show_usage_action::*;
 pub use show_usage_by_secrets::*;
+mod generate_random_secret_action;
+pub use generate_random_secret_action::*;

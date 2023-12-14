@@ -11,8 +11,8 @@ mod key_value_repository;
 mod my_no_sql;
 mod operations;
 mod placeholders;
+mod secret_generator;
 mod settings_model;
-
 #[allow(non_snake_case)]
 pub mod templates_grpc {
     tonic::include_proto!("templates");
