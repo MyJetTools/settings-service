@@ -4,6 +4,12 @@ use crate::my_no_sql::TemplateMyNoSqlEntity;
 use rust_extensions::date_time::DateTimeAsMicroseconds;
 use serde_derive::{Deserialize, Serialize};
 
+#[derive(MyHttpInput)]
+pub struct ExportInputModel {
+    #[http_query(name = "secretsMaxLevel", description = "Max level of secrets")]
+    pub secrets_max_level: u8,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SettingTemplateDumpModel {
     env: String,

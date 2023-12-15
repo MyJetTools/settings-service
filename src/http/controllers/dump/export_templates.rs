@@ -11,6 +11,7 @@ use super::contracts::SettingTemplateDumpModel;
     route: "/api/dump/export/templates",
     description: "Export Templates",
     summary: "Export Templates",
+
     controller: "Dump",
     result:[
         {status_code: 202, description: "Ok response"},

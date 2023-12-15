@@ -5,6 +5,7 @@ mod get_all_templates;
 mod get_secret_usage_in_secrets;
 mod get_secret_usage_in_templates;
 
+mod export_to_zip;
 mod populate_secrets_recursively;
 
 mod initialize_templates;
@@ -19,6 +20,7 @@ pub use get_all_templates::*;
 pub use get_secret_usage_in_secrets::*;
 pub use get_secret_usage_in_templates::*;
 
+pub use export_to_zip::*;
 pub use initialize_templates::*;
 pub use populate_secrets_recursively::*;
 pub use populate_with_secrets::*;
