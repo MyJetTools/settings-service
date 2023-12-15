@@ -37,3 +37,10 @@ pub async fn get_used_secret_amount_by_secret(app: &AppContext, secret_name: &st
 
     amount
 }
+
+pub async fn has_secret(app: &AppContext, secret_name: &str) -> bool {
+    app.secrets_repository
+        .get_secret(secret_name)
+        .await
+        .is_some()
+}

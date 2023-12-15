@@ -31,10 +31,17 @@ async fn handle_request(
     input_data: GenerateRandomSecretContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
+    if !input_data.has_force_update() {
+        if crate::operations::secrets::has_secret(&action.app, &input_data.name).await {
+            return HttpFailResult::as_validation_error("Secret already exists").into();
+        }
+    }
+
     let secret_name = input_data.name.to_string();
     let secret_value: SecretValue = input_data.into();
 
     let result = secret_value.content.to_string();
+
     crate::operations::update_secret(&action.app, secret_name, secret_value).await;
 
     HttpOutput::as_text(result).into_ok_result(false)

@@ -154,6 +154,19 @@ pub struct GenerateRandomSecretContract {
     pub level: u8,
     #[http_body(description = "Length")]
     pub length: usize,
+
+    #[http_body(description = "Force")]
+    pub force: Option<bool>,
+}
+
+impl GenerateRandomSecretContract {
+    pub fn has_force_update(&self) -> bool {
+        if let Some(force) = self.force {
+            return force;
+        }
+
+        false
+    }
 }
 
 impl Into<SecretValue> for GenerateRandomSecretContract {
