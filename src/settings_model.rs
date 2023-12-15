@@ -17,6 +17,8 @@ pub struct SettingsModel {
     pub key_vault_url: Option<String>,
     #[serde(rename = "HttpPort")]
     pub http_port: u16,
+    #[serde(rename = "KeyVaultKey")]
+    pub key_vault_key: Option<String>,
     #[serde(rename = "Environment")]
     pub env: String,
     #[serde(rename = "FaviconColour")]
@@ -31,11 +33,19 @@ impl MyNoSqlWriterSettings for SettingsModel {
 }
 
 impl SettingsModel {
-    pub fn get_key_value_key(&self) -> Option<String> {
-        match std::env::var("KeyValueKey") {
-            Ok(value) => Some(value),
-            Err(_) => None,
+    pub async fn get_key_value_key(&self) -> Option<String> {
+        if let Some(value) = self.key_vault_key.as_ref() {
+            return Some(value.to_string());
         }
+
+        //Reading in Docker Swarm case
+        let file = tokio::fs::read_to_string("/run/secrets/settings_encryption_key").await;
+
+        if file.is_err() {
+            return None;
+        }
+
+        Some(file.unwrap())
     }
 
     pub fn get_favicon_suffix(&self) -> FaviconColor {

@@ -31,7 +31,7 @@ pub struct AppContext {
 }
 
 impl AppContext {
-    pub fn new(settings: SettingsModel) -> Self {
+    pub async fn new(settings: SettingsModel) -> Self {
         let settings_ark = Arc::new(settings.clone());
         let templates_storage = MyNoSqlDataWriter::new(
             settings_ark.clone(),
@@ -70,7 +70,7 @@ impl AppContext {
                 KeyValueRepositoryStorage::KeyValue(key_vault_client),
                 secrets_storage,
             )
-        } else if let Some(key_value_key) = settings.get_key_value_key() {
+        } else if let Some(key_value_key) = settings.get_key_value_key().await {
             let aes_key = encryption::aes::AesKey::new(key_value_key.as_bytes());
             SecretsRepository::new(
                 KeyValueRepositoryStorage::EncodingKey(aes_key),

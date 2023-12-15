@@ -27,7 +27,7 @@ pub mod secrets_grpc {
 async fn main() {
     let settings = SettingsModel::first_load(".settings-service").await.into();
 
-    let app = crate::app_ctx::AppContext::new(settings);
+    let app = crate::app_ctx::AppContext::new(settings).await;
 
     let app = Arc::new(app);
 
