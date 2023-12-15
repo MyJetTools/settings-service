@@ -9,7 +9,7 @@ use super::contracts::ExportInputModel;
 
 #[http_route(
     method: "GET",
-    route: "/api/dump/export/templates",
+    route: "/api/dump/export/snapshot",
     description: "Export Templates and Secrets",
     summary: "Export Templates and Secrets",
     input_data: ExportInputModel,
