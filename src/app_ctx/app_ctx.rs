@@ -70,7 +70,7 @@ impl AppContext {
                 KeyValueRepositoryStorage::KeyValue(key_vault_client),
                 secrets_storage,
             )
-        } else if let Some(key_value_key) = &settings.key_vault_key {
+        } else if let Some(key_value_key) = settings.get_key_value_key() {
             let aes_key = encryption::aes::AesKey::new(key_value_key.as_bytes());
             SecretsRepository::new(
                 KeyValueRepositoryStorage::EncodingKey(aes_key),

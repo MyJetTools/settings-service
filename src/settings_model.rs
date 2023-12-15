@@ -17,8 +17,6 @@ pub struct SettingsModel {
     pub key_vault_url: Option<String>,
     #[serde(rename = "HttpPort")]
     pub http_port: u16,
-    #[serde(rename = "KeyVaultKey")]
-    pub key_vault_key: Option<String>,
     #[serde(rename = "Environment")]
     pub env: String,
     #[serde(rename = "FaviconColour")]
@@ -33,6 +31,13 @@ impl MyNoSqlWriterSettings for SettingsModel {
 }
 
 impl SettingsModel {
+    pub fn get_key_value_key(&self) -> Option<String> {
+        match std::env::var("KeyValueKey") {
+            Ok(value) => Some(value),
+            Err(_) => None,
+        }
+    }
+
     pub fn get_favicon_suffix(&self) -> FaviconColor {
         match self.favicon_colour.as_ref() {
             Some(suffix) => match suffix.to_lowercase().as_str() {
