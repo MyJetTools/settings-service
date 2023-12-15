@@ -45,6 +45,7 @@ impl SettingsModel {
             return None;
         }
 
+        println!("Got Encryption key from /run/secrets");
         Some(file.unwrap())
     }
 
