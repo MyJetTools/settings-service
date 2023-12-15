@@ -44,9 +44,10 @@ impl SettingsModel {
         if file.is_err() {
             return None;
         }
+        let result = file.unwrap();
+        println!("Got Encryption key from /run/secrets. Len:{}", result);
 
-        println!("Got Encryption key from /run/secrets");
-        Some(file.unwrap())
+        Some(result)
     }
 
     pub fn get_favicon_suffix(&self) -> FaviconColor {
