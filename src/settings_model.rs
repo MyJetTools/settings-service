@@ -44,8 +44,13 @@ impl SettingsModel {
         if file.is_err() {
             return None;
         }
-        let result = file.unwrap();
-        println!("Got Encryption key from /run/secrets. Len:{}", result);
+        let mut result = file.unwrap();
+        println!("Got Encryption key from /run/secrets. Len:{}", result.len());
+
+        if result.len() > 48 {
+            println!("Truncating key to 48 bytes");
+            result.truncate(48);
+        }
 
         Some(result)
     }
