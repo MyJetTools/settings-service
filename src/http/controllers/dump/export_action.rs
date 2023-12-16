@@ -34,13 +34,14 @@ async fn handle_request(
     input_data: ExportInputModel,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let content = crate::operations::export_to_zip(&action.app, input_data.secrets_max_level).await;
+    let content =
+        crate::operations::export_snapshot(&action.app, input_data.secrets_max_level).await;
 
     let dt = DateTimeAsMicroseconds::now();
 
     let dt = dt.to_compact_date_time_string();
     HttpOutput::File {
-        file_name: format!("settings_snapshot_{dt}.zip"),
+        file_name: format!("settings_snapshot_{dt}.json"),
         content,
     }
     .into_ok_result(false)
