@@ -5,17 +5,14 @@ use rust_extensions::date_time::DateTimeAsMicroseconds;
 
 use crate::app_ctx::AppContext;
 
-use super::contracts::ExportInputModel;
-
 #[http_route(
     method: "GET",
     route: "/api/dump/export/snapshot",
     description: "Export Templates and Secrets",
     summary: "Export Templates and Secrets",
-    input_data: ExportInputModel,
     controller: "Dump",
     result:[
-        {status_code: 202, description: "Ok response"},
+        {status_code: 200, description: "Ok response"},
     ]
 )]
 
@@ -31,11 +28,10 @@ impl ExportAction {
 
 async fn handle_request(
     action: &ExportAction,
-    input_data: ExportInputModel,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let content =
-        crate::operations::export_snapshot(&action.app, input_data.secrets_max_level).await;
+    let max_level = action.app.settings.max_level_of_secrets_to_export;
+    let content = crate::operations::export_snapshot(&action.app, max_level).await;
 
     let dt = DateTimeAsMicroseconds::now();
 

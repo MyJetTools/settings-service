@@ -23,6 +23,9 @@ pub struct SettingsModel {
     pub env: String,
     #[serde(rename = "FaviconColour")]
     favicon_colour: Option<String>,
+
+    #[serde(rename = "MaxLevelOfSecretsToExport")]
+    pub max_level_of_secrets_to_export: u8,
 }
 
 #[async_trait::async_trait]
