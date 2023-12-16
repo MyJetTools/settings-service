@@ -1,7 +1,7 @@
 use rust_extensions::base64::IntoBase64;
 use serde::*;
 
-use crate::app_ctx::AppContext;
+use crate::app_ctx::{AppContext, SecretsValueReader};
 
 #[derive(Serialize, Deserialize)]
 pub struct SnapshotExportModel {
@@ -50,10 +50,12 @@ pub async fn export_snapshot(app: &AppContext, max_level: u8) -> Vec<u8> {
                 continue;
             }
 
-            if let Some(value) = secret.value.as_ref() {
+            let secret_name = secret.get_secret_name();
+
+            if let Some(value) = app.get_secret_value(secret_name).await {
                 result.secrets.push(SecretExportModel {
-                    name: secret.row_key.to_string(),
-                    value: value.to_string(),
+                    name: secret_name.to_string(),
+                    value: value.content,
                     level: secret.get_level(),
                 });
             }
