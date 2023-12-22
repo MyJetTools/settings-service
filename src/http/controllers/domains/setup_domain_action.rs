@@ -11,7 +11,7 @@ use crate::{
 #[http_route(
     method: "POST",
     route: "/api/domain/setup",
-    description: "Setup domain mask. Please use the following format: {}-env_name.domain.com",
+    description: "Setup domain mask. Please use the following format: *-env_name.domain.com",
     summary: "Setup domain mask",
     input_data: SetupDomainHttpRequest,
     controller: "Domains",

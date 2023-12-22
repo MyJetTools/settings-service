@@ -28,7 +28,7 @@ pub struct DomainsSetup {
 pub struct SetupDomainHttpRequest {
     #[http_body(
         name = "domain",
-        description = "Domain mask. Format is: {}-env_name.domain.com"
+        description = "Domain mask. Format is: *-env_name.domain.com"
     )]
     pub domain: String,
 }
