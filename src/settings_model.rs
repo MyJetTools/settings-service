@@ -26,6 +26,9 @@ pub struct SettingsModel {
 
     #[serde(rename = "MaxLevelOfSecretsToExport")]
     pub max_level_of_secrets_to_export: u8,
+
+    #[serde(rename = "CloudFlareApiKey")]
+    pub cloud_flare_api_key: Option<String>,
 }
 
 #[async_trait::async_trait]

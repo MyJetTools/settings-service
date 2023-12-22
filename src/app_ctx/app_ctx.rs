@@ -11,7 +11,7 @@ use crate::{
     caches::{LastRequestTimeCache, SecretsValuesCache, TemplatesCache},
     env_settings::EnvSettings,
     key_value_repository::{KeyValueRepositoryStorage, SecretsRepository},
-    my_no_sql::TemplateMyNoSqlEntity,
+    my_no_sql::{DomainMyNoSqlEntity, TemplateMyNoSqlEntity},
     settings_model::SettingsModel,
 };
 
@@ -24,6 +24,9 @@ pub struct AppContext {
     pub secret_values_cache: SecretsValuesCache,
     pub app_states: Arc<AppStates>,
     pub templates_storage: MyNoSqlDataWriter<TemplateMyNoSqlEntity>,
+
+    pub domains_setup: MyNoSqlDataWriter<DomainMyNoSqlEntity>,
+
     pub process_id: String,
     pub templates_cache: TemplatesCache,
     pub secrets_repository: SecretsRepository,
@@ -80,6 +83,17 @@ impl AppContext {
             panic!("No key vault url or key");
         };
 
+        let domains_setup = MyNoSqlDataWriter::new(
+            settings_ark.clone(),
+            CreateTableParams {
+                persist: true,
+                max_partitions_amount: None,
+                max_rows_per_partition_amount: None,
+            }
+            .into(),
+            DataSynchronizationPeriod::Sec5,
+        );
+
         Self {
             settings,
             app_states: Arc::new(AppStates::create_initialized()),
@@ -90,6 +104,7 @@ impl AppContext {
             last_request: LastRequestTimeCache::new(),
 
             secret_values_cache: SecretsValuesCache::new(),
+            domains_setup,
         }
     }
 }

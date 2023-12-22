@@ -6,7 +6,9 @@ mod get_secret_usage_in_secrets;
 mod get_secret_usage_in_templates;
 
 mod export_snapshot;
+mod get_domains;
 mod populate_secrets_recursively;
+pub use get_domains::*;
 
 mod initialize_templates;
 mod populate_with_secrets;
