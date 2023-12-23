@@ -14,6 +14,11 @@ mod placeholders;
 mod secret_generator;
 mod settings_model;
 #[allow(non_snake_case)]
+pub mod domains_grpc {
+    tonic::include_proto!("domains");
+}
+
+#[allow(non_snake_case)]
 pub mod templates_grpc {
     tonic::include_proto!("templates");
 }

@@ -10,6 +10,9 @@ mod get_domains;
 mod populate_secrets_recursively;
 pub use get_domains::*;
 
+mod set_domain_mask;
+pub use set_domain_mask::*;
+
 mod initialize_templates;
 mod populate_with_secrets;
 pub mod secrets;
@@ -27,3 +30,7 @@ pub use initialize_templates::*;
 pub use populate_secrets_recursively::*;
 pub use populate_with_secrets::*;
 pub use update_secret::*;
+mod set_domain_product_info;
+pub use set_domain_product_info::*;
+mod delete_domain_product_info;
+pub use delete_domain_product_info::*;

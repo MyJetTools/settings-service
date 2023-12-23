@@ -3,10 +3,7 @@ use std::sync::Arc;
 use my_http_server::{macros::http_route, HttpContext, HttpFailResult, HttpOkResult, HttpOutput};
 
 use super::contracts::*;
-use crate::{
-    app_ctx::AppContext,
-    my_no_sql::{DomainMyNoSqlEntity, DomainSetup},
-};
+use crate::app_ctx::AppContext;
 
 #[http_route(
     method: "POST",
@@ -35,17 +32,7 @@ async fn handle_request(
     input_data: SetupDomainHttpRequest,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let entity = DomainMyNoSqlEntity::DomainSetup(DomainSetup {
-        time_stamp: "".to_string(),
-        domain: input_data.domain,
-    });
-
-    action
-        .app
-        .domains_setup
-        .insert_or_replace_entity(&entity)
-        .await
-        .unwrap();
+    crate::operations::set_domain_mask(&action.app, &input_data.domain_mask).await;
 
     HttpOutput::Empty.into_ok_result(false)
 }

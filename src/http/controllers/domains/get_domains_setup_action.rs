@@ -41,16 +41,16 @@ async fn handle_request(
     if let Some(product_sub_domains) = result.product_sub_domains {
         for itm in product_sub_domains {
             products.push(ProductDomainHttpModel {
-                product: itm.get_sub_domain().to_string(),
                 is_cloud_flare_proxy: itm.is_cloud_flare_proxy,
                 internal_domain_name: itm.internal_domain_name,
+                product: itm.row_key,
             });
         }
     }
 
     let response = DomainsSetupHttpOutput {
         result: DomainsSetup {
-            domain: result.domain_setup.unwrap().domain,
+            domain: result.domain_setup.unwrap().domain_mask,
             products,
         }
         .into(),
