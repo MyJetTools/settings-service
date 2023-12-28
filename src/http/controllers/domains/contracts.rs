@@ -15,7 +15,21 @@ impl DomainsSetupHttpOutput {
 pub struct ProductDomainHttpModel {
     pub product: String,
     pub is_cloud_flare_proxy: bool,
-    pub internal_domain_name: String,
+    pub nginx: Option<NginxConfigHttpModel>,
+}
+
+#[derive(MyHttpObjectStructure, Serialize)]
+pub struct NginxConfigHttpModel {
+    pub ca: Option<String>,
+    pub template: Option<String>,
+    pub routes: Vec<NginxRouteHttpModel>,
+}
+
+#[derive(MyHttpObjectStructure, Serialize)]
+pub struct NginxRouteHttpModel {
+    pub path: String,
+    pub proxy_to: String,
+    pub template: Option<String>,
 }
 
 #[derive(MyHttpObjectStructure, Serialize)]

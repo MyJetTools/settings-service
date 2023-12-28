@@ -22,7 +22,11 @@ impl Domains for GrpcService {
                     .map(|itm| DomainProductGrpcInfo {
                         product_name: itm.row_key,
                         is_cloud_flare_proxy: itm.is_cloud_flare_proxy,
-                        internal_domain_name: itm.internal_domain_name,
+                        nginx_config: if let Some(nginx) = itm.nginx {
+                            Some(nginx.into())
+                        } else {
+                            None
+                        },
                     })
                     .collect()
             } else {
@@ -52,7 +56,7 @@ impl Domains for GrpcService {
             &self.app,
             request.product_name,
             request.is_cloud_flare_proxy,
-            request.internal_domain_name,
+            request.nginx_config,
         )
         .await;
 

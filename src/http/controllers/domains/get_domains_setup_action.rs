@@ -42,8 +42,25 @@ async fn handle_request(
         for itm in product_sub_domains {
             products.push(ProductDomainHttpModel {
                 is_cloud_flare_proxy: itm.is_cloud_flare_proxy,
-                internal_domain_name: itm.internal_domain_name,
                 product: itm.row_key,
+
+                nginx: if let Some(nginx) = itm.nginx {
+                    Some(NginxConfigHttpModel {
+                        ca: nginx.protected_with_ca,
+                        template: nginx.use_template,
+                        routes: nginx
+                            .rotes
+                            .into_iter()
+                            .map(|itm| NginxRouteHttpModel {
+                                path: itm.path,
+                                proxy_to: itm.proxy_to,
+                                template: itm.use_template,
+                            })
+                            .collect(),
+                    })
+                } else {
+                    None
+                },
             });
         }
     }

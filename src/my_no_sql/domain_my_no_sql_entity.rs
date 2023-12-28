@@ -17,5 +17,19 @@ pub struct DomainSetupMyNoSqlEntity {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ProductSubDomainMyNoSqlEntity {
     pub is_cloud_flare_proxy: bool,
-    pub internal_domain_name: String,
+    pub nginx: Option<NginxSetupMyNoSqlEntity>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct NginxSetupMyNoSqlEntity {
+    pub protected_with_ca: Option<String>,
+    pub use_template: Option<String>,
+    pub rotes: Vec<NginxRouteMyNoSqlEntity>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct NginxRouteMyNoSqlEntity {
+    pub path: String,
+    pub proxy_to: String,
+    pub use_template: Option<String>,
 }
