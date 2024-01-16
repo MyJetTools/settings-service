@@ -58,17 +58,22 @@ pub fn build_controllers(app: &Arc<AppContext>) -> Arc<ControllersMiddleware> {
         super::controllers::secrets::DeleteSecretAction::new(app.clone()),
     ));
 
+    // Dump
     result.register_get_action(Arc::new(
         super::controllers::dump::ExportTemplatesAction::new(app.clone()),
+    ));
+
+    result.register_post_action(Arc::new(
+        super::controllers::dump::ImportTemplatesAction::new(app.clone()),
     ));
 
     result.register_get_action(Arc::new(super::controllers::dump::ExportAction::new(
         app.clone(),
     )));
 
-    result.register_post_action(Arc::new(
-        super::controllers::dump::ImportTemplatesAction::new(app.clone()),
-    ));
+    result.register_post_action(Arc::new(super::controllers::dump::ImportAction::new(
+        app.clone(),
+    )));
 
     // Domains
 

@@ -7,7 +7,7 @@ use crate::app_ctx::AppContext;
 
 #[http_route(
     method: "GET",
-    route: "/api/dump/export/snapshot",
+    route: "/api/dump/snapshot/export",
     description: "Export Templates and Secrets",
     summary: "Export Templates and Secrets",
     controller: "Dump",
