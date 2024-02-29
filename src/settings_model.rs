@@ -29,6 +29,9 @@ pub struct SettingsModel {
 
     #[serde(rename = "CloudFlareApiKey")]
     pub cloud_flare_api_key: Option<String>,
+
+    #[serde(rename = "InitFromFile")]
+    pub init_from_file: Option<String>,
 }
 
 #[async_trait::async_trait]

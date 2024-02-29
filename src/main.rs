@@ -40,5 +40,11 @@ async fn main() {
 
     tokio::spawn(crate::grpc_server::server::start(app.clone(), 8888));
 
+    if let Some(init_from_file) = app.settings.init_from_file.as_ref() {
+        crate::operations::init_on_start(&app, init_from_file).await;
+    } else {
+        println!("Settings InitFromFile is not set. Skipping initialization settings from file.");
+    }
+
     app.app_states.wait_until_shutdown().await;
 }

@@ -36,3 +36,5 @@ mod delete_domain_product_info;
 pub use delete_domain_product_info::*;
 mod import_snapshot;
 pub use import_snapshot::*;
+mod init_on_start;
+pub use init_on_start::*;
