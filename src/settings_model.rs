@@ -1,6 +1,9 @@
 use my_no_sql_sdk::data_writer::MyNoSqlWriterSettings;
 use serde::{Deserialize, Serialize};
 
+pub const PLACEHOLDER_OPEN: &'static str = "${";
+pub const PLACEHOLDER_CLOSE: &'static str = "}";
+
 pub enum FaviconColor {
     Default,
     Green,

@@ -16,7 +16,11 @@ pub struct SecretValue {
 impl SecretValue {
     pub fn get_usages(&self) -> Vec<&str> {
         let mut result = Vec::new();
-        for token in PlaceholdersIterator::new(&self.content) {
+        for token in PlaceholdersIterator::new(
+            &self.content,
+            crate::settings_model::PLACEHOLDER_OPEN,
+            crate::settings_model::PLACEHOLDER_CLOSE,
+        ) {
             match token {
                 ContentToken::Text(_) => {}
                 ContentToken::Placeholder(secret_name) => result.push(secret_name),

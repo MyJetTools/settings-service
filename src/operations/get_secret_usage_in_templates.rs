@@ -10,7 +10,12 @@ pub async fn get_secret_usage_in_templates(
 
     let mut result = Vec::new();
     for template in templates {
-        if rust_extensions::placeholders::has_placeholder(&template.yaml_template, secret_name) {
+        if rust_extensions::placeholders::has_placeholder(
+            &template.yaml_template,
+            secret_name,
+            crate::settings_model::PLACEHOLDER_OPEN,
+            crate::settings_model::PLACEHOLDER_CLOSE,
+        ) {
             result.push(SecretUsage {
                 env: template.partition_key.clone(),
                 name: template.row_key.clone(),

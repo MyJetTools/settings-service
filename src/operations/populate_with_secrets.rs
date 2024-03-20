@@ -11,7 +11,11 @@ pub async fn populate_with_secrets(
 
     let mut result = String::new();
 
-    for item in PlaceholdersIterator::new(content_to_populate) {
+    for item in PlaceholdersIterator::new(
+        content_to_populate,
+        crate::settings_model::PLACEHOLDER_OPEN,
+        crate::settings_model::PLACEHOLDER_CLOSE,
+    ) {
         match item {
             ContentToken::Text(text) => {
                 result.push_str(text);

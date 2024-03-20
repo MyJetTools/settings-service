@@ -8,7 +8,11 @@ pub async fn populate_secrets_recursively(
 ) -> String {
     let mut result = String::new();
 
-    for token in PlaceholdersIterator::new(&src_secret_value.content) {
+    for token in PlaceholdersIterator::new(
+        &src_secret_value.content,
+        crate::settings_model::PLACEHOLDER_OPEN,
+        crate::settings_model::PLACEHOLDER_CLOSE,
+    ) {
         match token {
             ContentToken::Text(text) => result.push_str(text),
             ContentToken::Placeholder(secret_name) => {
@@ -49,7 +53,11 @@ async fn populate_with_secrets(
 ) -> String {
     let mut result = String::new();
 
-    for template_token in PlaceholdersIterator::new(content_to_populate) {
+    for template_token in PlaceholdersIterator::new(
+        content_to_populate,
+        crate::settings_model::PLACEHOLDER_OPEN,
+        crate::settings_model::PLACEHOLDER_CLOSE,
+    ) {
         match template_token {
             ContentToken::Text(text) => {
                 result.push_str(text);
@@ -94,7 +102,11 @@ async fn populate_with_secrets(
 }
 
 fn recompile_token(secret_value: SecretValue, result: &mut String) {
-    for secret_token in PlaceholdersIterator::new(secret_value.content.as_str()) {
+    for secret_token in PlaceholdersIterator::new(
+        secret_value.content.as_str(),
+        crate::settings_model::PLACEHOLDER_OPEN,
+        crate::settings_model::PLACEHOLDER_CLOSE,
+    ) {
         match secret_token {
             ContentToken::Text(text) => {
                 result.push_str(text);

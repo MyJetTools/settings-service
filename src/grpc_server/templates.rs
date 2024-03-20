@@ -36,7 +36,11 @@ impl Templates for GrpcService {
 
             let mut has_missing_placeholders = false;
 
-            for itm in PlaceholdersIterator::new(&item.yaml_template) {
+            for itm in PlaceholdersIterator::new(
+                &item.yaml_template,
+                crate::settings_model::PLACEHOLDER_OPEN,
+                crate::settings_model::PLACEHOLDER_CLOSE,
+            ) {
                 match itm {
                     rust_extensions::placeholders::ContentToken::Text(_) => {}
                     rust_extensions::placeholders::ContentToken::Placeholder(secret_name) => {
