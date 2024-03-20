@@ -6,6 +6,8 @@ use super::server::GrpcService;
 use crate::templates_grpc::templates_server::Templates;
 use crate::templates_grpc::*;
 
+use rust_extensions::placeholders::*;
+
 #[tonic::async_trait]
 impl Templates for GrpcService {
     type GetAllStream = Pin<
@@ -34,10 +36,10 @@ impl Templates for GrpcService {
 
             let mut has_missing_placeholders = false;
 
-            for itm in crate::placeholders::get_tokens_with_placeholders(&item.yaml_template) {
+            for itm in PlaceholdersIterator::new(&item.yaml_template) {
                 match itm {
-                    crate::placeholders::ContentToken::Text(_) => {}
-                    crate::placeholders::ContentToken::Placeholder(secret_name) => {
+                    rust_extensions::placeholders::ContentToken::Text(_) => {}
+                    rust_extensions::placeholders::ContentToken::Placeholder(secret_name) => {
                         match secrets.as_ref() {
                             Some(secrets) => {
                                 if !secrets.contains_key(secret_name) {

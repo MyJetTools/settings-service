@@ -1,8 +1,11 @@
 use std::{collections::BTreeMap, sync::atomic::AtomicBool};
 
+use rust_extensions::placeholders::PlaceholdersIterator;
 use tokio::sync::RwLock;
 
-use crate::{my_no_sql::SecretMyNoSqlEntity, placeholders::ContentToken};
+use crate::my_no_sql::SecretMyNoSqlEntity;
+
+use rust_extensions::placeholders::*;
 
 #[derive(Debug, Clone)]
 pub struct SecretValue {
@@ -13,7 +16,7 @@ pub struct SecretValue {
 impl SecretValue {
     pub fn get_usages(&self) -> Vec<&str> {
         let mut result = Vec::new();
-        for token in crate::placeholders::get_tokens_with_placeholders(&self.content) {
+        for token in PlaceholdersIterator::new(&self.content) {
             match token {
                 ContentToken::Text(_) => {}
                 ContentToken::Placeholder(secret_name) => result.push(secret_name),

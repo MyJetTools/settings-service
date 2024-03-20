@@ -14,6 +14,7 @@ my-http-server = { tag = "0.7.0", git = "https://github.com/MyJetTools/my-http-s
 
 rust-extensions = { tag = "0.1.4", git = "https://github.com/MyJetTools/rust-extensions.git", features = [
     "base64",
+    "placeholders",
 ] }
 
 my-no-sql-sdk = { tag = "0.2.0", git = "https://github.com/MyJetTools/my-no-sql-sdk.git", features = [

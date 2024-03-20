@@ -1,4 +1,5 @@
-use crate::{app_ctx::SecretsValueReader, caches::SecretValue, placeholders::ContentToken};
+use crate::{app_ctx::SecretsValueReader, caches::SecretValue};
+use rust_extensions::placeholders::*;
 
 pub async fn populate_with_secrets(
     secrets_value_reader: &impl SecretsValueReader,
@@ -10,7 +11,7 @@ pub async fn populate_with_secrets(
 
     let mut result = String::new();
 
-    for item in crate::placeholders::get_tokens_with_placeholders(content_to_populate) {
+    for item in PlaceholdersIterator::new(content_to_populate) {
         match item {
             ContentToken::Text(text) => {
                 result.push_str(text);

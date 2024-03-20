@@ -1,4 +1,6 @@
-use crate::{app_ctx::SecretsValueReader, caches::SecretValue, placeholders::ContentToken};
+use crate::{app_ctx::SecretsValueReader, caches::SecretValue};
+
+use rust_extensions::placeholders::*;
 
 pub async fn populate_secrets_recursively(
     secrets_value_reader: &impl SecretsValueReader,
@@ -6,7 +8,7 @@ pub async fn populate_secrets_recursively(
 ) -> String {
     let mut result = String::new();
 
-    for token in crate::placeholders::get_tokens_with_placeholders(&src_secret_value.content) {
+    for token in PlaceholdersIterator::new(&src_secret_value.content) {
         match token {
             ContentToken::Text(text) => result.push_str(text),
             ContentToken::Placeholder(secret_name) => {
@@ -45,10 +47,9 @@ async fn populate_with_secrets(
     secrets_value_reader: &impl SecretsValueReader,
     content_to_populate: &str,
 ) -> String {
-    let tokens = crate::placeholders::get_tokens_with_placeholders(content_to_populate);
     let mut result = String::new();
 
-    for template_token in tokens {
+    for template_token in PlaceholdersIterator::new(content_to_populate) {
         match template_token {
             ContentToken::Text(text) => {
                 result.push_str(text);
@@ -93,9 +94,7 @@ async fn populate_with_secrets(
 }
 
 fn recompile_token(secret_value: SecretValue, result: &mut String) {
-    for secret_token in
-        crate::placeholders::get_tokens_with_placeholders(secret_value.content.as_str())
-    {
+    for secret_token in PlaceholdersIterator::new(secret_value.content.as_str()) {
         match secret_token {
             ContentToken::Text(text) => {
                 result.push_str(text);
