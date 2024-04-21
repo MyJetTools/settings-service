@@ -21,19 +21,27 @@ pub async fn populate_with_secrets(
                 result.push_str(text);
             }
             ContentToken::Placeholder(secret_name) => {
-                let secret_value = secrets_value_reader.get_secret_value(secret_name).await;
-
-                if let Some(secret_value) = secret_value {
-                    if has_secrets_to_populate(&secret_value.content) {
-                        let secret_value =
-                            super::populate_secrets_recursively(secrets_value_reader, secret_value)
-                                .await;
-                        result.push_str(&secret_value);
-                    } else {
-                        result.push_str(&secret_value.content);
-                    }
+                if secret_name.starts_with('$') {
+                    result.push_str("${");
+                    result.push_str(secret_name);
+                    result.push('}');
                 } else {
-                    populate_secret_not_found(&mut result, secret_name)
+                    let secret_value = secrets_value_reader.get_secret_value(secret_name).await;
+
+                    if let Some(secret_value) = secret_value {
+                        if has_secrets_to_populate(&secret_value.content) {
+                            let secret_value = super::populate_secrets_recursively(
+                                secrets_value_reader,
+                                secret_value,
+                            )
+                            .await;
+                            result.push_str(&secret_value);
+                        } else {
+                            result.push_str(&secret_value.content);
+                        }
+                    } else {
+                        populate_secret_not_found(&mut result, secret_name)
+                    }
                 }
             }
         }

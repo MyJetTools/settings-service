@@ -16,25 +16,31 @@ pub async fn populate_secrets_recursively(
         match token {
             ContentToken::Text(text) => result.push_str(text),
             ContentToken::Placeholder(secret_name) => {
-                let secret_value = secrets_value_reader.get_secret_value(secret_name).await;
+                if secret_name.starts_with('$') {
+                    result.push_str("${");
+                    result.push_str(secret_name);
+                    result.push('}');
+                } else {
+                    let secret_value = secrets_value_reader.get_secret_value(secret_name).await;
 
-                if let Some(secret_value) = secret_value {
-                    if secret_value.level > src_secret_value.level {
-                        if super::has_secrets_to_populate(&secret_value.content) {
-                            recompile_token(secret_value, &mut result);
+                    if let Some(secret_value) = secret_value {
+                        if secret_value.level > src_secret_value.level {
+                            if super::has_secrets_to_populate(&secret_value.content) {
+                                recompile_token(secret_value, &mut result);
+                            } else {
+                                result.push_str(&secret_value.content);
+                            }
                         } else {
-                            result.push_str(&secret_value.content);
+                            super::fill_token_has_wrong_level(
+                                secret_name,
+                                secret_value,
+                                src_secret_value.level,
+                                &mut result,
+                            );
                         }
                     } else {
-                        super::fill_token_has_wrong_level(
-                            secret_name,
-                            secret_value,
-                            src_secret_value.level,
-                            &mut result,
-                        );
+                        super::populate_secret_not_found(&mut result, secret_name);
                     }
-                } else {
-                    super::populate_secret_not_found(&mut result, secret_name);
                 }
             }
         }
@@ -63,35 +69,41 @@ async fn populate_with_secrets(
                 result.push_str(text);
             }
             ContentToken::Placeholder(secret_name) => {
-                let (secret_name, secret_min_level) = super::parse_secret_line(secret_name);
+                if secret_name.starts_with('$') {
+                    result.push_str("${");
+                    result.push_str(secret_name);
+                    result.push('}');
+                } else {
+                    let (secret_name, secret_min_level) = super::parse_secret_line(secret_name);
 
-                match secrets_value_reader.get_secret_value(secret_name).await {
-                    Some(secret_value) => {
-                        if let Some(secret_min_level) = secret_min_level {
-                            if secret_value.level > secret_min_level {
+                    match secrets_value_reader.get_secret_value(secret_name).await {
+                        Some(secret_value) => {
+                            if let Some(secret_min_level) = secret_min_level {
+                                if secret_value.level > secret_min_level {
+                                    if super::has_secrets_to_populate(&secret_value.content) {
+                                        recompile_token(secret_value, &mut result);
+                                    } else {
+                                        result.push_str(secret_value.content.as_str());
+                                    }
+                                } else {
+                                    super::fill_token_has_wrong_level(
+                                        secret_name,
+                                        secret_value,
+                                        secret_min_level,
+                                        &mut result,
+                                    );
+                                }
+                            } else {
                                 if super::has_secrets_to_populate(&secret_value.content) {
                                     recompile_token(secret_value, &mut result);
                                 } else {
                                     result.push_str(secret_value.content.as_str());
                                 }
-                            } else {
-                                super::fill_token_has_wrong_level(
-                                    secret_name,
-                                    secret_value,
-                                    secret_min_level,
-                                    &mut result,
-                                );
-                            }
-                        } else {
-                            if super::has_secrets_to_populate(&secret_value.content) {
-                                recompile_token(secret_value, &mut result);
-                            } else {
-                                result.push_str(secret_value.content.as_str());
                             }
                         }
-                    }
-                    None => {
-                        result.push_str(&format!("/*Secret {} not found*/", secret_name));
+                        None => {
+                            result.push_str(&format!("/*Secret {} not found*/", secret_name));
+                        }
                     }
                 }
             }
@@ -112,11 +124,17 @@ fn recompile_token(secret_value: SecretValue, result: &mut String) {
                 result.push_str(text);
             }
             ContentToken::Placeholder(secret_name) => {
-                result.push_str("${");
-                result.push_str(secret_name);
-                result.push_str(":");
-                result.push_str(secret_value.level.to_string().as_str());
-                result.push_str("}");
+                if secret_name.starts_with('$') {
+                    result.push_str("${");
+                    result.push_str(secret_name);
+                    result.push('}');
+                } else {
+                    result.push_str("${");
+                    result.push_str(secret_name);
+                    result.push_str(":");
+                    result.push_str(secret_value.level.to_string().as_str());
+                    result.push_str("}");
+                }
             }
         }
     }
