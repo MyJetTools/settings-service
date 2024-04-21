@@ -23,7 +23,7 @@ pub async fn populate_with_secrets(
             ContentToken::Placeholder(secret_name) => {
                 if secret_name.starts_with('$') {
                     result.push_str("${");
-                    result.push_str(secret_name);
+                    result.push_str(&secret_name[1..]);
                     result.push('}');
                 } else {
                     let secret_value = secrets_value_reader.get_secret_value(secret_name).await;
