@@ -6,7 +6,7 @@ mod app_ctx;
 mod caches;
 mod env_settings;
 mod grpc_server;
-mod http;
+mod http_server;
 mod key_value_repository;
 mod my_no_sql;
 mod operations;
@@ -35,7 +35,7 @@ async fn main() {
 
     let app = Arc::new(app);
 
-    crate::http::start(&app);
+    crate::http_server::start(&app);
 
     tokio::spawn(crate::grpc_server::server::start(app.clone(), 8888));
 

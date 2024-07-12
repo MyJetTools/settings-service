@@ -25,16 +25,17 @@ impl HttpServerMiddleware for SettingsMiddleware {
         ctx: &mut HttpContext,
         get_next: &mut HttpServerRequestFlow,
     ) -> Result<HttpOkResult, HttpFailResult> {
-        let path = ctx.request.get_path().to_lowercase();
+        let path = ctx.request.get_path();
 
         let mut env = None;
         let mut name = None;
 
         let mut no = 0;
 
-        for segment in path.split('/') {
+        for segment in path.as_str().split('/') {
             if no == 1 {
-                if segment != "settings" {
+                if rust_extensions::str_utils::compare_strings_case_insensitive(segment, "settings")
+                {
                     return get_next.next(ctx).await;
                 }
             }

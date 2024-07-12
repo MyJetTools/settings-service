@@ -15,43 +15,40 @@ pub struct SecretUsage {
 
 pub struct TemplatesCache {
     initialized: AtomicBool,
-    items: Mutex<Option<Vec<Arc<TemplateMyNoSqlEntity>>>>,
+    items: Mutex<Vec<Arc<TemplateMyNoSqlEntity>>>,
 }
 
 impl TemplatesCache {
     pub fn new() -> Self {
         Self {
             initialized: AtomicBool::new(false),
-            items: Mutex::new(None),
+            items: Mutex::new(vec![]),
         }
     }
 
     pub async fn init(&self, src: Option<Vec<TemplateMyNoSqlEntity>>) {
-        let mut result = Vec::new();
-
-        if let Some(src) = src {
-            for itm in src {
-                result.push(Arc::new(itm));
-            }
+        if src.is_none() {
+            return;
         }
+
+        let items = src.unwrap();
 
         let mut write_access = self.items.lock().await;
 
-        write_access.replace(result);
+        *write_access = items.into_iter().map(|itm| Arc::new(itm)).collect();
+
         self.initialized.store(true, Ordering::SeqCst);
     }
 
     pub async fn get_all(&self) -> Vec<Arc<TemplateMyNoSqlEntity>> {
         let read_access = self.items.lock().await;
-        let result = read_access.as_ref().unwrap();
-        return result.clone();
+        return read_access.clone();
     }
 
     pub async fn get(&self, env: &str, name: &str) -> Option<Arc<TemplateMyNoSqlEntity>> {
         let read_access = self.items.lock().await;
-        let result = read_access.as_ref().unwrap();
 
-        for itm in result {
+        for itm in read_access.iter() {
             if itm.partition_key == env && itm.row_key == name {
                 return Some(itm.clone());
             }
@@ -67,30 +64,23 @@ impl TemplatesCache {
     pub async fn save(&self, entity: TemplateMyNoSqlEntity) {
         let mut write_access = self.items.lock().await;
 
-        let index = get_no(
-            write_access.as_ref().unwrap(),
-            &entity.partition_key,
-            &entity.row_key,
-        );
+        let index = get_no(&write_access, &entity.partition_key, &entity.row_key);
 
         if let Some(index) = index {
-            write_access.as_mut().unwrap().remove(index);
-            write_access
-                .as_mut()
-                .unwrap()
-                .insert(index, Arc::new(entity));
+            write_access.remove(index);
+            write_access.insert(index, Arc::new(entity));
         } else {
-            write_access.as_mut().unwrap().push(Arc::new(entity));
+            write_access.push(Arc::new(entity));
         }
     }
 
     pub async fn delete(&self, env: &str, name: &str) {
         let mut write_access = self.items.lock().await;
 
-        let index = get_no(write_access.as_ref().unwrap(), env, name);
+        let index = get_no(&write_access, env, name);
 
         if let Some(index) = index {
-            write_access.as_mut().unwrap().remove(index);
+            write_access.remove(index);
         }
     }
 
@@ -98,7 +88,7 @@ impl TemplatesCache {
         let read_access = self.items.lock().await;
 
         let mut result = 0;
-        for itm in read_access.as_ref().unwrap() {
+        for itm in read_access.iter() {
             if itm.yaml_template.contains(contains) {
                 result += 1;
             }
