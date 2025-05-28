@@ -1,9 +1,6 @@
 use std::sync::Arc;
 
-use my_http_server::{
-    HttpContext, HttpFailResult, HttpOkResult, HttpOutput, HttpServerMiddleware,
-    HttpServerRequestFlow,
-};
+use my_http_server::{HttpContext, HttpFailResult, HttpOkResult, HttpOutput, HttpServerMiddleware};
 use rust_extensions::date_time::DateTimeAsMicroseconds;
 
 use crate::app_ctx::AppContext;
@@ -23,8 +20,7 @@ impl HttpServerMiddleware for SettingsMiddleware {
     async fn handle_request(
         &self,
         ctx: &mut HttpContext,
-        get_next: &mut HttpServerRequestFlow,
-    ) -> Result<HttpOkResult, HttpFailResult> {
+    ) -> Option<Result<HttpOkResult, HttpFailResult>> {
         let path = ctx.request.get_path();
 
         let mut env = None;
@@ -36,7 +32,7 @@ impl HttpServerMiddleware for SettingsMiddleware {
             if no == 1 {
                 if rust_extensions::str_utils::compare_strings_case_insensitive(segment, "settings")
                 {
-                    return get_next.next(ctx).await;
+                    return None;
                 }
             }
             if no == 2 {
@@ -48,7 +44,7 @@ impl HttpServerMiddleware for SettingsMiddleware {
         }
 
         if no != 4 {
-            return get_next.next(ctx).await;
+            return None;
         }
 
         let env = env.unwrap();
@@ -57,7 +53,7 @@ impl HttpServerMiddleware for SettingsMiddleware {
         let yaml = crate::operations::templates::get_populated_template(&self.app, env, name).await;
 
         if yaml.is_none() {
-            return get_next.next(ctx).await;
+            return None;
         }
 
         self.app
@@ -65,6 +61,6 @@ impl HttpServerMiddleware for SettingsMiddleware {
             .update(env, name, DateTimeAsMicroseconds::now())
             .await;
 
-        HttpOutput::as_text(yaml.unwrap()).into_ok_result(false)
+        Some(HttpOutput::as_text(yaml.unwrap()).into_ok_result(false))
     }
 }

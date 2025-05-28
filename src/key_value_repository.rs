@@ -8,7 +8,7 @@ use crate::{
     caches::{SecretValue, SecretsCache},
     my_no_sql::SecretMyNoSqlEntity,
 };
-use encryption::aes::{AesEncryptedData, AesKey};
+use encryption::{aes::*, AesEncryptedDataOwned};
 
 pub enum KeyValueRepositoryStorage {
     KeyValue(MyAzureKeyVault),
@@ -69,7 +69,7 @@ impl SecretsRepository {
             }
             KeyValueRepositoryStorage::EncodingKey(aes_key) => {
                 if let Some(value) = &entity.value {
-                    let bytes = AesEncryptedData::from_base_64(value);
+                    let bytes = AesEncryptedDataOwned::from_base_64(value);
                     if bytes.is_err() {
                         return Some(entity.to_empty_value());
                     }
@@ -96,7 +96,7 @@ impl SecretsRepository {
         let mut entity = SecretMyNoSqlEntity {
             partition_key: SecretMyNoSqlEntity::generate_partition_key().to_string(),
             row_key: secret_name.to_string(),
-            time_stamp: now.clone(),
+            time_stamp: Default::default(),
             create_date: now.clone(),
             last_update_date: now,
             value: None,
@@ -165,7 +165,7 @@ fn decode_value(entity: &SecretMyNoSqlEntity, aes_key: &AesKey) -> Option<Secret
 
     match value {
         Some(value) => {
-            let encrypted_data = AesEncryptedData::from_base_64(value);
+            let encrypted_data = AesEncryptedDataOwned::from_base_64(value);
 
             if encrypted_data.is_err() {
                 return None;

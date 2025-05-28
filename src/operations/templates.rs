@@ -30,7 +30,7 @@ pub async fn post(app: &AppContext, evn: String, name: String, yaml: String) {
             create_date: DateTimeAsMicroseconds::now().to_rfc3339(),
             last_update_date: DateTimeAsMicroseconds::now().to_rfc3339(),
             yaml_template: yaml,
-            time_stamp: DateTimeAsMicroseconds::now().to_rfc3339(),
+            time_stamp: Default::default(),
         }
     };
 

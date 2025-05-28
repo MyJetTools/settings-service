@@ -26,7 +26,7 @@ impl Into<TemplateMyNoSqlEntity> for SettingTemplateDumpModel {
         TemplateMyNoSqlEntity {
             partition_key: self.env,
             row_key: self.name,
-            time_stamp: "".to_string(),
+            time_stamp: Default::default(),
             create_date: DateTimeAsMicroseconds::now().to_rfc3339(),
             last_update_date: DateTimeAsMicroseconds::now().to_rfc3339(),
             yaml_template: self.template,

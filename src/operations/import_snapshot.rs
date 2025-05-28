@@ -30,7 +30,7 @@ pub async fn import_snapshot(app: &AppContext, snapshot: &[u8]) {
         let template = TemplateMyNoSqlEntity {
             partition_key: template.env,
             row_key: template.name,
-            time_stamp: "".to_string(),
+            time_stamp: Default::default(),
             create_date: DateTimeAsMicroseconds::now().to_rfc3339(),
             last_update_date: DateTimeAsMicroseconds::now().to_rfc3339(),
             yaml_template: String::from_utf8(template.yaml.from_base64().unwrap()).unwrap(),

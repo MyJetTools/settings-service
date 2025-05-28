@@ -39,6 +39,12 @@ pub struct SettingsModel {
 
 #[async_trait::async_trait]
 impl MyNoSqlWriterSettings for SettingsModel {
+    fn get_app_name(&self) -> &'static str {
+        crate::app_ctx::APP_NAME
+    }
+    fn get_app_version(&self) -> &'static str {
+        crate::app_ctx::APP_VERSION
+    }
     async fn get_url(&self) -> String {
         self.my_no_sql_server.clone()
     }

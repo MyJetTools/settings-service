@@ -1,23 +1,20 @@
-use std::pin::Pin;
-
-use futures_core::Stream;
-
 use super::server::GrpcService;
 use crate::app_ctx::SecretsValueReader;
 use crate::caches::SecretValue;
 use crate::secrets_grpc::secrets_server::Secrets;
 use crate::secrets_grpc::*;
 
+use my_grpc_extensions::server::*;
+
 #[tonic::async_trait]
 impl Secrets for GrpcService {
-    type GetAllStream =
-        Pin<Box<dyn Stream<Item = Result<SecretListItem, tonic::Status>> + Send + Sync + 'static>>;
+    generate_server_stream!(stream_name:"GetAllStream", item_name:"SecretListItem");
 
     async fn get_all(
         &self,
         _: tonic::Request<()>,
     ) -> Result<tonic::Response<Self::GetAllStream>, tonic::Status> {
-        if let Some(items) = crate::operations::get_all_secrets(&self.app).await {
+        let result = if let Some(items) = crate::operations::get_all_secrets(&self.app).await {
             let mut result = Vec::with_capacity(items.len());
             for item in items {
                 let templates_amount =
@@ -42,12 +39,17 @@ impl Secrets for GrpcService {
                     used_by_templates: templates_amount as i32,
                 });
             }
-            my_grpc_extensions::grpc_server::send_vec_to_stream(result.into_iter(), |item| item)
-                .await
+
+            result
         } else {
+            vec![]
+        };
+
+        let result =
             my_grpc_extensions::grpc_server::send_vec_to_stream(vec![].into_iter(), |item| item)
-                .await
-        }
+                .await;
+
+        result
     }
 
     async fn get(
