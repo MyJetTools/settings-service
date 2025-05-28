@@ -29,7 +29,9 @@ pub mod secrets_grpc {
 
 #[tokio::main]
 async fn main() {
-    let settings = SettingsModel::first_load(".settings-service").await.into();
+    let settings = SettingsModel::first_load("~/.settings-service")
+        .await
+        .into();
 
     let app = crate::app_ctx::AppContext::new(settings).await;
 
