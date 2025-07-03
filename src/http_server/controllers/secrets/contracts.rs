@@ -1,11 +1,11 @@
+use std::sync::Arc;
+
 use my_http_server::macros::*;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    app_ctx::AppContext,
-    caches::{SecretUsage, SecretValue},
-    my_no_sql::SecretMyNoSqlEntity,
-};
+use crate::{app_ctx::AppContext, my_no_sql::SecretMyNoSqlEntity};
+
+use crate::models::*;
 
 #[derive(MyHttpInput)]
 pub struct PostSecretContract {
@@ -52,7 +52,7 @@ pub struct ListOfSecretsContract {
 }
 
 impl ListOfSecretsContract {
-    pub async fn new(app: &AppContext, items: Vec<SecretMyNoSqlEntity>) -> Self {
+    pub async fn new(app: &AppContext, items: Vec<Arc<SecretMyNoSqlEntity>>) -> Self {
         let mut data = Vec::with_capacity(items.len());
 
         for item in items {
@@ -81,17 +81,19 @@ impl SecretModel {
             name: itm.row_key.to_string(),
             created: itm.create_date.to_string(),
             updated: itm.last_update_date.to_string(),
-            templates_amount: crate::operations::secrets::get_used_secret_amount_by_template(
+            templates_amount: crate::scripts::secrets::get_secret_usage_by_templates(
                 app,
                 itm.get_secret_name(),
             )
-            .await,
+            .await
+            .len(),
 
-            secrets_amount: crate::operations::secrets::get_used_secret_amount_by_secret(
+            secrets_amount: crate::scripts::secrets::get_secret_usage_by_secrets(
                 app,
                 itm.get_secret_name(),
             )
-            .await,
+            .await
+            .len(),
             level: itm.level.unwrap_or(0),
         }
     }

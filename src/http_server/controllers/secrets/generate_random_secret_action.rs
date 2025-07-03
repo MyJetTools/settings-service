@@ -3,7 +3,9 @@ use std::sync::Arc;
 use my_http_server::{macros::http_route, HttpContext, HttpFailResult, HttpOkResult, HttpOutput};
 
 use super::contracts::*;
-use crate::{app_ctx::AppContext, caches::SecretValue};
+use crate::app_ctx::AppContext;
+
+use crate::models::*;
 
 #[http_route(
     method: "POST",
@@ -32,7 +34,7 @@ async fn handle_request(
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
     if !input_data.has_force_update() {
-        if crate::operations::secrets::has_secret(&action.app, &input_data.name).await {
+        if crate::scripts::secrets::has_secret(&action.app, &input_data.name).await {
             return HttpFailResult::as_validation_error("Secret already exists").into();
         }
     }
@@ -42,7 +44,7 @@ async fn handle_request(
 
     let result = secret_value.content.to_string();
 
-    crate::operations::update_secret(&action.app, secret_name, secret_value).await;
+    crate::scripts::secrets::update(&action.app, secret_name, secret_value).await;
 
     HttpOutput::as_text(result).into_ok_result(false)
 }

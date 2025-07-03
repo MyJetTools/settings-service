@@ -19,6 +19,7 @@ rust-extensions = { tag = "0.1.5", git = "https://github.com/MyJetTools/rust-ext
 
 my-no-sql-sdk = { tag = "0.4.1", git = "https://github.com/MyJetTools/my-no-sql-sdk.git", features = [
     "data-writer",
+    "data-reader",
     "macros",
 ] }
 
@@ -30,15 +31,14 @@ my-grpc-extensions = { tag = "0.6.5", git = "https://github.com/MyJetTools/my-gr
 
 flurl = { tag = "0.6.1", git = "https://github.com/MyJetTools/fl-url.git" }
 my-settings-reader = { tag = "0.4.1", git = "https://github.com/MyJetTools/my-settings-reader.git" }
-my-azure-key-vault = { tag = "0.2.0", git = "https://github.com/MyJetTools/my-azure-key-valut.git" }
 encryption = { tag = "0.1.1", git = "https://github.com/MyJetTools/encryption.git" }
 
-tonic = { version = "*", features = ["prost"] }
-hyper = { version = "*", features = ["full"] }
-tokio = { version = "*", features = ["full"] }
+tonic = { version = "*" }
+hyper = { version = "*" }
+tokio = { version = "*" }
 tokio-util = "*"
-prost = "*"
-prost-types = "*"
+prost = "0.13"
+prost-types = "0.13"
 anyhow = "*"
 serde = "*"
 serde_yaml = "*"
@@ -53,4 +53,4 @@ rand = "*"
 zip = "*"
 
 [build-dependencies]
-tonic-build = { version = "*", features = ["prost"] }
+tonic-build = { version = "*" }

@@ -3,7 +3,7 @@ use std::sync::Arc;
 use my_http_server::{macros::http_route, HttpContext, HttpFailResult, HttpOkResult, HttpOutput};
 
 use super::contracts::*;
-use crate::app_ctx::{AppContext, SecretsValueReader};
+use crate::app_ctx::AppContext;
 
 #[http_route(
     method: "POST",
@@ -31,7 +31,7 @@ async fn handle_request(
     input_data: GetSecretContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let result = action.app.get_secret_value(&input_data.name).await;
+    let result = crate::scripts::secrets::get_value(&action.app, &input_data.name).await;
 
     match result {
         Some(result) => {

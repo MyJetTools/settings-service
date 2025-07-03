@@ -32,6 +32,6 @@ async fn handle_request(
     input_data: ImportSnapshotModel,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    crate::operations::import_snapshot(&action.app, &input_data.dump.content).await;
+    crate::flows::import_snapshot(&action.app, &input_data.dump.content).await;
     HttpOutput::Empty.into_ok_result(false)
 }

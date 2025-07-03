@@ -30,7 +30,7 @@ async fn handle_request(
     action: &GetDomainsAction,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let result = crate::operations::get_domains(&action.app).await;
+    let result = crate::flows::get_domains(&action.app).await;
 
     if result.domain_setup.is_none() {
         return HttpOutput::as_json(DomainsSetupHttpOutput::create_none()).into_ok_result(false);

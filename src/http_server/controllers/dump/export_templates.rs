@@ -32,7 +32,7 @@ async fn handle_request(
     action: &ExportTemplatesAction,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let templates = crate::operations::get_all_templates(&action.app).await;
+    let templates = crate::scripts::templates::get_all(&action.app).await;
 
     let dump_data = templates
         .iter()

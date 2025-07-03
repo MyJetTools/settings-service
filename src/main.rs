@@ -1,18 +1,21 @@
 use std::sync::Arc;
 
-use crate::settings_model::SettingsModel;
+use crate::settings::SettingsModel;
 
 mod app_ctx;
 mod caches;
-mod env_settings;
+
 mod grpc_server;
 mod http_server;
-mod key_value_repository;
+//mod key_value_repository;
+mod flows;
+mod models;
 mod my_no_sql;
-mod operations;
 mod secret_generator;
-mod settings_model;
-#[allow(non_snake_case)]
+mod settings;
+
+mod scripts;
+
 pub mod domains_grpc {
     tonic::include_proto!("domains");
 }
@@ -41,11 +44,7 @@ async fn main() {
 
     tokio::spawn(crate::grpc_server::server::start(app.clone(), 8888));
 
-    if let Some(init_from_file) = app.settings.init_from_file.as_ref() {
-        crate::operations::init_on_start(&app, init_from_file).await;
-    } else {
-        println!("Settings InitFromFile is not set. Skipping initialization settings from file.");
-    }
+    app.reader_connection.start().await;
 
     app.app_states.wait_until_shutdown().await;
 }

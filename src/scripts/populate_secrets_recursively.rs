@@ -1,17 +1,19 @@
-use crate::{app_ctx::SecretsValueReader, caches::SecretValue};
+use crate::app_ctx::AppContext;
+
+use crate::models::*;
 
 use rust_extensions::placeholders::*;
 
 pub async fn populate_secrets_recursively(
-    secrets_value_reader: &impl SecretsValueReader,
+    app: &AppContext,
     src_secret_value: SecretValue,
 ) -> String {
     let mut result = String::new();
 
     for token in PlaceholdersIterator::new(
         &src_secret_value.content,
-        crate::settings_model::PLACEHOLDER_OPEN,
-        crate::settings_model::PLACEHOLDER_CLOSE,
+        super::PLACEHOLDER_OPEN,
+        super::PLACEHOLDER_CLOSE,
     ) {
         match token {
             ContentToken::Text(text) => result.push_str(text),
@@ -21,7 +23,7 @@ pub async fn populate_secrets_recursively(
                     result.push_str(&secret_name[1..]);
                     result.push('}');
                 } else {
-                    let secret_value = secrets_value_reader.get_secret_value(secret_name).await;
+                    let secret_value = crate::scripts::secrets::get_value(app, secret_name).await;
 
                     if let Some(secret_value) = secret_value {
                         if secret_value.level > src_secret_value.level {
@@ -47,22 +49,19 @@ pub async fn populate_secrets_recursively(
     }
 
     while super::has_secrets_to_populate(&result) {
-        result = populate_with_secrets(secrets_value_reader, &result).await;
+        result = populate_with_secrets(app, &result).await;
     }
 
     result
 }
 
-async fn populate_with_secrets(
-    secrets_value_reader: &impl SecretsValueReader,
-    content_to_populate: &str,
-) -> String {
+async fn populate_with_secrets(app: &AppContext, content_to_populate: &str) -> String {
     let mut result = String::new();
 
     for template_token in PlaceholdersIterator::new(
         content_to_populate,
-        crate::settings_model::PLACEHOLDER_OPEN,
-        crate::settings_model::PLACEHOLDER_CLOSE,
+        super::PLACEHOLDER_OPEN,
+        super::PLACEHOLDER_CLOSE,
     ) {
         match template_token {
             ContentToken::Text(text) => {
@@ -76,7 +75,7 @@ async fn populate_with_secrets(
                 } else {
                     let (secret_name, secret_min_level) = super::parse_secret_line(secret_name);
 
-                    match secrets_value_reader.get_secret_value(secret_name).await {
+                    match crate::scripts::secrets::get_value(app, secret_name).await {
                         Some(secret_value) => {
                             if let Some(secret_min_level) = secret_min_level {
                                 if secret_value.level > secret_min_level {
@@ -116,8 +115,8 @@ async fn populate_with_secrets(
 fn recompile_token(secret_value: SecretValue, result: &mut String) {
     for secret_token in PlaceholdersIterator::new(
         secret_value.content.as_str(),
-        crate::settings_model::PLACEHOLDER_OPEN,
-        crate::settings_model::PLACEHOLDER_CLOSE,
+        super::PLACEHOLDER_OPEN,
+        super::PLACEHOLDER_CLOSE,
     ) {
         match secret_token {
             ContentToken::Text(text) => {

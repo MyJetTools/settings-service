@@ -1,20 +1,20 @@
-use crate::{app_ctx::AppContext, caches::SecretUsage};
+use crate::app_ctx::AppContext;
 
-pub async fn get_secret_usage_in_templates(
+use crate::models::*;
+
+pub async fn get_secret_usage_by_templates(
     app: &AppContext,
     secret_name: &str,
 ) -> Vec<SecretUsage> {
-    super::initialize_templates(app, false).await;
-
-    let templates = app.templates_cache.get_all().await;
+    let templates = crate::scripts::templates::get_all(app).await;
 
     let mut result = Vec::new();
     for template in templates {
         if rust_extensions::placeholders::has_placeholder(
             &template.yaml_template,
             secret_name,
-            crate::settings_model::PLACEHOLDER_OPEN,
-            crate::settings_model::PLACEHOLDER_CLOSE,
+            super::super::PLACEHOLDER_OPEN,
+            super::super::PLACEHOLDER_CLOSE,
         ) {
             result.push(SecretUsage {
                 env: template.partition_key.clone(),

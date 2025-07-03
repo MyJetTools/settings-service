@@ -30,7 +30,7 @@ async fn handle_request(
     action: &GetSecretsAction,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let secrets = crate::operations::get_all_secrets(&action.app)
+    let secrets = crate::scripts::secrets::get_all(&action.app)
         .await
         .unwrap_or(vec![]);
 

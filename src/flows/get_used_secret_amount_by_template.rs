@@ -1,4 +1,4 @@
-use crate::app_ctx::{AppContext, SecretsValueReader};
+use crate::app_ctx::AppContext;
 
 pub async fn get_used_secret_amount_by_template(app: &AppContext, secret_name: &str) -> usize {
     if !app.templates_cache.is_initialized() {
@@ -14,7 +14,7 @@ pub async fn get_used_secret_amount_by_template(app: &AppContext, secret_name: &
 }
 
 pub async fn get_used_secret_amount_by_secret(app: &AppContext, secret_name: &str) -> usize {
-    let secrets = super::get_all_secrets(app).await;
+    let secrets = crate::scripts::secrets::get_all(app).await;
 
     if secrets.is_none() {
         return 0;
@@ -25,7 +25,7 @@ pub async fn get_used_secret_amount_by_secret(app: &AppContext, secret_name: &st
     let mut amount = 0;
 
     for secret in secrets.unwrap() {
-        let value = app.get_secret_value(secret.get_secret_name()).await;
+        let value = crate::scripts::secrets::decode(&secret, &app.aes_key);
 
         if let Some(value) = value {
             if value.content.contains(secret_name.as_str()) {
@@ -36,11 +36,4 @@ pub async fn get_used_secret_amount_by_secret(app: &AppContext, secret_name: &st
     }
 
     amount
-}
-
-pub async fn has_secret(app: &AppContext, secret_name: &str) -> bool {
-    app.secrets_repository
-        .get_secret(secret_name)
-        .await
-        .is_some()
 }

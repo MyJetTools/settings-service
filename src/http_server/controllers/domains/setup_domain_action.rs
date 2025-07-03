@@ -32,7 +32,7 @@ async fn handle_request(
     input_data: SetupDomainHttpRequest,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    crate::operations::set_domain_mask(&action.app, &input_data.domain_mask).await;
+    crate::flows::set_domain_mask(&action.app, &input_data.domain_mask).await;
 
     HttpOutput::Empty.into_ok_result(false)
 }

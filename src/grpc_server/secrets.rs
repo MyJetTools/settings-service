@@ -1,6 +1,5 @@
 use super::server::GrpcService;
-use crate::app_ctx::SecretsValueReader;
-use crate::caches::SecretValue;
+use crate::models::*;
 use crate::secrets_grpc::secrets_server::Secrets;
 use crate::secrets_grpc::*;
 
@@ -14,17 +13,16 @@ impl Secrets for GrpcService {
         &self,
         _: tonic::Request<()>,
     ) -> Result<tonic::Response<Self::GetAllStream>, tonic::Status> {
-        let result = if let Some(items) = crate::operations::get_all_secrets(&self.app).await {
+        let result = if let Some(items) = crate::scripts::secrets::get_all(&self.app).await {
             let mut result = Vec::with_capacity(items.len());
             for item in items {
-                let templates_amount =
-                    crate::operations::secrets::get_used_secret_amount_by_template(
-                        &self.app,
-                        item.get_secret_name(),
-                    )
-                    .await;
+                let templates_amount = crate::scripts::secrets::get_secret_usage_by_templates(
+                    &self.app,
+                    item.get_secret_name(),
+                )
+                .await;
 
-                let secrets_amount = crate::operations::secrets::get_used_secret_amount_by_secret(
+                let secrets_amount = crate::scripts::secrets::get_secret_usage_by_secrets(
                     &self.app,
                     item.get_secret_name(),
                 )
@@ -35,8 +33,8 @@ impl Secrets for GrpcService {
                     level: item.level.unwrap_or(0) as i32,
                     created: item.create_date.clone(),
                     updated: item.last_update_date.clone(),
-                    used_by_secrets: secrets_amount as i32,
-                    used_by_templates: templates_amount as i32,
+                    used_by_secrets: secrets_amount.len() as i32,
+                    used_by_templates: templates_amount.len() as i32,
                 });
             }
 
@@ -46,7 +44,7 @@ impl Secrets for GrpcService {
         };
 
         let result =
-            my_grpc_extensions::grpc_server::send_vec_to_stream(vec![].into_iter(), |item| item)
+            my_grpc_extensions::grpc_server::send_vec_to_stream(result.into_iter(), |item| item)
                 .await;
 
         result
@@ -58,7 +56,7 @@ impl Secrets for GrpcService {
     ) -> Result<tonic::Response<SecretModel>, tonic::Status> {
         let request = request.into_inner();
 
-        let result = self.app.get_secret_value(&request.name).await;
+        let result = crate::scripts::secrets::get_value(&self.app, &request.name).await;
 
         let result = match result {
             Some(value) => SecretModel {
@@ -84,7 +82,7 @@ impl Secrets for GrpcService {
 
         let model = request.model.unwrap();
 
-        crate::operations::update_secret(
+        crate::scripts::secrets::update(
             &self.app,
             model.name,
             SecretValue {
@@ -102,7 +100,7 @@ impl Secrets for GrpcService {
         request: tonic::Request<DeleteSecretRequest>,
     ) -> Result<tonic::Response<()>, tonic::Status> {
         let request = request.into_inner();
-        crate::operations::delete_secret(&self.app, &request.name).await;
+        crate::scripts::secrets::delete(&self.app, &request.name).await;
         Ok(tonic::Response::new(()))
     }
 
@@ -113,7 +111,7 @@ impl Secrets for GrpcService {
         let request = request.into_inner();
 
         let result =
-            crate::operations::get_secret_usage_in_templates(&self.app, &request.name).await;
+            crate::scripts::secrets::get_secret_usage_by_templates(&self.app, &request.name).await;
 
         let templates = result
             .into_iter()
@@ -135,7 +133,8 @@ impl Secrets for GrpcService {
     ) -> Result<tonic::Response<GetSecretsUsageResponse>, tonic::Status> {
         let request = request.into_inner();
 
-        let result = crate::operations::get_secret_usage_in_secrets(&self.app, &request.name).await;
+        let result =
+            crate::scripts::secrets::get_secret_usage_by_secrets(&self.app, &request.name).await;
 
         let secrets = result
             .into_iter()

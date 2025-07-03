@@ -1,7 +1,9 @@
 use rust_extensions::{base64::FromBase64, date_time::DateTimeAsMicroseconds};
 use serde::*;
 
-use crate::{app_ctx::AppContext, caches::SecretValue, my_no_sql::TemplateMyNoSqlEntity};
+use crate::{app_ctx::AppContext, my_no_sql::TemplateMyNoSqlEntity};
+
+use crate::models::*;
 
 #[derive(Serialize, Deserialize)]
 pub struct SnapshotExportModel {
@@ -43,7 +45,7 @@ pub async fn import_snapshot(app: &AppContext, snapshot: &[u8]) {
     }
 
     for secret in model.secrets {
-        crate::operations::update_secret(
+        crate::scripts::secrets::update(
             app,
             secret.name,
             SecretValue {

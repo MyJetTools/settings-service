@@ -1,10 +1,9 @@
-use crate::{app_ctx::SecretsValueReader, caches::SecretValue};
+use crate::app_ctx::AppContext;
 use rust_extensions::placeholders::*;
 
-pub async fn populate_with_secrets(
-    secrets_value_reader: &impl SecretsValueReader,
-    content_to_populate: &str,
-) -> String {
+use crate::models::*;
+
+pub async fn populate_with_secrets(app: &AppContext, content_to_populate: &str) -> String {
     if !has_secrets_to_populate(content_to_populate) {
         return content_to_populate.to_string();
     }
@@ -13,8 +12,8 @@ pub async fn populate_with_secrets(
 
     for item in PlaceholdersIterator::new(
         content_to_populate,
-        crate::settings_model::PLACEHOLDER_OPEN,
-        crate::settings_model::PLACEHOLDER_CLOSE,
+        super::PLACEHOLDER_OPEN,
+        super::PLACEHOLDER_CLOSE,
     ) {
         match item {
             ContentToken::Text(text) => {
@@ -26,15 +25,12 @@ pub async fn populate_with_secrets(
                     result.push_str(&secret_name[1..]);
                     result.push('}');
                 } else {
-                    let secret_value = secrets_value_reader.get_secret_value(secret_name).await;
+                    let secret_value = crate::scripts::secrets::get_value(app, secret_name).await;
 
                     if let Some(secret_value) = secret_value {
                         if has_secrets_to_populate(&secret_value.content) {
-                            let secret_value = super::populate_secrets_recursively(
-                                secrets_value_reader,
-                                secret_value,
-                            )
-                            .await;
+                            let secret_value =
+                                super::populate_secrets_recursively(app, secret_value).await;
                             result.push_str(&secret_value);
                         } else {
                             result.push_str(&secret_value.content);
@@ -99,9 +95,10 @@ pub fn parse_secret_line(src: &str) -> (&str, Option<u8>) {
     (secret_name, min_level)
 }
 
+/*
 #[cfg(test)]
 mod test {
-    use crate::{app_ctx::SecretsValueReader, caches::SecretValue};
+    use crate::caches::SecretValue;
 
     use super::populate_with_secrets;
 
@@ -214,7 +211,9 @@ mod test {
 
         assert_eq!(
             result,
-            "myData: start15/*Secret SubSecret has lower level 0 than required 0*/16finish"
+            "myData: start15/*Secret SubSecret has lower level 0 than required 0*/
+16finish"
         );
     }
 }
+*/

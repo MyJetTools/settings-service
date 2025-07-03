@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 use my_http_server::{macros::http_route, HttpContext, HttpFailResult, HttpOkResult, HttpOutput};
 
@@ -51,6 +51,7 @@ async fn handle_request(
         .await
         .unwrap();
 
-    crate::operations::initialize_templates(&action.app, true).await;
+    tokio::time::sleep(Duration::from_secs(1)).await;
+
     HttpOutput::Empty.into_ok_result(false)
 }

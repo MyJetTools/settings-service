@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use my_azure_key_vault::MyAzureKeyVault;
 use my_no_sql_sdk::data_writer::MyNoSqlDataWriter;
 use rust_extensions::date_time::DateTimeAsMicroseconds;
 
@@ -16,9 +15,7 @@ pub enum KeyValueRepositoryStorage {
 }
 
 pub struct SecretsRepository {
-    secrets_cache: SecretsCache,
     storage: KeyValueRepositoryStorage,
-    pub secrets_storage: MyNoSqlDataWriter<SecretMyNoSqlEntity>,
 }
 
 impl SecretsRepository {
@@ -29,27 +26,10 @@ impl SecretsRepository {
         Self {
             storage,
             secrets_storage,
-            secrets_cache: SecretsCache::new(),
         }
-    }
-
-    async fn initialize(&self) {
-        if self.secrets_cache.is_initialized() {
-            return;
-        }
-        let secrets = self
-            .secrets_storage
-            .get_by_partition_key(SecretMyNoSqlEntity::generate_partition_key(), None)
-            .await
-            .unwrap();
-
-        self.secrets_cache.init(secrets).await;
     }
 
     pub async fn get_secret(&self, secret_name: &str) -> Option<SecretValue> {
-        self.initialize().await;
-        let entity = self.secrets_cache.get(secret_name).await?;
-
         match &self.storage {
             KeyValueRepositoryStorage::KeyValue(vault) => {
                 let result = vault.get_secret(secret_name).await.unwrap();
@@ -90,7 +70,6 @@ impl SecretsRepository {
     }
 
     pub async fn set_secret(&self, secret_name: String, secret_value: &SecretValue) {
-        self.initialize().await;
         let now = DateTimeAsMicroseconds::now().to_rfc3339();
 
         let mut entity = SecretMyNoSqlEntity {
@@ -121,7 +100,6 @@ impl SecretsRepository {
             .insert_or_replace_entity(&entity)
             .await
             .unwrap();
-        self.secrets_cache.save(entity).await;
     }
 
     pub async fn delete_secret(&self, secret_name: &str) {
@@ -136,10 +114,9 @@ impl SecretsRepository {
             }
             KeyValueRepositoryStorage::EncodingKey(_) => {}
         }
-
-        self.secrets_cache.delete(secret_name).await;
     }
 
+    /*
     pub async fn get_all(&self) -> Option<Vec<SecretMyNoSqlEntity>> {
         self.initialize().await;
         self.secrets_cache.get_all().await
@@ -158,6 +135,7 @@ impl SecretsRepository {
 
         Some(result)
     }
+     */
 }
 
 fn decode_value(entity: &SecretMyNoSqlEntity, aes_key: &AesKey) -> Option<SecretValue> {

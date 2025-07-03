@@ -8,7 +8,7 @@ impl Domains for GrpcService {
         &self,
         _: tonic::Request<()>,
     ) -> Result<tonic::Response<DomainsInfoGrpcResponse>, tonic::Status> {
-        let result = crate::operations::get_domains(&self.app).await;
+        let result = crate::flows::get_domains(&self.app).await;
 
         let response = DomainsInfoGrpcResponse {
             domain_mask: if let Some(domain_setup) = result.domain_setup {
@@ -42,7 +42,7 @@ impl Domains for GrpcService {
         request: tonic::Request<SetDomainMaskRequest>,
     ) -> Result<tonic::Response<()>, tonic::Status> {
         let request = request.into_inner();
-        crate::operations::set_domain_mask(&self.app, &request.domain_mask).await;
+        crate::flows::set_domain_mask(&self.app, &request.domain_mask).await;
 
         Ok(tonic::Response::new(()))
     }
@@ -52,7 +52,7 @@ impl Domains for GrpcService {
         request: tonic::Request<DomainProductGrpcInfo>,
     ) -> Result<tonic::Response<()>, tonic::Status> {
         let request = request.into_inner();
-        crate::operations::set_domain_product_info(
+        crate::flows::set_domain_product_info(
             &self.app,
             request.product_name,
             request.is_cloud_flare_proxy,
@@ -69,7 +69,7 @@ impl Domains for GrpcService {
     ) -> Result<tonic::Response<()>, tonic::Status> {
         let request = request.into_inner();
 
-        crate::operations::delete_domain_product_info(&self.app, &request.product_name).await;
+        crate::flows::delete_domain_product_info(&self.app, &request.product_name).await;
 
         Ok(tonic::Response::new(()))
     }

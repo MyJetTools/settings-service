@@ -31,7 +31,7 @@ async fn handle_request(
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
     let max_level = action.app.settings.max_level_of_secrets_to_export;
-    let content = crate::operations::export_snapshot(&action.app, max_level).await;
+    let content = crate::flows::export_snapshot(&action.app, max_level).await;
 
     let dt = DateTimeAsMicroseconds::now();
 

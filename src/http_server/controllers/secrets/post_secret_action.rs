@@ -31,7 +31,7 @@ async fn handle_request(
     input_data: PostSecretContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    crate::operations::update_secret(&action.app, input_data.name.to_string(), input_data.into())
+    crate::scripts::secrets::update(&action.app, input_data.name.to_string(), input_data.into())
         .await;
 
     HttpOutput::Empty.into_ok_result(false)

@@ -32,7 +32,7 @@ async fn handle_request(
     input_data: PostTemplateContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    crate::operations::templates::post(
+    crate::flows::templates::save(
         &action.app,
         input_data.env,
         input_data.name,

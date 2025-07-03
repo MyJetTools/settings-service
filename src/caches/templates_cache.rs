@@ -7,12 +7,6 @@ use tokio::sync::Mutex;
 
 use crate::my_no_sql::TemplateMyNoSqlEntity;
 
-pub struct SecretUsage {
-    pub env: String,
-    pub name: String,
-    pub yaml: String,
-}
-
 pub struct TemplatesCache {
     initialized: AtomicBool,
     items: Mutex<Vec<Arc<TemplateMyNoSqlEntity>>>,

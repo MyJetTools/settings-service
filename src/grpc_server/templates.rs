@@ -18,10 +18,10 @@ impl Templates for GrpcService {
         &self,
         _: tonic::Request<()>,
     ) -> Result<tonic::Response<Self::GetAllStream>, tonic::Status> {
-        let result = crate::operations::get_all_templates(&self.app).await;
+        let result = crate::flows::templates::get_all(&self.app).await;
         let time_snapshot = self.app.last_request.get_snapshot().await;
 
-        let secrets = self.app.secrets_repository.get_as_hash_map().await;
+        let secrets = crate::scripts::secrets::get_all_as_hash_map(&self.app).await;
 
         my_grpc_extensions::grpc_server::send_vec_to_stream(result.into_iter(), move |item| {
             let last_time = if let Some(sub_items) = time_snapshot.get(&item.partition_key) {
@@ -38,8 +38,8 @@ impl Templates for GrpcService {
 
             for itm in PlaceholdersIterator::new(
                 &item.yaml_template,
-                crate::settings_model::PLACEHOLDER_OPEN,
-                crate::settings_model::PLACEHOLDER_CLOSE,
+                crate::scripts::PLACEHOLDER_OPEN,
+                crate::scripts::PLACEHOLDER_CLOSE,
             ) {
                 match itm {
                     rust_extensions::placeholders::ContentToken::Text(_) => {}
@@ -89,8 +89,7 @@ impl Templates for GrpcService {
     ) -> Result<tonic::Response<GetTemplateResponse>, tonic::Status> {
         let request = request.into_inner();
 
-        let template =
-            crate::operations::templates::get(&self.app, &request.env, &request.name).await;
+        let template = crate::flows::templates::get(&self.app, &request.env, &request.name).await;
 
         let result = if let Some(template) = template {
             GetTemplateResponse {
@@ -111,8 +110,7 @@ impl Templates for GrpcService {
     ) -> Result<tonic::Response<()>, tonic::Status> {
         let request = request.into_inner();
 
-        crate::operations::templates::post(&self.app, request.env, request.name, request.yaml)
-            .await;
+        crate::flows::templates::save(&self.app, request.env, request.name, request.yaml).await;
 
         Ok(tonic::Response::new(()))
     }
@@ -123,7 +121,7 @@ impl Templates for GrpcService {
     ) -> Result<tonic::Response<()>, tonic::Status> {
         let request = request.into_inner();
 
-        crate::operations::templates::delete(&self.app, request.env, request.name).await;
+        crate::flows::templates::delete(&self.app, request.env, request.name).await;
 
         Ok(tonic::Response::new(()))
     }
@@ -134,12 +132,9 @@ impl Templates for GrpcService {
     ) -> Result<tonic::Response<CompileYamlResponse>, tonic::Status> {
         let request = request.into_inner();
 
-        let yaml = crate::operations::templates::get_populated_template(
-            &self.app,
-            &request.env,
-            &request.name,
-        )
-        .await;
+        let yaml =
+            crate::flows::templates::get_populated_template(&self.app, &request.env, &request.name)
+                .await;
 
         let result = if let Some(yaml) = yaml {
             CompileYamlResponse { yaml }

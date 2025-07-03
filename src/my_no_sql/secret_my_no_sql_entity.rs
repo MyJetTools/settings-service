@@ -1,8 +1,6 @@
 use my_no_sql_sdk::macros::my_no_sql_entity;
 use serde::*;
 
-use crate::caches::SecretValue;
-
 /* cspell: disable-next-line */
 #[my_no_sql_entity("settingssecrets")]
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -32,13 +30,14 @@ impl SecretMyNoSqlEntity {
         self.level.unwrap_or(0)
     }
 
-    pub fn to_empty_value(&self) -> SecretValue {
-        SecretValue {
-            content: "".to_string(),
-            level: self.get_level(),
-        }
-    }
-
+    /*
+       pub fn to_empty_value(&self) -> SecretValue {
+           SecretValue {
+               content: "".to_string(),
+               level: self.get_level(),
+           }
+       }
+    */
     pub fn get_secret_usages(&self) -> Vec<String> {
         match &self.secret_usages {
             Some(value) => match serde_json::from_str(value) {

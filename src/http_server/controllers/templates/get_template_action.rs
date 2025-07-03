@@ -33,7 +33,7 @@ async fn handle_request(
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
     let template =
-        crate::operations::templates::get(&action.app, &input_data.env, &input_data.name).await;
+        crate::flows::templates::get(&action.app, &input_data.env, &input_data.name).await;
 
     if let Some(template) = template {
         HttpOutput::as_text(template.yaml_template.clone()).into_ok_result(false)

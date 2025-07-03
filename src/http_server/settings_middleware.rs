@@ -50,7 +50,7 @@ impl HttpServerMiddleware for SettingsMiddleware {
         let env = env.unwrap();
         let name = name.unwrap();
 
-        let yaml = crate::operations::templates::get_populated_template(&self.app, env, name).await;
+        let yaml = crate::flows::templates::get_populated_template(&self.app, env, name).await;
 
         if yaml.is_none() {
             return None;

@@ -20,21 +20,21 @@ impl IndexAction {
 
     fn get_favicon_file_name(&self) -> &str {
         match self.app.settings.get_favicon_suffix() {
-            crate::settings_model::FaviconColor::Default => "favicon.png",
-            crate::settings_model::FaviconColor::Green => "favicon-green.png",
-            crate::settings_model::FaviconColor::Pink => "favicon-pink.png",
-            crate::settings_model::FaviconColor::Black => "favicon-black.png",
-            crate::settings_model::FaviconColor::Yellow => "favicon-yellow.png",
+            crate::settings::FaviconColor::Default => "favicon.png",
+            crate::settings::FaviconColor::Green => "favicon-green.png",
+            crate::settings::FaviconColor::Pink => "favicon-pink.png",
+            crate::settings::FaviconColor::Black => "favicon-black.png",
+            crate::settings::FaviconColor::Yellow => "favicon-yellow.png",
         }
     }
 
     fn get_env_color(&self) -> &str {
         match self.app.settings.get_favicon_suffix() {
-            crate::settings_model::FaviconColor::Default => "orange",
-            crate::settings_model::FaviconColor::Green => "green",
-            crate::settings_model::FaviconColor::Pink => "pink",
-            crate::settings_model::FaviconColor::Black => "gray",
-            crate::settings_model::FaviconColor::Yellow => "yellow",
+            crate::settings::FaviconColor::Default => "orange",
+            crate::settings::FaviconColor::Green => "green",
+            crate::settings::FaviconColor::Pink => "pink",
+            crate::settings::FaviconColor::Black => "gray",
+            crate::settings::FaviconColor::Yellow => "yellow",
         }
     }
 }
