@@ -26,13 +26,7 @@ impl HttpServerMiddleware for SettingsMiddleware {
         let mut env = None;
         let mut name = None;
 
-        let mut no = 0;
-
-        println!("Path: {}", path.as_str());
-
         for (no, segment) in path.as_str().split('/').enumerate() {
-            println!("Segment [{}]: {}", no, segment);
-
             match no {
                 0 => {}
                 1 => {
