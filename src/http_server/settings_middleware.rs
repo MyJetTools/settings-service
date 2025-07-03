@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use my_http_server::{HttpContext, HttpFailResult, HttpOkResult, HttpOutput, HttpServerMiddleware};
-use rust_extensions::date_time::DateTimeAsMicroseconds;
+use rust_extensions::{date_time::DateTimeAsMicroseconds, str_utils::StrUtils};
 
 use crate::app_ctx::AppContext;
 
@@ -30,23 +30,33 @@ impl HttpServerMiddleware for SettingsMiddleware {
 
         println!("Path: {}", path.as_str());
 
-        for segment in path.as_str().split('/') {
-            println!("Segment {}: {}", segment, no);
-            if no == 1 {
-                if rust_extensions::str_utils::compare_strings_case_insensitive(segment, "settings")
-                {
+        for (no, segment) in path.as_str().split('/').enumerate() {
+            println!("Segment [{}]: {}", no, segment);
+
+            match no {
+                0 => {}
+                1 => {
+                    if !segment.eq_case_insensitive("settings") {
+                        return None;
+                    }
+                }
+                2 => {
+                    env = Some(segment);
+                }
+                3 => {
+                    name = Some(segment);
+                }
+                _ => {
                     return None;
                 }
             }
-            if no == 2 {
-                env = Some(segment);
-            } else if no == 3 {
-                name = Some(segment);
-            }
-            no += 1;
         }
 
-        if no != 4 {
+        if env.is_none() {
+            return None;
+        }
+
+        if name.is_none() {
             return None;
         }
 
