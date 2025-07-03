@@ -1,18 +1,14 @@
-### 0.1.0
-* Added: show Secret Usage
-* Delete secret feature is introduced
-* Unused secret is marked as red line
-* Can expose secret by clicking on the secret line
+# Settings example
 
-### 0.1.1
-* Secret can be stored in my-no-sql encoded
-* Added Env names Support
-* Added Favicon colours support
-  - Black;
-  - Green;
-  - Pink;
-  - Yellow;
-  - Orange (Default)
+Put settings file ~/.settings-service with content:
 
-### 0.1.2
-* Now we track moment settings were requested
+```yaml
+encryption_key: xxxxxxxxxx
+my_no_sql_writer: http://my-nosql-server:5123
+my_no_sql_reader: my-nosql-server:5125
+http_port: 80
+env: demo
+favicon_color: yellow
+max_level_of_secrets_to_export: 0
+
+```
