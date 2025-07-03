@@ -31,6 +31,7 @@ impl HttpServerMiddleware for SettingsMiddleware {
         println!("Path: {}", path.as_str());
 
         for segment in path.as_str().split('/') {
+            println!("Segment {}: {}", segment, no);
             if no == 1 {
                 if rust_extensions::str_utils::compare_strings_case_insensitive(segment, "settings")
                 {
