@@ -1,5 +1,5 @@
 use crate::app_ctx::AppContext;
-use rust_extensions::placeholders::*;
+use rust_common::placeholders::*;
 
 use crate::models::*;
 

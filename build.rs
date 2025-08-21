@@ -1,5 +1,5 @@
 fn main() {
-    tonic_build::compile_protos("./proto/TemplatesService.proto").unwrap();
-    tonic_build::compile_protos("./proto/SecretsService.proto").unwrap();
-    tonic_build::compile_protos("./proto/DomainsService.proto").unwrap();
+    tonic_prost_build::compile_protos("./proto/TemplatesService.proto").unwrap();
+    tonic_prost_build::compile_protos("./proto/SecretsService.proto").unwrap();
+    tonic_prost_build::compile_protos("./proto/DomainsService.proto").unwrap();
 }

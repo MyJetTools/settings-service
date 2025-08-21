@@ -1,4 +1,4 @@
-use rust_extensions::placeholders::{ContentToken, PlaceholdersIterator};
+use rust_common::placeholders::*;
 
 #[derive(Debug, Clone)]
 pub struct SecretValue {

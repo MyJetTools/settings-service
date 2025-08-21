@@ -2,7 +2,7 @@ use crate::app_ctx::AppContext;
 
 use crate::models::*;
 
-use rust_extensions::placeholders::*;
+use rust_common::placeholders::*;
 
 pub async fn populate_secrets_recursively(
     app: &AppContext,

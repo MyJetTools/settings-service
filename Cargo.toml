@@ -14,7 +14,6 @@ my-http-server = { tag = "0.8.3", git = "https://github.com/MyJetTools/my-http-s
 
 rust-extensions = { tag = "0.1.5", git = "https://github.com/MyJetTools/rust-extensions.git", features = [
     "base64",
-    "placeholders",
 ] }
 
 my-no-sql-sdk = { tag = "0.4.1", git = "https://github.com/MyJetTools/my-no-sql-sdk.git", features = [
@@ -25,8 +24,11 @@ my-no-sql-sdk = { tag = "0.4.1", git = "https://github.com/MyJetTools/my-no-sql-
 
 my-logger = { tag = "1.2.1", git = "https://github.com/MyJetTools/my-logger.git" }
 
-my-grpc-extensions = { tag = "0.6.5", git = "https://github.com/MyJetTools/my-grpc-extensions.git", features = [
+my-grpc-extensions = { tag = "0.6.6", git = "https://github.com/MyJetTools/my-grpc-extensions.git", features = [
     "grpc-server",
+] }
+rust-common = { tag = "0.1.1", git = "https://github.com/MyJetTools/rust-common.git", features = [
+    "placeholders",
 ] }
 
 flurl = { tag = "0.6.1", git = "https://github.com/MyJetTools/fl-url.git" }
@@ -34,11 +36,13 @@ my-settings-reader = { tag = "0.4.1", git = "https://github.com/MyJetTools/my-se
 encryption = { tag = "0.1.1", git = "https://github.com/MyJetTools/encryption.git" }
 
 tonic = { version = "*" }
+tonic-prost = "*"
+prost = "*"
+
 hyper = { version = "*" }
 tokio = { version = "*" }
 tokio-util = "*"
-prost = "0.13"
-prost-types = "0.13"
+
 anyhow = "*"
 serde = "*"
 serde_yaml = "*"
@@ -53,4 +57,4 @@ rand = "*"
 zip = "*"
 
 [build-dependencies]
-tonic-build = { version = "*" }
+tonic-prost-build = { version = "*" }

@@ -70,6 +70,7 @@ async fn handle_request(
         );
 
         HttpOutput::Content {
+            status_code: 200,
             headers: None,
             content_type: Some(WebContentType::Html),
             content: content.into_bytes(),
@@ -92,6 +93,7 @@ async fn handle_request(
             favicon_file_name = action.get_favicon_file_name()
         );
         HttpOutput::Content {
+            status_code: 200,
             headers: None,
             content_type: Some(WebContentType::Html),
             content: content.into_bytes(),

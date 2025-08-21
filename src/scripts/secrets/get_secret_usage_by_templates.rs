@@ -10,7 +10,7 @@ pub async fn get_secret_usage_by_templates(
 
     let mut result = Vec::new();
     for template in templates {
-        if rust_extensions::placeholders::has_placeholder(
+        if rust_common::placeholders::has_placeholder(
             &template.yaml_template,
             secret_name,
             super::super::PLACEHOLDER_OPEN,
