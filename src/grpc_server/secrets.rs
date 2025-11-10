@@ -43,11 +43,8 @@ impl Secrets for GrpcService {
             vec![]
         };
 
-        let result = my_grpc_extensions::grpc_server_streams::send_vec_to_stream(
-            result.into_iter(),
-            |item| item,
-        )
-        .await;
+        let result =
+            my_grpc_extensions::grpc_server_streams::send_from_iterator(result.into_iter()).await;
 
         result
     }
