@@ -28,11 +28,12 @@ impl PostSecretAction {
 
 async fn handle_request(
     action: &PostSecretAction,
-    input_data: PostSecretContract,
+    mut input_data: PostSecretContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    crate::scripts::secrets::update(&action.app, input_data.name.to_string(), input_data.into())
-        .await;
+    let env = std::mem::take(&mut input_data.env);
+    let name = std::mem::take(&mut input_data.name);
+    crate::scripts::secrets::update(&action.app, env.as_deref(), name, input_data.into()).await;
 
     HttpOutput::Empty.into_ok_result(false)
 }

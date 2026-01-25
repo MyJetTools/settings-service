@@ -3,7 +3,11 @@ use rust_common::placeholders::*;
 
 use crate::models::*;
 
-pub async fn populate_with_secrets(app: &AppContext, content_to_populate: &str) -> String {
+pub async fn populate_with_secrets(
+    app: &AppContext,
+    env: Option<&str>,
+    content_to_populate: &str,
+) -> String {
     if !has_secrets_to_populate(content_to_populate) {
         return content_to_populate.to_string();
     }
@@ -25,12 +29,13 @@ pub async fn populate_with_secrets(app: &AppContext, content_to_populate: &str) 
                     result.push_str(&secret_name[1..]);
                     result.push('}');
                 } else {
-                    let secret_value = crate::scripts::secrets::get_value(app, secret_name).await;
+                    let secret_value =
+                        crate::scripts::secrets::get_value(app, env, secret_name).await;
 
                     if let Some(secret_value) = secret_value {
                         if has_secrets_to_populate(&secret_value.content) {
                             let secret_value =
-                                super::populate_secrets_recursively(app, secret_value).await;
+                                super::populate_secrets_recursively(app, env, secret_value).await;
                             result.push_str(&secret_value);
                         } else {
                             result.push_str(&secret_value.content);

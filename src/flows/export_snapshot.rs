@@ -23,10 +23,10 @@ pub struct SecretExportModel {
     pub level: u8,
 }
 
-pub async fn export_snapshot(app: &AppContext, max_level: u8) -> Vec<u8> {
+pub async fn export_snapshot(app: &AppContext, env: Option<&str>, max_level: u8) -> Vec<u8> {
     let templates = crate::scripts::templates::get_all(app).await;
 
-    let secrets = crate::scripts::secrets::get_all(app).await;
+    let secrets = crate::scripts::secrets::get_all(app, env).await;
 
     let mut result = SnapshotExportModel {
         templates: Vec::with_capacity(templates.len()),

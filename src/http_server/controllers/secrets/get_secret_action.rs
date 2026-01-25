@@ -31,7 +31,12 @@ async fn handle_request(
     input_data: GetSecretContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let result = crate::scripts::secrets::get_value(&action.app, &input_data.name).await;
+    let result = crate::scripts::secrets::get_value(
+        &action.app,
+        input_data.env.as_deref(),
+        &input_data.name,
+    )
+    .await;
 
     match result {
         Some(result) => {

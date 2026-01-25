@@ -18,9 +18,7 @@ pub struct SecretMyNoSqlEntity {
 }
 
 impl SecretMyNoSqlEntity {
-    pub fn generate_partition_key() -> &'static str {
-        "SettingsSecrets"
-    }
+    pub const DEFAULT_PARTITION_KEY: &'static str = "SettingsSecrets";
 
     pub fn get_secret_name(&self) -> &str {
         self.row_key.as_str()

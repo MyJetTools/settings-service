@@ -31,9 +31,12 @@ async fn handle_request(
     input_data: ShowUsageInputContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let result =
-        crate::scripts::secrets::get_secret_usage_by_secrets(&action.app, input_data.name.as_str())
-            .await;
+    let result = crate::scripts::secrets::get_secret_usage_by_secrets(
+        &action.app,
+        input_data.env.as_deref(),
+        input_data.name.as_str(),
+    )
+    .await;
 
     let result: Vec<SecretSecretUsageHttpModel> = result
         .into_iter()

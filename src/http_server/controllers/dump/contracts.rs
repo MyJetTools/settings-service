@@ -42,6 +42,8 @@ pub struct ImportSettingsTemplateAction {
 
 #[derive(MyHttpInput)]
 pub struct ImportSnapshotModel {
+    #[http_query(description:"Environment")]
+    pub env: Option<String>,
     #[http_form_data(name = "snapshot", description = "Snapshot of templates and secrets")]
     pub dump: FileContent,
 }

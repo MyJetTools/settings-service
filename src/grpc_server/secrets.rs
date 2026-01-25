@@ -11,9 +11,13 @@ impl Secrets for GrpcService {
 
     async fn get_all(
         &self,
-        _: tonic::Request<()>,
+        request: tonic::Request<GetAllSecretsGrpcRequest>,
     ) -> Result<tonic::Response<Self::GetAllStream>, tonic::Status> {
-        let result = if let Some(items) = crate::scripts::secrets::get_all(&self.app).await {
+        let request = request.into_inner();
+
+        let result = if let Some(items) =
+            crate::scripts::secrets::get_all(&self.app, request.env.as_deref()).await
+        {
             let mut result = Vec::with_capacity(items.len());
             for item in items {
                 let templates_amount = crate::scripts::secrets::get_secret_usage_by_templates(
@@ -24,6 +28,7 @@ impl Secrets for GrpcService {
 
                 let secrets_amount = crate::scripts::secrets::get_secret_usage_by_secrets(
                     &self.app,
+                    request.env.as_deref(),
                     item.get_secret_name(),
                 )
                 .await;
@@ -51,23 +56,21 @@ impl Secrets for GrpcService {
 
     async fn get(
         &self,
-        request: tonic::Request<GetSecretRequest>,
-    ) -> Result<tonic::Response<SecretModel>, tonic::Status> {
+        request: tonic::Request<GetSecretGrpcRequest>,
+    ) -> Result<tonic::Response<SecretGrpcModel>, tonic::Status> {
         let request = request.into_inner();
 
-        let result = crate::scripts::secrets::get_value(&self.app, &request.name).await;
+        let result =
+            crate::scripts::secrets::get_value(&self.app, request.env.as_deref(), &request.name)
+                .await;
 
         let result = match result {
-            Some(value) => SecretModel {
+            Some(value) => SecretGrpcModel {
                 name: request.name,
                 value: value.content,
                 level: value.level as i32,
             },
-            None => SecretModel {
-                name: "".to_string(),
-                value: "".to_string(),
-                level: 0,
-            },
+            None => SecretGrpcModel::default(),
         };
 
         Ok(tonic::Response::new(result))
@@ -75,7 +78,7 @@ impl Secrets for GrpcService {
 
     async fn save(
         &self,
-        request: tonic::Request<SaveSecretRequest>,
+        request: tonic::Request<SaveSecretGrpcRequest>,
     ) -> Result<tonic::Response<()>, tonic::Status> {
         let request = request.into_inner();
 
@@ -83,6 +86,7 @@ impl Secrets for GrpcService {
 
         crate::scripts::secrets::update(
             &self.app,
+            request.env.as_deref(),
             model.name,
             SecretValue {
                 content: model.value,
@@ -96,10 +100,10 @@ impl Secrets for GrpcService {
 
     async fn delete(
         &self,
-        request: tonic::Request<DeleteSecretRequest>,
+        request: tonic::Request<DeleteSecretGrpcRequest>,
     ) -> Result<tonic::Response<()>, tonic::Status> {
         let request = request.into_inner();
-        crate::scripts::secrets::delete(&self.app, &request.name).await;
+        crate::scripts::secrets::delete(&self.app, request.env.as_deref(), &request.name).await;
         Ok(tonic::Response::new(()))
     }
 
@@ -128,12 +132,16 @@ impl Secrets for GrpcService {
 
     async fn get_secrets_usage(
         &self,
-        request: tonic::Request<GetSecretsUsageRequest>,
+        request: tonic::Request<DeleteSecretGrpcRequest>,
     ) -> Result<tonic::Response<GetSecretsUsageResponse>, tonic::Status> {
         let request = request.into_inner();
 
-        let result =
-            crate::scripts::secrets::get_secret_usage_by_secrets(&self.app, &request.name).await;
+        let result = crate::scripts::secrets::get_secret_usage_by_secrets(
+            &self.app,
+            request.env.as_deref(),
+            &request.name,
+        )
+        .await;
 
         let secrets = result
             .into_iter()

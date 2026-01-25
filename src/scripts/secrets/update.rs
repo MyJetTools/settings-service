@@ -4,11 +4,18 @@ use crate::{app_ctx::AppContext, my_no_sql::SecretMyNoSqlEntity};
 
 use crate::models::*;
 
-pub async fn update(app: &AppContext, secret_name: String, secret_value: SecretValue) {
+pub async fn update(
+    app: &AppContext,
+    env: Option<&str>,
+    secret_name: String,
+    secret_value: SecretValue,
+) {
     let now = DateTimeAsMicroseconds::now().to_rfc3339();
 
-    let mut entity = SecretMyNoSqlEntity {
-        partition_key: SecretMyNoSqlEntity::generate_partition_key().to_string(),
+    let partition_key = env.unwrap_or(SecretMyNoSqlEntity::DEFAULT_PARTITION_KEY);
+
+    let mut entity: SecretMyNoSqlEntity = SecretMyNoSqlEntity {
+        partition_key: partition_key.to_string(),
         row_key: secret_name.to_string(),
         time_stamp: Default::default(),
         create_date: now.clone(),

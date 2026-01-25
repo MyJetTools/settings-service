@@ -9,6 +9,8 @@ use crate::models::*;
 
 #[derive(MyHttpInput)]
 pub struct PostSecretContract {
+    #[http_query(description = "Environment")]
+    pub env: Option<String>,
     #[http_body(description = "Name")]
     pub name: String,
     #[http_body(description = "Secret")]
@@ -28,6 +30,8 @@ impl Into<SecretValue> for PostSecretContract {
 
 #[derive(MyHttpInput)]
 pub struct GetSecretContract {
+    #[http_query(description = "Environment")]
+    pub env: Option<String>,
     #[http_body(description = "Name")]
     pub name: String,
 }
@@ -52,11 +56,15 @@ pub struct ListOfSecretsContract {
 }
 
 impl ListOfSecretsContract {
-    pub async fn new(app: &AppContext, items: Vec<Arc<SecretMyNoSqlEntity>>) -> Self {
+    pub async fn new(
+        app: &AppContext,
+        env: Option<&str>,
+        items: Vec<Arc<SecretMyNoSqlEntity>>,
+    ) -> Self {
         let mut data = Vec::with_capacity(items.len());
 
         for item in items {
-            data.push(SecretModel::new(app, &item).await);
+            data.push(SecretModel::new(app, env, &item).await);
         }
 
         Self { data }
@@ -76,7 +84,7 @@ pub struct SecretModel {
 }
 
 impl SecretModel {
-    pub async fn new(app: &AppContext, itm: &SecretMyNoSqlEntity) -> Self {
+    pub async fn new(app: &AppContext, env: Option<&str>, itm: &SecretMyNoSqlEntity) -> Self {
         Self {
             name: itm.row_key.to_string(),
             created: itm.create_date.to_string(),
@@ -90,6 +98,7 @@ impl SecretModel {
 
             secrets_amount: crate::scripts::secrets::get_secret_usage_by_secrets(
                 app,
+                env,
                 itm.get_secret_name(),
             )
             .await
@@ -103,6 +112,8 @@ impl SecretModel {
 
 #[derive(MyHttpInput)]
 pub struct ShowUsageInputContract {
+    #[http_query(description = "Environment")]
+    pub env: Option<String>,
     #[http_body(description = "Name")]
     pub name: String,
 }
@@ -138,6 +149,8 @@ pub struct SecretUsageModel {
 // Delete secret
 #[derive(MyHttpInput)]
 pub struct DeleteSecretInputContract {
+    #[http_query(description:"Environment")]
+    pub env: Option<String>,
     #[http_body(description = "Name")]
     pub name: String,
 }
@@ -150,6 +163,8 @@ pub struct SecretSecretUsageHttpModel {
 
 #[derive(MyHttpInput)]
 pub struct GenerateRandomSecretContract {
+    #[http_query(description: "Environment")]
+    pub env: Option<String>,
     #[http_body(description = "Name")]
     pub name: String,
     #[http_body(description = "Level")]

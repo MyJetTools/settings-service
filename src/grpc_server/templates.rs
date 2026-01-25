@@ -21,9 +21,9 @@ impl Templates for GrpcService {
         let result = crate::flows::templates::get_all(&self.app).await;
         let time_snapshot = self.app.last_request.get_snapshot().await;
 
-        let secrets = crate::scripts::secrets::get_all_as_hash_map(&self.app).await;
+        let secrets = crate::scripts::secrets::get_all_as_hash_map(&self.app, None).await;
 
-        my_grpc_extensions::grpc_server_streams::send_vec_to_stream(
+        my_grpc_extensions::grpc_server_streams::send_from_iterator_with_transformation(
             result.into_iter(),
             move |item| {
                 let last_time = if let Some(sub_items) = time_snapshot.get(&item.partition_key) {

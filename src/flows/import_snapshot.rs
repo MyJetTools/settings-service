@@ -25,7 +25,7 @@ pub struct SecretExportModel {
     pub level: u8,
 }
 
-pub async fn import_snapshot(app: &AppContext, snapshot: &[u8]) {
+pub async fn import_snapshot(app: &AppContext, env: Option<&str>, snapshot: &[u8]) {
     let model: SnapshotExportModel = serde_json::from_slice(snapshot).unwrap();
 
     for template in model.templates {
@@ -47,6 +47,7 @@ pub async fn import_snapshot(app: &AppContext, snapshot: &[u8]) {
     for secret in model.secrets {
         crate::scripts::secrets::update(
             app,
+            env,
             secret.name,
             SecretValue {
                 content: secret.value,

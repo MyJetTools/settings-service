@@ -7,9 +7,10 @@ pub struct SecretSecretUsage {
 
 pub async fn get_secret_usage_by_secrets(
     app: &AppContext,
+    env: Option<&str>,
     secret_name: &str,
 ) -> Vec<SecretSecretUsage> {
-    let secrets = crate::scripts::secrets::get_all(app).await;
+    let secrets = crate::scripts::secrets::get_all(app, env).await;
 
     if secrets.is_none() {
         return Vec::new();

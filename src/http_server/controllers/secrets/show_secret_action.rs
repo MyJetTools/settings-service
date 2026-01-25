@@ -31,12 +31,21 @@ async fn handle_request(
     input_data: GetSecretContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let result = crate::scripts::secrets::get_value(&action.app, &input_data.name).await;
+    let result = crate::scripts::secrets::get_value(
+        &action.app,
+        input_data.env.as_deref(),
+        &input_data.name,
+    )
+    .await;
 
     match result {
         Some(result) => {
-            let result =
-                crate::scripts::populate_secrets_recursively(action.app.as_ref(), result).await;
+            let result = crate::scripts::populate_secrets_recursively(
+                action.app.as_ref(),
+                input_data.env.as_deref(),
+                result,
+            )
+            .await;
             return HttpOutput::as_text(result).into_ok_result(false);
         }
         None => Err(HttpFailResult::as_not_found(

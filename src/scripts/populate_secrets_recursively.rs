@@ -6,6 +6,7 @@ use rust_common::placeholders::*;
 
 pub async fn populate_secrets_recursively(
     app: &AppContext,
+    env: Option<&str>,
     src_secret_value: SecretValue,
 ) -> String {
     let mut result = String::new();
@@ -23,7 +24,8 @@ pub async fn populate_secrets_recursively(
                     result.push_str(&secret_name[1..]);
                     result.push('}');
                 } else {
-                    let secret_value = crate::scripts::secrets::get_value(app, secret_name).await;
+                    let secret_value =
+                        crate::scripts::secrets::get_value(app, env, secret_name).await;
 
                     if let Some(secret_value) = secret_value {
                         if secret_value.level > src_secret_value.level {
@@ -49,13 +51,17 @@ pub async fn populate_secrets_recursively(
     }
 
     while super::has_secrets_to_populate(&result) {
-        result = populate_with_secrets(app, &result).await;
+        result = populate_with_secrets(app, env, &result).await;
     }
 
     result
 }
 
-async fn populate_with_secrets(app: &AppContext, content_to_populate: &str) -> String {
+async fn populate_with_secrets(
+    app: &AppContext,
+    env: Option<&str>,
+    content_to_populate: &str,
+) -> String {
     let mut result = String::new();
 
     for template_token in PlaceholdersIterator::new(
@@ -75,7 +81,7 @@ async fn populate_with_secrets(app: &AppContext, content_to_populate: &str) -> S
                 } else {
                     let (secret_name, secret_min_level) = super::parse_secret_line(secret_name);
 
-                    match crate::scripts::secrets::get_value(app, secret_name).await {
+                    match crate::scripts::secrets::get_value(app, env, secret_name).await {
                         Some(secret_value) => {
                             if let Some(secret_min_level) = secret_min_level {
                                 if secret_value.level > secret_min_level {
