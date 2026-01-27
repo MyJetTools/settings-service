@@ -19,28 +19,6 @@ pub struct SettingsModel {
 }
 
 impl SettingsModel {
-    /*
-    pub async fn get_key_value_key(&self) -> String {
-        return Some(value.to_string());
-
-        //Reading in Docker Swarm case
-        let file = tokio::fs::read_to_string("/run/secrets/settings_encryption_key").await;
-
-        if file.is_err() {
-            return None;
-        }
-        let mut result = file.unwrap();
-        println!("Got Encryption key from /run/secrets. Len:{}", result.len());
-
-        if result.len() > 48 {
-            println!("Truncating key to 48 bytes");
-            result.truncate(48);
-        }
-
-        Some(result)
-    }
-
-     */
     pub fn get_favicon_suffix(&self) -> FaviconColor {
         match self.favicon_color.as_ref() {
             Some(suffix) => match suffix.to_lowercase().as_str() {

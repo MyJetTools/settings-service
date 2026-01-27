@@ -20,10 +20,6 @@ mod mappers;
 mod persistence;
 mod scripts;
 
-pub mod domains_grpc {
-    tonic::include_proto!("domains");
-}
-
 #[allow(non_snake_case)]
 pub mod templates_grpc {
     tonic::include_proto!("templates");
