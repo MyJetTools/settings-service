@@ -87,15 +87,15 @@ impl Templates for GrpcService {
 
     async fn compile_yaml(
         &self,
-        request: tonic::Request<CompileYamlRequest>,
-    ) -> Result<tonic::Response<CompileYamlResponse>, tonic::Status> {
+        request: tonic::Request<CompileYamlGrpcRequest>,
+    ) -> Result<tonic::Response<CompileYamlGrpcResponse>, tonic::Status> {
         let request = request.into_inner();
 
-        let yaml = crate::flows::compile_yaml(&self.app, &request.env, &request.name)
+        let yaml = crate::flows::compile_yaml(&self.app, &request.product_id, &request.template_id)
             .await
             .unwrap_or_default();
 
-        let result = CompileYamlResponse { yaml };
+        let result = CompileYamlGrpcResponse { yaml };
 
         Ok(result.into())
     }

@@ -12,12 +12,12 @@ message GetTemplateContentGrpcResponse {
   string content = 1;
 }
 
-message CompileYamlRequest {
-  string env  = 1;
-  string name = 2;
+message CompileYamlGrpcRequest {
+  string product_id  = 1;
+  string template_id = 2;
 }
 
-message CompileYamlResponse {
+message CompileYamlGrpcResponse {
   string yaml = 1;
 }
 
@@ -51,7 +51,7 @@ service Templates {
   rpc GetAll(google.protobuf.Empty) returns (stream TemplateListItemGrpcModel);
 
   rpc Save(SaveTemplateGrpcRequest) returns (google.protobuf.Empty);
-  rpc CompileYaml(CompileYamlRequest) returns (CompileYamlResponse);
+  rpc CompileYaml(CompileYamlGrpcRequest) returns (CompileYamlGrpcResponse);
   rpc Delete(DeleteTemplateGrpcRequest) returns (google.protobuf.Empty);
   rpc Ping(google.protobuf.Empty) returns (google.protobuf.Empty);
 }
