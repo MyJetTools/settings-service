@@ -40,6 +40,7 @@ impl ListOfTemplatesContract {
 
         for itm in items {
             data.push(SettingTemplateModel {
+                product: itm.product_id,
                 name: itm.template_id,
                 created: itm.created,
                 updated: itm.updated,
@@ -53,6 +54,7 @@ impl ListOfTemplatesContract {
 
 #[derive(Serialize, Deserialize, Debug, MyHttpObjectStructure)]
 pub struct SettingTemplateModel {
+    product: String,
     name: String,
     created: String,
     updated: String,

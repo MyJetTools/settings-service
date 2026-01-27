@@ -10,7 +10,7 @@ var EditTemplateDialog = /** @class */ (function () {
         return "Save";
     };
     EditTemplateDialog.prototype.getContent = function () {
-        return "\n        <div class=\"form-floating mb-3\">\n        <input class=\"form-control\" id=\"edtEnv\" name=\"env\">\n        <label for=\"edtEnv\">Env</label>\n        </div>\n\n        <div class=\"form-floating mb-3\">\n        <input class=\"form-control\" id=\"edtName\" name=\"name\">\n        <label for=\"edtName\">Name</label>\n        </div>\n\n        <div class=\"form-floating\">\n        <textarea class=\"form-control\" style=\"min-height:500px;font-family: monospace;\" id=\"edtYaml\"  name=\"yaml\"></textarea>\n        <label for=\"edtYaml\">Yaml</label>\n        </div>";
+        return "\n        <div class=\"form-floating mb-3\">\n        <input class=\"form-control\" id=\"edtEnv\" name=\"env\">\n        <label for=\"edtEnv\">Product</label>\n        </div>\n\n        <div class=\"form-floating mb-3\">\n        <input class=\"form-control\" id=\"edtName\" name=\"name\">\n        <label for=\"edtName\">Name</label>\n        </div>\n\n        <div class=\"form-floating\">\n        <textarea class=\"form-control\" style=\"min-height:500px;font-family: monospace;\" id=\"edtYaml\"  name=\"yaml\"></textarea>\n        <label for=\"edtYaml\">Yaml</label>\n        </div>";
     };
     EditTemplateDialog.prototype.populate = function (viewModel) {
         this.viewModel = viewModel;
@@ -18,7 +18,7 @@ var EditTemplateDialog = /** @class */ (function () {
         this.edtName = document.getElementById('edtName');
         this.edtYaml = document.getElementById('edtYaml');
         if (this.viewModel) {
-            this.edtEnv.value = this.viewModel.env;
+            this.edtEnv.value = this.viewModel.product;
             this.edtEnv.readOnly = true;
             this.edtName.value = this.viewModel.name;
             this.edtName.readOnly = true;
@@ -37,7 +37,7 @@ var EditTemplateDialog = /** @class */ (function () {
             return undefined;
         }
         return {
-            env: this.edtEnv.value,
+            product: this.edtEnv.value,
             name: this.edtName.value,
             yaml: this.edtYaml.value
         };

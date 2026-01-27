@@ -29,7 +29,7 @@ impl AppContext {
 
         let aes_key = encryption::aes::AesKey::new(settings.encryption_key.as_bytes());
 
-        let db_path = FilePath::from_str(&settings.db_path);
+        let db_path = FilePath::from_str(&settings.data_path);
 
         Self {
             settings,

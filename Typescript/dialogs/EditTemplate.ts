@@ -19,7 +19,7 @@ class EditTemplateDialog implements IDialog {
         return `
         <div class="form-floating mb-3">
         <input class="form-control" id="edtEnv" name="env">
-        <label for="edtEnv">Env</label>
+        <label for="edtEnv">Product</label>
         </div>
 
         <div class="form-floating mb-3">
@@ -39,7 +39,7 @@ class EditTemplateDialog implements IDialog {
         this.edtName = document.getElementById('edtName') as HTMLInputElement;
         this.edtYaml = document.getElementById('edtYaml') as HTMLInputElement;
         if (this.viewModel) {
-            this.edtEnv.value = this.viewModel.env;
+            this.edtEnv.value = this.viewModel.product;
             this.edtEnv.readOnly = true;
             this.edtName.value = this.viewModel.name;
             this.edtName.readOnly = true;
@@ -61,7 +61,7 @@ class EditTemplateDialog implements IDialog {
         }
 
         return {
-            env: this.edtEnv.value,
+            product: this.edtEnv.value,
             name: this.edtName.value,
             yaml: this.edtYaml.value
         }

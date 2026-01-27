@@ -9,19 +9,18 @@ class HtmlMain {
         let envColor = document.body.getAttribute("data-env-color");
         return `<div class="title"> <h3>Settings </h3><h4 style="text-shadow: 1px 1px 1px black;color: ` + envColor + `">` + env + `</h4></div> `
             + `<div class="menu-item" data-itm="Secrets" onclick="Actions.menuClicked(this)"> Secrets </div>`
-            + `<div class="menu-item" data-itm="Templates" onclick="Actions.menuClicked(this)">Templates</div>`
-            + `<div class="menu-item" data-itm="SubTemplates" onclick="Actions.menuClicked(this)">Sub templates</div>`;
+            + `<div class="menu-item" data-itm="Templates" onclick="Actions.menuClicked(this)">Templates</div>`;
     }
 
     public static generateTemplateContent(templates: ITemplate[]): string {
-        let result = `<table class="table table-striped"><tr><th>Env</th><th>Name</th><th>Created</th><th>Updated</th><th>LastRequest</th><th><button class="btn btn-sm btn-primary" onclick="Actions.addTemplate()"><svg class="bi" width="1em" height="1em" fill="currentColor">
+        let result = `<table class="table table-striped"><tr><th>Product</th><th>Name</th><th>Created</th><th>Updated</th><th>LastRequest</th><th><button class="btn btn-sm btn-primary" onclick="Actions.addTemplate()"><svg class="bi" width="1em" height="1em" fill="currentColor">
         <use xlink:href="bootstrap-icons.svg#plus-circle-dotted"></use>
         </svg></button></th></tr>`;
         for (let template of templates.sort((a, b) => a.name.localeCompare(b.name))) {
-            let data = `data-env="` + template.env + `" data-name="` + template.name + `"`;
+            let data = `data-env="` + template.product + `" data-name="` + template.name + `"`;
 
             let lastRequest = template.lastRequest == 0 ? "" : (new Date(template.lastRequest)).toISOString();
-            result += `<tr><td>${template.env}</td><td>${template.name}</td><td>${template.created}</td><td>${template.updated}</td><td>${lastRequest}</td>
+            result += `<tr><td>${template.product}</td><td>${template.name}</td><td>${template.created}</td><td>${template.updated}</td><td>${lastRequest}</td>
             <td><div class="btn-group">
             <button class="btn btn-sm btn-success" `+ data + ` onclick="Actions.showYaml(this)"><svg class="bi" width="1em" height="1em" fill="currentColor">
             <use xlink:href="bootstrap-icons.svg#eye"></use>

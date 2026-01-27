@@ -33,16 +33,16 @@ class Actions {
     }
 
     public static editTemplate(el: HTMLElement) {
-        let env = el.getAttribute('data-env');
+        let product = el.getAttribute('data-env');
         let name = el.getAttribute('data-name');
 
-        let data = { env, name };
+        let data = { product, name };
 
         let dialog = new EditTemplateDialog("Edit template");
         Dialog.show(dialog);
         $.ajax({ type: "POST", url: "/api/templates/get", data })
             .then(data => {
-                Dialog.populateData({ env, name, yaml: data });
+                Dialog.populateData({ product, name, yaml: data });
             })
             .fail(() => {
 

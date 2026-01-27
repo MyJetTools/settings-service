@@ -17,7 +17,7 @@ var ShowSecretUsageDialog = /** @class */ (function () {
         var result = "";
         for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
             var itm = data_1[_i];
-            result += '<h4>' + itm.env + '/' + itm.name + '</h4>';
+            result += '<h4>' + itm.product + '/' + itm.name + '</h4>';
             for (var _a = 0, _b = itm.yaml.split(/\r?\n/); _a < _b.length; _a++) {
                 var line = _b[_a];
                 if (line.indexOf(this.secretName) >= 0) {

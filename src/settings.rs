@@ -16,7 +16,7 @@ pub struct SettingsModel {
     pub env: String,
     pub favicon_color: Option<String>,
     pub max_level_of_secrets_to_export: u8,
-    pub db_path: String,
+    pub data_path: String,
 }
 
 impl SettingsModel {

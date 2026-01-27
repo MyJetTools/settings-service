@@ -24,7 +24,7 @@ impl Into<TemplateItem> for (String, TemplateFileData) {
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct TemplatesFileModel {
-    pub items: BTreeMap<String, BTreeMap<String, TemplateFileData>>,
+    pub templates: BTreeMap<String, BTreeMap<String, TemplateFileData>>,
 }
 
 impl TemplatesFileModel {

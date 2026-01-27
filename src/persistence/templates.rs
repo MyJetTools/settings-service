@@ -53,14 +53,14 @@ impl TemplatesPersistence {
                 updated: item.last_update.unix_microseconds,
             };
 
-            match file_content.items.get_mut(product_id) {
+            match file_content.templates.get_mut(product_id) {
                 Some(items) => {
                     items.insert(id, item);
                 }
                 None => {
                     let mut items = BTreeMap::new();
                     items.insert(id, item);
-                    file_content.items.insert(product_id.to_string(), items);
+                    file_content.templates.insert(product_id.to_string(), items);
                 }
             }
         }
@@ -76,7 +76,7 @@ impl TemplatesPersistence {
     pub async fn delete(&self, product_id: &str, template_id: &str) {
         let mut file_content = self.get_file_content().await;
 
-        let delete_product = if let Some(items) = file_content.items.get_mut(product_id) {
+        let delete_product = if let Some(items) = file_content.templates.get_mut(product_id) {
             items.remove(template_id);
             items.len() == 0
         } else {
@@ -84,7 +84,7 @@ impl TemplatesPersistence {
         };
 
         if delete_product {
-            file_content.items.remove(product_id);
+            file_content.templates.remove(product_id);
         }
 
         let as_vec = file_content.to_vec();

@@ -25,7 +25,7 @@ class ShowSecretUsageDialog implements IDialog {
 
         let result = "";
         for (let itm of data) {
-            result += '<h4>' + itm.env + '/' + itm.name + '</h4>';
+            result += '<h4>' + itm.product + '/' + itm.name + '</h4>';
 
             for (let line of itm.yaml.split(/\r?\n/)) {
 

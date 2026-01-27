@@ -1,5 +1,5 @@
 interface ITemplate {
-    env: string
+    product: string
     name: string,
     created: string,
     updated: string,
@@ -17,13 +17,13 @@ interface ISecret {
 }
 
 interface IEditTemplateModel {
-    env: string
+    product: string
     name: string,
     yaml: string,
 }
 
 interface IDeleteTemplateModel {
-    env: string
+    product: string
     name: string,
 }
 
@@ -43,7 +43,7 @@ interface IDeleteSecretModel {
 }
 
 interface ISecretModel {
-    env: string,
+    product: string,
     name: string,
     yaml: string
 }

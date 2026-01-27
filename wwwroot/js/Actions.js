@@ -26,14 +26,14 @@ var Actions = /** @class */ (function () {
         Dialog.populateData(undefined);
     };
     Actions.editTemplate = function (el) {
-        var env = el.getAttribute('data-env');
+        var product = el.getAttribute('data-env');
         var name = el.getAttribute('data-name');
-        var data = { env: env, name: name };
+        var data = { product: product, name: name };
         var dialog = new EditTemplateDialog("Edit template");
         Dialog.show(dialog);
         $.ajax({ type: "POST", url: "/api/templates/get", data: data })
             .then(function (data) {
-            Dialog.populateData({ env: env, name: name, yaml: data });
+            Dialog.populateData({ product: product, name: name, yaml: data });
         })
             .fail(function () {
         });
