@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use rust_extensions::sorted_vec::SortedVecOfArcWithStrKey;
+use rust_extensions::sorted_vec::*;
 use tokio::sync::RwLock;
 
 use crate::{caches::SecretsSnapshot, models::*};
@@ -11,6 +11,15 @@ pub struct SecretsCache {
 }
 
 impl SecretsCache {
+    pub async fn init(&self, items: SecretsSnapshot) {
+        let mut write_access = self.inner.write().await;
+
+        let snapshot = Arc::new(items.clone());
+
+        write_access.0 = items;
+        write_access.1 = snapshot;
+    }
+
     pub async fn get_snapshot(&self) -> Arc<SecretsSnapshot> {
         let read_access = self.inner.read().await;
         read_access.1.clone()
@@ -26,15 +35,15 @@ impl SecretsCache {
         for item in items {
             match product_id {
                 ProductId::Shared => {
-                    write_access.0.shared.insert_or_replace(Arc::new(item));
+                    write_access.0.shared.insert_or_replace(item);
                 }
                 ProductId::Id(product_id) => match write_access.0.by_product.get_mut(product_id) {
                     Some(items) => {
-                        items.insert_or_replace(Arc::new(item));
+                        items.insert_or_replace(item);
                     }
                     None => {
-                        let mut items = SortedVecOfArcWithStrKey::new();
-                        items.insert_or_replace(Arc::new(item));
+                        let mut items = SortedVecWithStrKey::new();
+                        items.insert_or_replace(item);
                         write_access
                             .0
                             .by_product
@@ -51,11 +60,7 @@ impl SecretsCache {
         write_access.1.clone()
     }
 
-    pub async fn remove(
-        &self,
-        product_id: ProductId<'_>,
-        secret_id: &str,
-    ) -> Option<Arc<SecretItem>> {
+    pub async fn remove(&self, product_id: ProductId<'_>, secret_id: &str) -> Option<SecretItem> {
         let mut write_access = self.inner.write().await;
 
         let removed_item = match product_id {

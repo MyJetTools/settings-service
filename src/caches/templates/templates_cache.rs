@@ -1,6 +1,4 @@
-use std::{collections::BTreeMap, sync::Arc};
-
-use rust_extensions::sorted_vec::SortedVecOfArcWithStrKey;
+use rust_extensions::sorted_vec::*;
 use tokio::sync::RwLock;
 
 use crate::models::*;
@@ -18,12 +16,17 @@ impl TemplatesCache {
         }
     }
 
-    pub async fn get_all(&self) -> BTreeMap<String, Vec<Arc<TemplateItem>>> {
+    pub async fn get_all<TResult>(
+        &self,
+        transform: impl Fn(&str, &TemplateItem) -> TResult,
+    ) -> Vec<TResult> {
         let read_access = self.inner.read().await;
-        let mut result = BTreeMap::new();
+        let mut result = Vec::new();
 
         for (product_id, items) in read_access.items.iter() {
-            result.insert(product_id.to_string(), items.as_slice().to_vec());
+            for itm in items.iter() {
+                result.push(transform(product_id.as_str(), itm));
+            }
         }
 
         result
@@ -32,7 +35,7 @@ impl TemplatesCache {
     pub async fn get_by_product_id<TResult>(
         &self,
         product_id: &str,
-        transform: impl Fn(&Arc<TemplateItem>) -> TResult,
+        transform: impl Fn(&TemplateItem) -> TResult,
     ) -> Vec<TResult> {
         let mut result = Vec::new();
         let read_access = self.inner.read().await;
@@ -51,7 +54,7 @@ impl TemplatesCache {
         &self,
         product_id: &str,
         template_id: &str,
-        transform: impl Fn(&Arc<TemplateItem>) -> TResult,
+        transform: impl Fn(&TemplateItem) -> TResult,
     ) -> Option<TResult> {
         let read_access = self.inner.read().await;
 
@@ -64,7 +67,7 @@ impl TemplatesCache {
         Some(result)
     }
 
-    pub async fn remove(&self, product_id: &str, template_id: &str) -> Option<Arc<TemplateItem>> {
+    pub async fn remove(&self, product_id: &str, template_id: &str) -> Option<TemplateItem> {
         let mut write_access = self.inner.write().await;
         let by_product = write_access.items.get_mut(product_id)?;
         by_product.remove(template_id)
@@ -76,11 +79,11 @@ impl TemplatesCache {
         for item in items {
             match write_access.items.get_mut(product_id) {
                 Some(items) => {
-                    items.insert_or_replace(Arc::new(item));
+                    items.insert_or_replace(item);
                 }
                 None => {
-                    let mut items = SortedVecOfArcWithStrKey::new();
-                    items.insert_or_replace(Arc::new(item));
+                    let mut items = SortedVecWithStrKey::new();
+                    items.insert_or_replace(item);
                     write_access.items.insert(product_id.to_string(), items);
                 }
             }
@@ -100,7 +103,7 @@ impl TemplatesCache {
         };
 
         for itm in by_product.iter() {
-            if let Some(item) = callback(itm.as_ref()) {
+            if let Some(item) = callback(itm) {
                 result.push(item);
             }
         }
@@ -108,26 +111,27 @@ impl TemplatesCache {
         result
     }
 
-    pub async fn get_count(
-        &self,
-        product_id: &str,
-        predicate: impl Fn(&TemplateItem) -> bool,
-    ) -> usize {
-        let read_access = self.inner.read().await;
-        let Some(by_product) = read_access.items.get(product_id) else {
-            return 0;
-        };
+    /*
+       pub async fn get_count(
+           &self,
+           product_id: &str,
+           predicate: impl Fn(&TemplateItem) -> bool,
+       ) -> usize {
+           let read_access = self.inner.read().await;
+           let Some(by_product) = read_access.items.get(product_id) else {
+               return 0;
+           };
 
-        let mut result = 0;
-        for itm in by_product.iter() {
-            if predicate(itm.as_ref()) {
-                result += 1;
-            }
-        }
+           let mut result = 0;
+           for itm in by_product.iter() {
+               if predicate(itm.as_ref()) {
+                   result += 1;
+               }
+           }
 
-        result
-    }
-
+           result
+       }
+    */
     pub async fn get_count_from_all(&self, predicate: impl Fn(&TemplateItem) -> bool) -> usize {
         let read_access = self.inner.read().await;
 

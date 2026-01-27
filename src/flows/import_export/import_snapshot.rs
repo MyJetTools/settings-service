@@ -22,20 +22,23 @@ pub async fn import_snapshot(
 
     let now = DateTimeAsMicroseconds::now();
 
-    app.templates
-        .insert(
-            product_id,
-            model.templates.iter().map(|itm| TemplateItem {
-                id: itm.id.to_string(),
-                content: itm.content.to_string().into(),
-                created: now,
-                last_update: now,
-            }),
-        )
-        .await;
+    let templates: Vec<_> = model
+        .templates
+        .into_iter()
+        .map(|itm| TemplateItem {
+            id: itm.id,
+            content: itm.content.into(),
+            created: now,
+            last_update: now,
+        })
+        .collect();
 
     app.templates_persistence
-        .save(product_id, model.templates.as_slice())
+        .save(product_id, templates.as_slice())
+        .await;
+
+    app.templates
+        .insert(product_id, templates.into_iter())
         .await;
 
     if templates_only {
@@ -79,6 +82,6 @@ pub async fn import_snapshot(
 
 fn get_content_from_base64(src: &str) -> String {
     use rust_extensions::base64::FromBase64;
-    let content = src.from_base64().unwrap(); //        todo!("Handle unwrap");
+    let content = src.from_base64().unwrap();
     String::from_utf8(content).unwrap()
 }

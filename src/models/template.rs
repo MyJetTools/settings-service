@@ -1,6 +1,6 @@
 use rust_extensions::{date_time::DateTimeAsMicroseconds, sorted_vec::EntityWithStrKey};
 
-use crate::{models::Content, persistence::TemplatePersistenceItem};
+use crate::models::Content;
 
 pub struct TemplateItem {
     pub id: String,
@@ -12,15 +12,5 @@ pub struct TemplateItem {
 impl EntityWithStrKey for TemplateItem {
     fn get_key(&self) -> &str {
         &self.id
-    }
-}
-
-impl TemplatePersistenceItem for TemplateItem {
-    fn get_id(&self) -> &str {
-        &self.id
-    }
-
-    fn get_content(&self) -> &str {
-        self.content.as_str()
     }
 }

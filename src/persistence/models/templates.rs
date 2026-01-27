@@ -1,10 +1,30 @@
 use std::collections::BTreeMap;
 
+use rust_extensions::date_time::DateTimeAsMicroseconds;
 use serde::*;
+
+use crate::models::*;
+#[derive(Default, Serialize, Deserialize)]
+pub struct TemplateFileData {
+    pub content: String,
+    pub created: i64,
+    pub updated: i64,
+}
+
+impl Into<TemplateItem> for (String, TemplateFileData) {
+    fn into(self) -> TemplateItem {
+        TemplateItem {
+            id: self.0,
+            content: Content::from_base_64(self.1.content.as_str()),
+            created: DateTimeAsMicroseconds::new(self.1.created),
+            last_update: DateTimeAsMicroseconds::new(self.1.updated),
+        }
+    }
+}
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct TemplatesFileModel {
-    pub items: BTreeMap<String, BTreeMap<String, String>>,
+    pub items: BTreeMap<String, BTreeMap<String, TemplateFileData>>,
 }
 
 impl TemplatesFileModel {

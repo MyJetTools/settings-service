@@ -11,9 +11,9 @@ use crate::app_ctx::*;
     description: "Shows secret with resolved references",
     summary: "Show secret",
     controller: "Secrets",
-    input_data: "GetSecretContract",
+    input_data: GetSecretContract,
     result:[
-        {status_code: 200, description: "Ok response", model: "SecretHttpModel"},
+        {status_code: 200, description: "Ok response", model: "SecretValueHttpModel"},
     ]
 )]
 pub struct ShowSecretAction {

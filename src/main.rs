@@ -44,6 +44,8 @@ async fn main() {
 
     let app = Arc::new(app);
 
+    crate::scripts::init(&app).await;
+
     crate::http_server::start(&app);
 
     tokio::spawn(crate::grpc_server::server::start(app.clone(), 8888));

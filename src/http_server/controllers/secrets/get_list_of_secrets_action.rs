@@ -34,14 +34,10 @@ async fn handle_request(
     input_data: GetListOfSecretsHttpInput,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let secrets = action.app.secrets.get_snapshot().await;
-    let secrets = secrets
-        .get_all_by_product_id(input_data.product.as_deref().into())
-        .await;
+    let secrets =
+        crate::flows::get_all_secrets(&action.app, input_data.product.as_deref().into()).await;
 
-    let result =
-        ListOfSecretsContract::new(&action.app, input_data.product.as_deref().into(), secrets)
-            .await;
+    let result = ListOfSecretsContract::new(secrets);
     HttpOutput::as_json(result).into_ok_result(false)
 }
 

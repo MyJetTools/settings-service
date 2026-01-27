@@ -5,7 +5,7 @@ use rust_extensions::sorted_vec::*;
 use crate::models::*;
 
 pub struct TemplatesCacheInner {
-    pub items: HashMap<String, SortedVecOfArcWithStrKey<TemplateItem>>,
+    pub items: HashMap<String, SortedVecWithStrKey<TemplateItem>>,
 }
 
 impl Default for TemplatesCacheInner {

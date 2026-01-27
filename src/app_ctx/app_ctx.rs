@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use rust_extensions::{file_utils::FilePath, AppStates};
+use tokio::sync::Mutex;
 
 use crate::{caches::*, persistence::*, settings::SettingsModel};
 
@@ -19,7 +20,7 @@ pub struct AppContext {
     pub secrets: SecretsCache,
     pub secrets_persistence: SecretsPersistence,
 
-    pub last_time_access: LastRequestTimeCache,
+    pub last_time_access: Mutex<LastRequestTimeCache>,
 }
 
 impl AppContext {
@@ -32,7 +33,7 @@ impl AppContext {
 
         Self {
             settings,
-            app_states: Arc::new(AppStates::create_initialized()),
+            app_states: Arc::new(AppStates::create_un_initialized()),
 
             process_id: uuid::Uuid::new_v4().to_string(),
 
@@ -42,7 +43,7 @@ impl AppContext {
 
             secrets: SecretsCache::default(),
             secrets_persistence: SecretsPersistence::new(db_path, aes_key),
-            last_time_access: LastRequestTimeCache::new(),
+            last_time_access: Mutex::new(LastRequestTimeCache::new()),
         }
     }
 }

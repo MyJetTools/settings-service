@@ -68,8 +68,9 @@ impl HttpServerMiddleware for SettingsMiddleware {
 
         self.app
             .last_time_access
-            .update(product_id, template_id, now)
-            .await;
+            .lock()
+            .await
+            .update(product_id, template_id, now);
 
         let secrets_snapshot = self.app.secrets.get_snapshot().await;
 

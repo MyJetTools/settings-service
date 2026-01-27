@@ -1,4 +1,7 @@
-use rust_extensions::{base64::IntoBase64, ShortString};
+use rust_extensions::{
+    base64::{FromBase64, IntoBase64},
+    ShortString,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::{caches::SecretsSnapshot, models::ProductId};
@@ -21,6 +24,12 @@ impl Content {
 
     pub fn to_base_64(&self) -> String {
         self.0.as_bytes().into_base64()
+    }
+
+    pub fn from_base_64(src: &str) -> Self {
+        let result = src.from_base64().unwrap();
+        let value = String::from_utf8(result).unwrap();
+        Self(value)
     }
 
     pub fn has_secret_inside(&self) -> bool {

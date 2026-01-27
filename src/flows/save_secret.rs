@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use rust_extensions::date_time::DateTimeAsMicroseconds;
 
 use crate::app_ctx::AppContext;
@@ -12,7 +10,7 @@ pub async fn save_secret(
     secret_id: String,
     secret_value: String,
     level: u8,
-) -> Option<Arc<SecretItem>> {
+) -> Option<SecretItem> {
     let mut secret = SecretItem {
         id: secret_id,
         content: secret_value.into(),

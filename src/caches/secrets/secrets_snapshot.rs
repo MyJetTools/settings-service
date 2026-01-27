@@ -1,19 +1,31 @@
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 
-use rust_extensions::sorted_vec::SortedVecOfArcWithStrKey;
+use rust_extensions::sorted_vec::*;
 
 use crate::models::{ProductId, SecretItem};
 
 #[derive(Default, Clone)]
 pub struct SecretsSnapshot {
-    pub shared: SortedVecOfArcWithStrKey<SecretItem>,
-    pub by_product: HashMap<String, SortedVecOfArcWithStrKey<SecretItem>>,
+    pub shared: SortedVecWithStrKey<SecretItem>,
+    pub by_product: HashMap<String, SortedVecWithStrKey<SecretItem>>,
 }
 
 impl SecretsSnapshot {
-    pub async fn get_all_by_product_id(&self, product_id: ProductId<'_>) -> Vec<Arc<SecretItem>> {
+    pub async fn get_all_by_product_id<TResult>(
+        &self,
+        product_id: ProductId<'_>,
+        transform: impl Fn(&SecretItem) -> TResult,
+    ) -> Vec<TResult> {
         let product_id = match product_id {
-            ProductId::Shared => return self.shared.as_slice().to_vec(),
+            ProductId::Shared => {
+                let mut result = Vec::with_capacity(self.shared.capacity());
+
+                for itm in self.shared.iter() {
+                    result.push(transform(itm));
+                }
+
+                return result;
+            }
             ProductId::Id(product_id) => product_id,
         };
 
@@ -21,20 +33,26 @@ impl SecretsSnapshot {
             return vec![];
         };
 
-        by_product.to_vec_cloned()
+        let mut result = Vec::with_capacity(by_product.len());
+
+        for itm in by_product.iter() {
+            result.push(transform(itm));
+        }
+
+        result
     }
 
-    pub fn get_by_id(&self, product_id: ProductId<'_>, secret_id: &str) -> Option<Arc<SecretItem>> {
+    pub fn get_by_id(&self, product_id: ProductId<'_>, secret_id: &str) -> Option<&SecretItem> {
         let product_id = match product_id {
             ProductId::Shared => {
-                return self.shared.get(secret_id).cloned();
+                return self.shared.get(secret_id);
             }
             ProductId::Id(product_id) => product_id,
         };
 
         let by_product = self.by_product.get(product_id)?;
 
-        by_product.get(secret_id).cloned()
+        by_product.get(secret_id)
     }
     pub fn get_secreted_amount(&self) -> usize {
         let mut result = self.shared.len();
@@ -50,24 +68,24 @@ impl SecretsSnapshot {
         &self,
         product_id: ProductId<'_>,
         secret_id: &str,
-    ) -> Option<Arc<SecretItem>> {
+    ) -> Option<&SecretItem> {
         let product_id = match product_id {
             ProductId::Shared => {
-                return self.shared.get(secret_id).cloned();
+                return self.shared.get(secret_id);
             }
             ProductId::Id(product_id) => product_id,
         };
 
         if let Some(by_product) = self.by_product.get(product_id) {
             if let Some(result) = by_product.get(secret_id) {
-                return Some(result.clone());
+                return Some(result);
             }
         }
 
-        self.shared.get(secret_id).cloned()
+        self.shared.get(secret_id)
     }
 
-    pub fn get_slice<'s>(&'s self, product_id: ProductId<'_>) -> &'s [Arc<SecretItem>] {
+    pub fn get_slice<'s>(&'s self, product_id: ProductId<'_>) -> &'s [SecretItem] {
         match product_id {
             ProductId::Shared => self.shared.as_slice(),
             ProductId::Id(product_id) => match self.by_product.get(product_id) {
@@ -141,7 +159,7 @@ impl SecretsSnapshot {
     pub async fn find_into_vec_by_product<TResult>(
         &self,
         product_id: ProductId<'_>,
-        callback: impl Fn(&Arc<SecretItem>) -> Option<TResult>,
+        callback: impl Fn(&SecretItem) -> Option<TResult>,
     ) -> Vec<TResult> {
         let mut result = Vec::new();
         match product_id {

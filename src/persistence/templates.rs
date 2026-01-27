@@ -3,12 +3,10 @@ use std::collections::BTreeMap;
 use rust_extensions::file_utils::FilePath;
 use tokio::sync::Mutex;
 
-use crate::persistence::models::TemplatesFileModel;
-
-pub trait TemplatePersistenceItem {
-    fn get_id(&self) -> &str;
-    fn get_content(&self) -> &str;
-}
+use crate::{
+    models::*,
+    persistence::models::{TemplateFileData, TemplatesFileModel},
+};
 
 pub struct TemplatesPersistence {
     path: FilePath,
@@ -16,7 +14,8 @@ pub struct TemplatesPersistence {
 }
 
 impl TemplatesPersistence {
-    pub fn new(path: FilePath) -> Self {
+    pub fn new(mut path: FilePath) -> Self {
+        path.append_segment("templates.json");
         Self {
             path,
             content: Default::default(),
@@ -42,19 +41,25 @@ impl TemplatesPersistence {
         *write_access = Some(content);
     }
 
-    pub async fn save(&self, product_id: &str, items: &[impl TemplatePersistenceItem]) {
+    pub async fn save(&self, product_id: &str, items: &[TemplateItem]) {
         let mut file_content = self.get_file_content().await;
 
         for item in items {
-            let id = item.get_id().to_string();
-            let content = item.get_content().to_string();
+            let id = item.id.to_string();
+
+            let item = TemplateFileData {
+                content: item.content.to_base_64(),
+                created: item.created.unix_microseconds,
+                updated: item.last_update.unix_microseconds,
+            };
+
             match file_content.items.get_mut(product_id) {
                 Some(items) => {
-                    items.insert(id, content);
+                    items.insert(id, item);
                 }
                 None => {
                     let mut items = BTreeMap::new();
-                    items.insert(id, content);
+                    items.insert(id, item);
                     file_content.items.insert(product_id.to_string(), items);
                 }
             }

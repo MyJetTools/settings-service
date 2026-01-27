@@ -1,6 +1,6 @@
 use serde::*;
 
-use crate::{models::*, persistence::TemplatePersistenceItem};
+use crate::models::*;
 
 #[derive(Serialize, Deserialize)]
 pub struct SnapshotExportModel {
@@ -26,16 +26,6 @@ impl TemplateExportModel {
             id: src.id.to_string(),
             content: src.content.to_base_64(),
         }
-    }
-}
-
-impl TemplatePersistenceItem for TemplateExportModel {
-    fn get_id(&self) -> &str {
-        &self.id
-    }
-
-    fn get_content(&self) -> &str {
-        self.content.as_str()
     }
 }
 

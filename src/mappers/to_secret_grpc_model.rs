@@ -21,7 +21,7 @@ pub async fn to_secret_grpc_model(
         .await;
 
     SecretGrpcModel {
-        name: item.id.to_string(),
+        secret_id: item.id.to_string(),
         level: item.level as i32,
         created: item.created.to_rfc3339(),
         updated: item.updated.to_rfc3339(),

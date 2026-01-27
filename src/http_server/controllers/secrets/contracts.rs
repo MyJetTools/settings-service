@@ -1,12 +1,8 @@
-use std::sync::Arc;
-
 use my_http_server::macros::*;
 use serde::{Deserialize, Serialize};
 
-use crate::app_ctx::AppContext;
-
 use crate::models::*;
-use crate::secrets_grpc::TemplateUsageGrpcModel;
+use crate::secrets_grpc::{SecretGrpcModel, TemplateUsageGrpcModel};
 
 #[derive(MyHttpInput)]
 pub struct PostSecretContract {
@@ -28,23 +24,23 @@ pub struct GetSecretContract {
     pub name: String,
 }
 #[derive(Serialize, Debug, MyHttpObjectStructure)]
-pub struct SecretHttpModel {
+pub struct SecretValueHttpModel {
     pub value: String,
     pub level: u8,
 }
 
-impl Into<SecretHttpModel> for SecretItem {
-    fn into(self) -> SecretHttpModel {
-        SecretHttpModel {
+impl Into<SecretValueHttpModel> for SecretItem {
+    fn into(self) -> SecretValueHttpModel {
+        SecretValueHttpModel {
             value: self.content.into_string(),
             level: self.level,
         }
     }
 }
 
-impl Into<SecretHttpModel> for &'_ SecretItem {
-    fn into(self) -> SecretHttpModel {
-        SecretHttpModel {
+impl Into<SecretValueHttpModel> for &'_ SecretItem {
+    fn into(self) -> SecretValueHttpModel {
+        SecretValueHttpModel {
             value: self.content.to_string(),
             level: self.level,
         }
@@ -53,19 +49,22 @@ impl Into<SecretHttpModel> for &'_ SecretItem {
 
 #[derive(Serialize, Deserialize, Debug, MyHttpObjectStructure)]
 pub struct ListOfSecretsContract {
-    data: Vec<SecretModel>,
+    data: Vec<SecretHttpModel>,
 }
 
 impl ListOfSecretsContract {
-    pub async fn new(
-        app: &AppContext,
-        product_id: ProductId<'_>,
-        items: Vec<Arc<SecretItem>>,
-    ) -> Self {
+    pub fn new(items: Vec<SecretGrpcModel>) -> Self {
         let mut data = Vec::with_capacity(items.len());
 
         for item in items {
-            data.push(SecretModel::new(app, product_id, &item).await);
+            data.push(SecretHttpModel {
+                templates_amount: item.used_by_templates,
+                secrets_amount: item.used_by_secrets,
+                name: item.secret_id,
+                created: item.created,
+                updated: item.updated,
+                level: item.level,
+            });
         }
 
         Self { data }
@@ -73,45 +72,15 @@ impl ListOfSecretsContract {
 }
 
 #[derive(Serialize, Deserialize, Debug, MyHttpObjectStructure)]
-pub struct SecretModel {
+pub struct SecretHttpModel {
     #[serde(rename = "templatesAmount")]
-    templates_amount: usize,
+    pub templates_amount: i32,
     #[serde(rename = "secretsAmount")]
-    secrets_amount: usize,
-    name: String,
-    created: String,
-    updated: String,
-    level: u8,
-}
-
-impl SecretModel {
-    pub async fn new(app: &AppContext, product_id: ProductId<'_>, secret: &SecretItem) -> Self {
-        let templates_amount = match product_id {
-            ProductId::Shared => 0,
-            ProductId::Id(product_id) => {
-                app.templates
-                    .get_count(product_id, |item| {
-                        item.content.has_the_secret_inside(&secret.id)
-                    })
-                    .await
-            }
-        };
-
-        let secrets = app.secrets.get_snapshot().await;
-
-        let secrets_amount = secrets.get_count(product_id, |itm| {
-            itm.content.has_the_secret_inside(&secret.id)
-        });
-
-        Self {
-            name: secret.id.to_string(),
-            created: secret.created.to_string(),
-            updated: secret.updated.to_string(),
-            templates_amount,
-            secrets_amount,
-            level: secret.level,
-        }
-    }
+    pub secrets_amount: i32,
+    pub name: String,
+    pub created: String,
+    pub updated: String,
+    pub level: i32,
 }
 
 // Secret Usage
