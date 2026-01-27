@@ -1,23 +1,29 @@
-mod export_snapshot;
-mod get_domains;
-
-pub use get_domains::*;
-
-mod set_domain_mask;
-pub use set_domain_mask::*;
-
-//mod initialize_templates;
-
-pub mod templates;
-
-pub use export_snapshot::*;
 //pub use initialize_templates::*;
 
-mod set_domain_product_info;
-pub use set_domain_product_info::*;
-mod delete_domain_product_info;
-pub use delete_domain_product_info::*;
-mod import_snapshot;
-pub use import_snapshot::*;
 //mod init_on_start;
 //pub use init_on_start::*;
+mod get_all_secrets;
+pub use get_all_secrets::*;
+mod get_secret;
+pub use get_secret::*;
+mod save_template;
+pub use save_template::*;
+mod save_secret;
+pub use save_secret::*;
+mod delete_secret;
+pub use delete_secret::*;
+
+mod get_templates_used_by_the_secret;
+pub use get_templates_used_by_the_secret::*;
+
+mod get_secrets_used_by_the_secret;
+pub use get_secrets_used_by_the_secret::*;
+mod get_all_templates;
+pub use get_all_templates::*;
+mod delete_template;
+pub use delete_template::*;
+
+mod compile_yaml;
+pub use compile_yaml::*;
+mod import_export;
+pub use import_export::*;

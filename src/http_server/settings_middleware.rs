@@ -23,8 +23,8 @@ impl HttpServerMiddleware for SettingsMiddleware {
     ) -> Option<Result<HttpOkResult, HttpFailResult>> {
         let path = ctx.request.get_path();
 
-        let mut env = None;
-        let mut name = None;
+        let mut product_id = None;
+        let mut template_id = None;
 
         for (no, segment) in path.as_str().split('/').enumerate() {
             match no {
@@ -35,10 +35,10 @@ impl HttpServerMiddleware for SettingsMiddleware {
                     }
                 }
                 2 => {
-                    env = Some(segment);
+                    product_id = Some(segment);
                 }
                 3 => {
-                    name = Some(segment);
+                    template_id = Some(segment);
                 }
                 _ => {
                     return None;
@@ -46,28 +46,41 @@ impl HttpServerMiddleware for SettingsMiddleware {
             }
         }
 
-        if env.is_none() {
+        let Some(product_id) = product_id else {
             return None;
-        }
+        };
 
-        if name.is_none() {
+        let Some(template_id) = template_id else {
             return None;
-        }
+        };
 
-        let env = env.unwrap();
-        let name = name.unwrap();
-
-        let yaml = crate::flows::templates::get_populated_template(&self.app, env, name).await;
-
-        if yaml.is_none() {
-            return None;
-        }
-
-        self.app
-            .last_request
-            .update(env, name, DateTimeAsMicroseconds::now())
+        let content = self
+            .app
+            .templates
+            .get_by_id(product_id, template_id, |itm| itm.content.clone())
             .await;
 
-        Some(HttpOutput::as_text(yaml.unwrap()).into_ok_result(false))
+        let Some(content) = content else {
+            return None;
+        };
+
+        let now = DateTimeAsMicroseconds::now();
+
+        self.app
+            .last_time_access
+            .update(product_id, template_id, now)
+            .await;
+
+        let secrets_snapshot = self.app.secrets.get_snapshot().await;
+
+        let populated_content = crate::scripts::populate_secrets(
+            &self.app,
+            product_id.into(),
+            &content,
+            &secrets_snapshot,
+            0,
+        );
+
+        Some(HttpOutput::as_text(populated_content.into_string()).into_ok_result(false))
     }
 }

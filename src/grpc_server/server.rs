@@ -29,9 +29,6 @@ pub async fn start(app: Arc<AppContext>, port: u16) {
         Server::builder()
             .add_service(TemplatesServer::new(service.clone()))
             .add_service(SecretsServer::new(service.clone()))
-            .add_service(crate::domains_grpc::domains_server::DomainsServer::new(
-                service.clone(),
-            ))
             .serve(addr)
             .await,
         "Server error",

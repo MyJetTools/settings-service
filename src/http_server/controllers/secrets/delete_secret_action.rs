@@ -31,6 +31,11 @@ async fn handle_request(
     input_data: DeleteSecretInputContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    crate::scripts::secrets::delete(&action.app, input_data.env.as_deref(), &input_data.name).await;
+    crate::flows::delete_secret(
+        &action.app,
+        input_data.product.as_deref().into(),
+        &input_data.name,
+    )
+    .await;
     HttpOutput::Empty.into_ok_result(false)
 }

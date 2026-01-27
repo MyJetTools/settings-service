@@ -14,20 +14,25 @@ impl LastRequestTimeCache {
         }
     }
 
-    pub async fn update(&self, env: &str, name: &str, now: DateTimeAsMicroseconds) {
+    pub async fn update(&self, product_id: &str, template_id: &str, now: DateTimeAsMicroseconds) {
         let mut write_access = self.items.lock().await;
 
-        if !write_access.contains_key(env) {
-            write_access.insert(env.to_string(), BTreeMap::new());
+        if !write_access.contains_key(product_id) {
+            write_access.insert(product_id.to_string(), BTreeMap::new());
         }
 
-        let sub_access = write_access.get_mut(env).unwrap();
+        let sub_access = write_access.get_mut(product_id).unwrap();
 
-        sub_access.insert(name.to_string(), now);
+        sub_access.insert(template_id.to_string(), now);
     }
 
-    pub async fn get_snapshot(&self) -> BTreeMap<String, BTreeMap<String, DateTimeAsMicroseconds>> {
-        let write_access = self.items.lock().await;
-        write_access.clone()
+    pub async fn get(&self, product_id: &str, template_id: &str) -> Option<DateTimeAsMicroseconds> {
+        let read_access = self.items.lock().await;
+
+        let by_product = read_access.get(product_id)?;
+
+        let result = by_product.get(template_id)?;
+
+        Some(*result)
     }
 }

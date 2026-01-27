@@ -6,73 +6,24 @@ use super::server::GrpcService;
 use crate::templates_grpc::templates_server::Templates;
 use crate::templates_grpc::*;
 
-use rust_common::placeholders::*;
-
 #[tonic::async_trait]
 impl Templates for GrpcService {
     type GetAllStream = Pin<
-        Box<dyn Stream<Item = Result<TemplateListItem, tonic::Status>> + Send + Sync + 'static>,
+        Box<
+            dyn Stream<Item = Result<TemplateListItemGrpcModel, tonic::Status>>
+                + Send
+                + Sync
+                + 'static,
+        >,
     >;
 
     async fn get_all(
         &self,
         _: tonic::Request<()>,
     ) -> Result<tonic::Response<Self::GetAllStream>, tonic::Status> {
-        let result = crate::flows::templates::get_all(&self.app).await;
-        let time_snapshot = self.app.last_request.get_snapshot().await;
+        let result = crate::flows::get_all_templates(&self.app).await;
 
-        let secrets = crate::scripts::secrets::get_all_as_hash_map(&self.app, None).await;
-
-        my_grpc_extensions::grpc_server_streams::send_from_iterator_with_transformation(
-            result.into_iter(),
-            move |item| {
-                let last_time = if let Some(sub_items) = time_snapshot.get(&item.partition_key) {
-                    if let Some(value) = sub_items.get(&item.row_key) {
-                        value.unix_microseconds / 1000
-                    } else {
-                        0
-                    }
-                } else {
-                    0
-                };
-
-                let mut has_missing_placeholders = false;
-
-                for itm in PlaceholdersIterator::new(
-                    &item.yaml_template,
-                    crate::scripts::PLACEHOLDER_OPEN,
-                    crate::scripts::PLACEHOLDER_CLOSE,
-                ) {
-                    match itm {
-                        rust_common::placeholders::ContentToken::Text(_) => {}
-                        rust_common::placeholders::ContentToken::Placeholder(secret_name) => {
-                            match secrets.as_ref() {
-                                Some(secrets) => {
-                                    if !secrets.contains_key(secret_name) {
-                                        has_missing_placeholders = true;
-                                        break;
-                                    }
-                                }
-                                None => {
-                                    has_missing_placeholders = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                TemplateListItem {
-                    env: item.partition_key.clone(),
-                    name: item.row_key.clone(),
-                    created: item.create_date.clone(),
-                    updated: item.last_update_date.clone(),
-                    last_requests: last_time,
-                    has_missing_placeholders,
-                }
-            },
-        )
-        .await
+        my_grpc_extensions::grpc_server_streams::send_from_iterator(result.into_iter()).await
     }
 
     async fn get_server_info(
@@ -86,45 +37,50 @@ impl Templates for GrpcService {
         Ok(tonic::Response::new(result))
     }
 
-    async fn get(
+    async fn get_template_content(
         &self,
-        request: tonic::Request<GetTemplateRequest>,
-    ) -> Result<tonic::Response<GetTemplateResponse>, tonic::Status> {
+        request: tonic::Request<GetTemplateContentGrpcRequest>,
+    ) -> Result<tonic::Response<GetTemplateContentGrpcResponse>, tonic::Status> {
         let request = request.into_inner();
 
-        let template = crate::flows::templates::get(&self.app, &request.env, &request.name).await;
+        let content = self
+            .app
+            .templates
+            .get_by_id(&request.product_id, &request.template_id, |itm| {
+                itm.content.to_string()
+            })
+            .await
+            .unwrap_or_default();
 
-        let result = if let Some(template) = template {
-            GetTemplateResponse {
-                yaml: template.yaml_template.clone(),
-            }
-        } else {
-            GetTemplateResponse {
-                yaml: "".to_string(),
-            }
-        };
+        let response = GetTemplateContentGrpcResponse { content };
 
-        Ok(tonic::Response::new(result))
+        Ok(response.into())
     }
 
     async fn save(
         &self,
-        request: tonic::Request<SaveTemplateRequest>,
+        request: tonic::Request<SaveTemplateGrpcRequest>,
     ) -> Result<tonic::Response<()>, tonic::Status> {
         let request = request.into_inner();
 
-        crate::flows::templates::save(&self.app, request.env, request.name, request.yaml).await;
+        crate::flows::save_template(
+            &self.app,
+            &request.product_id,
+            request.template_id,
+            request.yaml,
+        )
+        .await;
 
         Ok(tonic::Response::new(()))
     }
 
     async fn delete(
         &self,
-        request: tonic::Request<DeleteTemplateRequest>,
+        request: tonic::Request<DeleteTemplateGrpcRequest>,
     ) -> Result<tonic::Response<()>, tonic::Status> {
         let request = request.into_inner();
 
-        crate::flows::templates::delete(&self.app, request.env, request.name).await;
+        crate::flows::delete_template(&self.app, &request.product_id, &request.template_id).await;
 
         Ok(tonic::Response::new(()))
     }
@@ -135,19 +91,13 @@ impl Templates for GrpcService {
     ) -> Result<tonic::Response<CompileYamlResponse>, tonic::Status> {
         let request = request.into_inner();
 
-        let yaml =
-            crate::flows::templates::get_populated_template(&self.app, &request.env, &request.name)
-                .await;
+        let yaml = crate::flows::compile_yaml(&self.app, &request.env, &request.name)
+            .await
+            .unwrap_or_default();
 
-        let result = if let Some(yaml) = yaml {
-            CompileYamlResponse { yaml }
-        } else {
-            CompileYamlResponse {
-                yaml: "".to_string(),
-            }
-        };
+        let result = CompileYamlResponse { yaml };
 
-        Ok(tonic::Response::new(result))
+        Ok(result.into())
     }
 
     async fn ping(&self, _: tonic::Request<()>) -> Result<tonic::Response<()>, tonic::Status> {

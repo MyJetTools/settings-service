@@ -3,7 +3,7 @@ use std::sync::Arc;
 use my_http_server::{macros::http_route, HttpContext, HttpFailResult, HttpOkResult, HttpOutput};
 
 use super::contracts::*;
-use crate::app_ctx::AppContext;
+use crate::app_ctx::*;
 
 #[http_route(
     method: "POST",
@@ -31,26 +31,23 @@ async fn handle_request(
     input_data: GetSecretContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let result = crate::scripts::secrets::get_value(
-        &action.app,
-        input_data.env.as_deref(),
-        &input_data.name,
-    )
-    .await;
+    let product_id = input_data.product.as_deref().into();
 
-    match result {
-        Some(result) => {
-            let result = crate::scripts::populate_secrets_recursively(
+    let secrets = action.app.secrets.get_snapshot().await;
+    let secret_result = secrets.get_by_id(product_id, &input_data.name);
+
+    match secret_result {
+        Some(secret_result) => {
+            let secrets_snapshot = action.app.secrets.get_snapshot().await;
+            let result = crate::scripts::populate_secrets(
                 action.app.as_ref(),
-                input_data.env.as_deref(),
-                result,
-            )
-            .await;
-            return HttpOutput::as_text(result).into_ok_result(false);
+                product_id,
+                &secret_result.content,
+                &secrets_snapshot,
+                0,
+            );
+            return HttpOutput::as_text(result.into_string()).into_ok_result(false);
         }
-        None => Err(HttpFailResult::as_not_found(
-            "Secret not found".to_string(),
-            false,
-        )),
+        None => HttpOutput::as_not_found("Secret not found").into_err(false, false),
     }
 }

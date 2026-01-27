@@ -31,9 +31,16 @@ async fn handle_request(
     mut input_data: PostSecretContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let env = std::mem::take(&mut input_data.env);
+    let product = std::mem::take(&mut input_data.product);
     let name = std::mem::take(&mut input_data.name);
-    crate::scripts::secrets::update(&action.app, env.as_deref(), name, input_data.into()).await;
+    crate::flows::save_secret(
+        &action.app,
+        product.as_deref().into(),
+        name,
+        input_data.secret,
+        input_data.level,
+    )
+    .await;
 
     HttpOutput::Empty.into_ok_result(false)
 }

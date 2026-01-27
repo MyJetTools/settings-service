@@ -34,16 +34,19 @@ async fn handle_request(
     input_data: GetListOfSecretsHttpInput,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let secrets = crate::scripts::secrets::get_all(&action.app, input_data.env.as_deref())
-        .await
-        .unwrap_or(vec![]);
+    let secrets = action.app.secrets.get_snapshot().await;
+    let secrets = secrets
+        .get_all_by_product_id(input_data.product.as_deref().into())
+        .await;
 
-    let result = ListOfSecretsContract::new(&action.app, input_data.env.as_deref(), secrets).await;
+    let result =
+        ListOfSecretsContract::new(&action.app, input_data.product.as_deref().into(), secrets)
+            .await;
     HttpOutput::as_json(result).into_ok_result(false)
 }
 
 #[derive(Debug, MyHttpInput)]
 pub struct GetListOfSecretsHttpInput {
-    #[http_query(description: "Environment")]
-    pub env: Option<String>,
+    #[http_query(description: "Product")]
+    pub product: Option<String>,
 }

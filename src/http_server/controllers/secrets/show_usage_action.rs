@@ -31,13 +31,14 @@ async fn handle_request(
     input_data: ShowUsageInputContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let result = crate::scripts::secrets::get_secret_usage_by_templates(
+    let result = crate::flows::get_templates_used_by_the_secret(
         &action.app,
-        input_data.name.as_str(),
+        &input_data.product,
+        &input_data.secret,
     )
     .await;
 
-    let response = ShowSecretUsageResponse::new(result);
+    let response = ShowSecretUsageHttpResponse::new(result);
 
     HttpOutput::as_json(response).into_ok_result(false)
 }

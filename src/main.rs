@@ -8,12 +8,16 @@ mod caches;
 mod grpc_server;
 mod http_server;
 //mod key_value_repository;
+
 mod flows;
 mod models;
-mod my_no_sql;
+//mod my_no_sql;
 mod secret_generator;
 mod settings;
 
+mod consts;
+mod mappers;
+mod persistence;
 mod scripts;
 
 pub mod domains_grpc {
@@ -43,8 +47,6 @@ async fn main() {
     crate::http_server::start(&app);
 
     tokio::spawn(crate::grpc_server::server::start(app.clone(), 8888));
-
-    app.reader_connection.start().await;
 
     app.app_states.wait_until_shutdown().await;
 }

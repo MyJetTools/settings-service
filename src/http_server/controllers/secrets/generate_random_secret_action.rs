@@ -33,20 +33,30 @@ async fn handle_request(
     mut input_data: GenerateRandomSecretContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let env = std::mem::take(&mut input_data.env);
+    let product = std::mem::take(&mut input_data.product);
+    let product_id: ProductId = product.as_deref().into();
+
+    let secrets = action.app.secrets.get_snapshot().await;
+
     if !input_data.has_force_update() {
-        if crate::scripts::secrets::has_secret(&action.app, env.as_deref(), &input_data.name).await
-        {
+        if secrets.has_secret(product_id, &input_data.name) {
             return HttpFailResult::as_validation_error("Secret already exists").into();
         }
     }
 
-    let secret_name = input_data.name.to_string();
-    let secret_value: SecretValue = input_data.into();
+    let random_value = crate::secret_generator::generate(input_data.length);
 
-    let result = secret_value.content.to_string();
+    let removed = crate::flows::save_secret(
+        &action.app,
+        product_id,
+        input_data.name,
+        random_value,
+        input_data.level,
+    )
+    .await;
 
-    crate::scripts::secrets::update(&action.app, env.as_deref(), secret_name, secret_value).await;
-
-    HttpOutput::as_text(result).into_ok_result(false)
+    match removed {
+        Some(removed) => HttpOutput::as_text(removed.content.to_string()).into_ok_result(false),
+        None => HttpOutput::as_text(String::new()).into_ok_result(false),
+    }
 }

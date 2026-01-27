@@ -3,13 +3,13 @@ syntax = "proto3";
 import "google/protobuf/empty.proto";
 package templates;
 
-message GetTemplateRequest {
-  string env  = 1;
-  string name = 2;
+message GetTemplateContentGrpcRequest {
+  string product_id  = 1;
+  string template_id = 2;
 }
 
-message GetTemplateResponse {
-  string yaml = 1;
+message GetTemplateContentGrpcResponse {
+  string content = 1;
 }
 
 message CompileYamlRequest {
@@ -21,20 +21,20 @@ message CompileYamlResponse {
   string yaml = 1;
 }
 
-message SaveTemplateRequest {
-  string env  = 1;
-  string name = 2;
-  string yaml = 3;
+message SaveTemplateGrpcRequest {
+  string product_id  = 1;
+  string template_id = 2;
+  string yaml        = 3;
 }
 
-message DeleteTemplateRequest {
-  string env  = 1;
-  string name = 2;
+message DeleteTemplateGrpcRequest {
+  string product_id  = 1;
+  string template_id = 2;
 }
 
-message TemplateListItem{
-  string env                      = 1;
-  string name                     = 2;
+message TemplateListItemGrpcModel{
+  string product_id               = 1;
+  string template_id              = 2;
   string created                  = 3;
   string updated                  = 4;
   int64  last_requests            = 5;
@@ -47,11 +47,11 @@ message ServerInfoResponse{
 
 service Templates {
   rpc GetServerInfo(google.protobuf.Empty) returns (ServerInfoResponse);
-  rpc Get(GetTemplateRequest) returns (GetTemplateResponse);
-  rpc GetAll(google.protobuf.Empty) returns (stream TemplateListItem);
+  rpc GetTemplateContent(GetTemplateContentGrpcRequest) returns (GetTemplateContentGrpcResponse);
+  rpc GetAll(google.protobuf.Empty) returns (stream TemplateListItemGrpcModel);
 
-  rpc Save(SaveTemplateRequest) returns (google.protobuf.Empty);
+  rpc Save(SaveTemplateGrpcRequest) returns (google.protobuf.Empty);
   rpc CompileYaml(CompileYamlRequest) returns (CompileYamlResponse);
-  rpc Delete(DeleteTemplateRequest) returns (google.protobuf.Empty);
+  rpc Delete(DeleteTemplateGrpcRequest) returns (google.protobuf.Empty);
   rpc Ping(google.protobuf.Empty) returns (google.protobuf.Empty);
 }

@@ -11,7 +11,7 @@ use crate::app_ctx::AppContext;
     description: "Get secret",
     summary: "Returns secret",
     controller: "Secrets",
-    input_data: "ShowUsageInputContract",
+    input_data: ShowSecretesUsageInputContract,
     result:[
         {status_code: 200, description: "Ok response", model="Vec<SecretSecretUsageHttpModel>"},
     ]
@@ -28,20 +28,20 @@ impl ShowUsageBySecretsAction {
 
 async fn handle_request(
     action: &ShowUsageBySecretsAction,
-    input_data: ShowUsageInputContract,
+    input_data: ShowSecretesUsageInputContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let result = crate::scripts::secrets::get_secret_usage_by_secrets(
+    let result = crate::flows::get_secrets_used_by_the_secret(
         &action.app,
-        input_data.env.as_deref(),
-        input_data.name.as_str(),
+        input_data.product.as_deref().into(),
+        &input_data.name,
     )
     .await;
 
     let result: Vec<SecretSecretUsageHttpModel> = result
         .into_iter()
         .map(|itm| SecretSecretUsageHttpModel {
-            name: itm.name,
+            name: itm.id,
             value: itm.value,
         })
         .collect();

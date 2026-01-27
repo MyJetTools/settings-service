@@ -3,14 +3,15 @@ use std::sync::Arc;
 use my_http_server::macros::*;
 use serde::{Deserialize, Serialize};
 
-use crate::{app_ctx::AppContext, my_no_sql::SecretMyNoSqlEntity};
+use crate::app_ctx::AppContext;
 
 use crate::models::*;
+use crate::secrets_grpc::TemplateUsageGrpcModel;
 
 #[derive(MyHttpInput)]
 pub struct PostSecretContract {
-    #[http_query(description = "Environment")]
-    pub env: Option<String>,
+    #[http_query(description = "Product")]
+    pub product: Option<String>,
     #[http_body(description = "Name")]
     pub name: String,
     #[http_body(description = "Secret")]
@@ -19,19 +20,10 @@ pub struct PostSecretContract {
     pub level: u8,
 }
 
-impl Into<SecretValue> for PostSecretContract {
-    fn into(self) -> SecretValue {
-        SecretValue {
-            content: self.secret,
-            level: self.level,
-        }
-    }
-}
-
 #[derive(MyHttpInput)]
 pub struct GetSecretContract {
-    #[http_query(description = "Environment")]
-    pub env: Option<String>,
+    #[http_query(description = "Product")]
+    pub product: Option<String>,
     #[http_body(description = "Name")]
     pub name: String,
 }
@@ -41,10 +33,19 @@ pub struct SecretHttpModel {
     pub level: u8,
 }
 
-impl Into<SecretHttpModel> for SecretValue {
+impl Into<SecretHttpModel> for SecretItem {
     fn into(self) -> SecretHttpModel {
         SecretHttpModel {
-            value: self.content,
+            value: self.content.into_string(),
+            level: self.level,
+        }
+    }
+}
+
+impl Into<SecretHttpModel> for &'_ SecretItem {
+    fn into(self) -> SecretHttpModel {
+        SecretHttpModel {
+            value: self.content.to_string(),
             level: self.level,
         }
     }
@@ -58,13 +59,13 @@ pub struct ListOfSecretsContract {
 impl ListOfSecretsContract {
     pub async fn new(
         app: &AppContext,
-        env: Option<&str>,
-        items: Vec<Arc<SecretMyNoSqlEntity>>,
+        product_id: ProductId<'_>,
+        items: Vec<Arc<SecretItem>>,
     ) -> Self {
         let mut data = Vec::with_capacity(items.len());
 
         for item in items {
-            data.push(SecretModel::new(app, env, &item).await);
+            data.push(SecretModel::new(app, product_id, &item).await);
         }
 
         Self { data }
@@ -84,26 +85,31 @@ pub struct SecretModel {
 }
 
 impl SecretModel {
-    pub async fn new(app: &AppContext, env: Option<&str>, itm: &SecretMyNoSqlEntity) -> Self {
-        Self {
-            name: itm.row_key.to_string(),
-            created: itm.create_date.to_string(),
-            updated: itm.last_update_date.to_string(),
-            templates_amount: crate::scripts::secrets::get_secret_usage_by_templates(
-                app,
-                itm.get_secret_name(),
-            )
-            .await
-            .len(),
+    pub async fn new(app: &AppContext, product_id: ProductId<'_>, secret: &SecretItem) -> Self {
+        let templates_amount = match product_id {
+            ProductId::Shared => 0,
+            ProductId::Id(product_id) => {
+                app.templates
+                    .get_count(product_id, |item| {
+                        item.content.has_the_secret_inside(&secret.id)
+                    })
+                    .await
+            }
+        };
 
-            secrets_amount: crate::scripts::secrets::get_secret_usage_by_secrets(
-                app,
-                env,
-                itm.get_secret_name(),
-            )
-            .await
-            .len(),
-            level: itm.level.unwrap_or(0),
+        let secrets = app.secrets.get_snapshot().await;
+
+        let secrets_amount = secrets.get_count(product_id, |itm| {
+            itm.content.has_the_secret_inside(&secret.id)
+        });
+
+        Self {
+            name: secret.id.to_string(),
+            created: secret.created.to_string(),
+            updated: secret.updated.to_string(),
+            templates_amount,
+            secrets_amount,
+            level: secret.level,
         }
     }
 }
@@ -112,26 +118,32 @@ impl SecretModel {
 
 #[derive(MyHttpInput)]
 pub struct ShowUsageInputContract {
-    #[http_query(description = "Environment")]
-    pub env: Option<String>,
+    #[http_query(description = "Product")]
+    pub product: String,
+    #[http_body(description = "Id of secret")]
+    pub secret: String,
+}
+
+#[derive(MyHttpInput)]
+pub struct ShowSecretesUsageInputContract {
+    #[http_query(description = "Product")]
+    pub product: Option<String>,
     #[http_body(description = "Name")]
     pub name: String,
 }
-
 #[derive(Serialize, Deserialize, Debug, MyHttpObjectStructure)]
-pub struct ShowSecretUsageResponse {
-    data: Vec<SecretUsageModel>,
+pub struct ShowSecretUsageHttpResponse {
+    data: Vec<SecretUsageHttpModel>,
 }
 
-impl ShowSecretUsageResponse {
-    pub fn new(src: Vec<SecretUsage>) -> Self {
-        let mut data = Vec::new();
+impl ShowSecretUsageHttpResponse {
+    pub fn new(src: Vec<TemplateUsageGrpcModel>) -> Self {
+        let mut data = Vec::with_capacity(src.len());
 
         for itm in src {
-            data.push(SecretUsageModel {
-                env: itm.env,
-                name: itm.name,
-                yaml: itm.yaml,
+            data.push(SecretUsageHttpModel {
+                template_id: itm.template_id,
+                template_content: itm.template_content,
             });
         }
 
@@ -140,17 +152,16 @@ impl ShowSecretUsageResponse {
 }
 
 #[derive(Serialize, Deserialize, Debug, MyHttpObjectStructure)]
-pub struct SecretUsageModel {
-    env: String,
-    name: String,
-    yaml: String,
+pub struct SecretUsageHttpModel {
+    template_id: String,
+    template_content: String,
 }
 
 // Delete secret
 #[derive(MyHttpInput)]
 pub struct DeleteSecretInputContract {
     #[http_query(description:"Environment")]
-    pub env: Option<String>,
+    pub product: Option<String>,
     #[http_body(description = "Name")]
     pub name: String,
 }
@@ -164,7 +175,7 @@ pub struct SecretSecretUsageHttpModel {
 #[derive(MyHttpInput)]
 pub struct GenerateRandomSecretContract {
     #[http_query(description: "Environment")]
-    pub env: Option<String>,
+    pub product: Option<String>,
     #[http_body(description = "Name")]
     pub name: String,
     #[http_body(description = "Level")]
@@ -183,14 +194,5 @@ impl GenerateRandomSecretContract {
         }
 
         false
-    }
-}
-
-impl Into<SecretValue> for GenerateRandomSecretContract {
-    fn into(self) -> SecretValue {
-        SecretValue {
-            content: crate::secret_generator::generate(self.length),
-            level: self.level,
-        }
     }
 }

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use my_http_server::{macros::http_route, HttpContext, HttpFailResult, HttpOkResult, HttpOutput};
+use my_http_server::{macros::*, *};
 
 use super::contracts::*;
 use crate::app_ctx::AppContext;
@@ -34,9 +34,11 @@ async fn handle_request(
 ) -> Result<HttpOkResult, HttpFailResult> {
     crate::flows::import_snapshot(
         &action.app,
-        input_data.env.as_deref(),
+        &input_data.product,
         &input_data.dump.content,
+        false,
     )
     .await;
+
     HttpOutput::Empty.into_ok_result(false)
 }

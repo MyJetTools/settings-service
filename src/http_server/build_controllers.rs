@@ -77,13 +77,14 @@ pub fn build_controllers(app: &Arc<AppContext>) -> Arc<ControllersMiddleware> {
 
     // Domains
 
-    result.register_get_action(Arc::new(
-        super::controllers::domains::GetDomainsAction::new(app.clone()),
-    ));
+    /*
+       result.register_get_action(Arc::new(
+           super::controllers::domains::GetDomainsAction::new(app.clone()),
+       ));
 
-    result.register_post_action(Arc::new(
-        super::controllers::domains::SetupDomainAction::new(app.clone()),
-    ));
-
+       result.register_post_action(Arc::new(
+           super::controllers::domains::SetupDomainAction::new(app.clone()),
+       ));
+    */
     Arc::new(result)
 }

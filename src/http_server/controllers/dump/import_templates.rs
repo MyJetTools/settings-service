@@ -1,10 +1,10 @@
-use std::{sync::Arc, time::Duration};
+use std::sync::Arc;
 
-use my_http_server::{macros::http_route, HttpContext, HttpFailResult, HttpOkResult, HttpOutput};
+use my_http_server::{macros::*, *};
 
-use crate::{app_ctx::AppContext, my_no_sql::TemplateMyNoSqlEntity};
+use crate::app_ctx::AppContext;
 
-use super::contracts::{ImportSettingsTemplateAction, SettingTemplateDumpModel};
+use super::contracts::ImportSettingsTemplateAction;
 
 #[http_route(
     method: "POST",
@@ -33,25 +33,13 @@ async fn handle_request(
     input_data: ImportSettingsTemplateAction,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let dump_data: Vec<TemplateMyNoSqlEntity> =
-        serde_json::from_slice::<Vec<SettingTemplateDumpModel>>(&input_data.dump.content)
-            .unwrap()
-            .iter()
-            .map(|x| {
-                let entity: SettingTemplateDumpModel = x.to_owned();
-                let entity = entity.into();
-                return entity;
-            })
-            .collect();
-
-    action
-        .app
-        .templates_storage
-        .bulk_insert_or_replace(dump_data.as_slice())
-        .await
-        .unwrap();
-
-    tokio::time::sleep(Duration::from_secs(1)).await;
+    crate::flows::import_snapshot(
+        &action.app,
+        &input_data.product,
+        &input_data.dump.content,
+        true,
+    )
+    .await;
 
     HttpOutput::Empty.into_ok_result(false)
 }

@@ -1,5 +1,4 @@
-use my_no_sql_sdk::{data_writer::MyNoSqlWriterSettings, reader::MyNoSqlTcpConnectionSettings};
-use serde::{Deserialize, Serialize};
+use serde::*;
 
 pub enum FaviconColor {
     Default,
@@ -11,36 +10,12 @@ pub enum FaviconColor {
 
 #[derive(my_settings_reader::SettingsModel, Serialize, Deserialize, Debug, Clone)]
 pub struct SettingsModel {
-    pub my_no_sql_writer: String,
-    pub my_no_sql_reader: String,
     pub http_port: u16,
-
     pub encryption_key: String,
-
     pub env: String,
-
     pub favicon_color: Option<String>,
-
     pub max_level_of_secrets_to_export: u8,
-}
-
-#[async_trait::async_trait]
-impl MyNoSqlWriterSettings for SettingsModel {
-    fn get_app_name(&self) -> &'static str {
-        crate::app_ctx::APP_NAME
-    }
-    fn get_app_version(&self) -> &'static str {
-        crate::app_ctx::APP_VERSION
-    }
-    async fn get_url(&self) -> String {
-        self.my_no_sql_writer.clone()
-    }
-}
-#[async_trait::async_trait]
-impl MyNoSqlTcpConnectionSettings for SettingsModel {
-    async fn get_host_port(&self) -> String {
-        self.my_no_sql_reader.clone()
-    }
+    pub db_path: String,
 }
 
 impl SettingsModel {

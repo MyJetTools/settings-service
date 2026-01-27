@@ -32,12 +32,17 @@ async fn handle_request(
     input_data: GetTemplateContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let template =
-        crate::flows::templates::get(&action.app, &input_data.env, &input_data.name).await;
+    let template_content = action
+        .app
+        .templates
+        .get_by_id(&input_data.product, &input_data.name, |itm| {
+            itm.content.clone()
+        })
+        .await;
 
-    if let Some(template) = template {
-        HttpOutput::as_text(template.yaml_template.clone()).into_ok_result(false)
-    } else {
-        Err(HttpFailResult::as_not_found("Not Found".to_string(), false))
-    }
+    let Some(template_content) = template_content else {
+        return Err(HttpFailResult::as_not_found("Not Found".to_string(), false));
+    };
+
+    HttpOutput::as_text(template_content.into_string()).into_ok_result(false)
 }

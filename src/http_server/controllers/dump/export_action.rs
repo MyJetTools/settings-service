@@ -1,11 +1,9 @@
 use std::sync::Arc;
 
-use my_http_server::{
-    macros::{http_route, MyHttpInput},
-    HttpContext, HttpFailResult, HttpOkResult, HttpOutput,
-};
+use my_http_server::{macros::*, *};
 use rust_extensions::date_time::DateTimeAsMicroseconds;
 
+use super::contracts::*;
 use crate::app_ctx::AppContext;
 
 #[http_route(
@@ -35,22 +33,14 @@ async fn handle_request(
     input_data: ExportSnapshotHttpInputData,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let max_level = action.app.settings.max_level_of_secrets_to_export;
-    let content =
-        crate::flows::export_snapshot(&action.app, input_data.env.as_deref(), max_level).await;
+    let export_data = crate::flows::export_snapshot(&action.app, &input_data.product, false).await;
 
     let dt = DateTimeAsMicroseconds::now();
 
     let dt = dt.to_compact_date_time_string();
     HttpOutput::File {
         file_name: format!("settings_snapshot_{dt}.json"),
-        content,
+        content: export_data.to_string().into_bytes(),
     }
     .into_ok_result(false)
-}
-
-#[derive(Debug, MyHttpInput)]
-pub struct ExportSnapshotHttpInputData {
-    #[http_query(description:"Environment")]
-    pub env: Option<String>,
 }

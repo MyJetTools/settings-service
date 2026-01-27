@@ -30,7 +30,7 @@ async fn handle_request(
     action: &GetTemplatesAction,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let templates = crate::scripts::templates::get_all(&action.app).await;
+    let templates = action.app.templates.get_all().await;
 
     let result = ListOfTemplatesContract::new(&action.app, templates).await;
     HttpOutput::as_json(result).into_ok_result(false)

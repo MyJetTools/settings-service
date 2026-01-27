@@ -1,22 +1,22 @@
-use std::sync::Arc;
+use std::{collections::BTreeMap, sync::Arc};
 
 use my_http_server::macros::*;
 use serde::{Deserialize, Serialize};
 
-use crate::{app_ctx::AppContext, my_no_sql::TemplateMyNoSqlEntity};
+use crate::{app_ctx::AppContext, models::TemplateItem};
 
 #[derive(MyHttpInput)]
 pub struct DeleteTemplateContract {
-    #[http_body(description = "Environment")]
-    pub env: String,
+    #[http_body(description = "Product")]
+    pub product: String,
     #[http_body(description = "Service name")]
     pub name: String,
 }
 
 #[derive(MyHttpInput)]
 pub struct PostTemplateContract {
-    #[http_body(description = "Environment")]
-    pub env: String,
+    #[http_body(description = "Product")]
+    pub product: String,
     #[http_body(description = "Service name")]
     pub name: String,
     #[http_body(description = "Yaml template")]
@@ -26,7 +26,7 @@ pub struct PostTemplateContract {
 #[derive(MyHttpInput)]
 pub struct GetTemplateContract {
     #[http_body(description = "Environment")]
-    pub env: String,
+    pub product: String,
     #[http_body(description = "Service name")]
     pub name: String,
 }
@@ -37,23 +37,23 @@ pub struct ListOfTemplatesContract {
 }
 
 impl ListOfTemplatesContract {
-    pub async fn new(app: &AppContext, items: Vec<Arc<TemplateMyNoSqlEntity>>) -> Self {
+    pub async fn new(app: &AppContext, items: BTreeMap<String, Vec<Arc<TemplateItem>>>) -> Self {
         let mut data = Vec::with_capacity(items.len());
 
-        let time_snapshot = app.last_request.get_snapshot().await;
+        for (product_id, item) in items {
+            for item in item {
+                let last_time = app
+                    .last_time_access
+                    .get(product_id.as_str(), &item.id)
+                    .await;
 
-        for item in items {
-            let last_time = if let Some(sub_itmes) = time_snapshot.get(&item.partition_key) {
-                if let Some(value) = sub_itmes.get(&item.row_key) {
-                    value.unix_microseconds / 1000
-                } else {
-                    0
-                }
-            } else {
-                0
-            };
+                let last_time = match last_time {
+                    Some(last_time) => last_time.unix_microseconds,
+                    None => 0,
+                };
 
-            data.push(SettingTemplateModel::new(&item, last_time));
+                data.push(SettingTemplateModel::new(&item, last_time));
+            }
         }
 
         Self { data }
@@ -62,7 +62,6 @@ impl ListOfTemplatesContract {
 
 #[derive(Serialize, Deserialize, Debug, MyHttpObjectStructure)]
 pub struct SettingTemplateModel {
-    env: String,
     name: String,
     created: String,
     updated: String,
@@ -71,12 +70,11 @@ pub struct SettingTemplateModel {
 }
 
 impl SettingTemplateModel {
-    pub fn new(itm: &TemplateMyNoSqlEntity, last_request: i64) -> Self {
+    pub fn new(itm: &TemplateItem, last_request: i64) -> Self {
         Self {
-            env: itm.partition_key.clone(),
-            name: itm.row_key.clone(),
-            created: itm.create_date.clone(),
-            updated: itm.last_update_date.clone(),
+            name: itm.id.to_string(),
+            created: itm.created.to_rfc3339(),
+            updated: itm.last_update.to_rfc3339(),
             last_request,
         }
     }

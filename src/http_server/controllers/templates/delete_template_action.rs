@@ -32,6 +32,6 @@ async fn handle_request(
     input_data: DeleteTemplateContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    crate::flows::templates::delete(&action.app, input_data.env, input_data.name).await;
+    crate::flows::delete_template(&action.app, &input_data.product, &input_data.name).await;
     HttpOutput::Empty.into_ok_result(false)
 }

@@ -16,12 +16,6 @@ rust-extensions = { tag = "0.1.5", git = "https://github.com/MyJetTools/rust-ext
     "base64",
 ] }
 
-my-no-sql-sdk = { tag = "0.4.1", git = "https://github.com/MyJetTools/my-no-sql-sdk.git", features = [
-    "data-writer",
-    "data-reader",
-    "macros",
-] }
-
 my-logger = { tag = "1.2.1", git = "https://github.com/MyJetTools/my-logger.git" }
 
 my-grpc-extensions = { tag = "0.6.6", git = "https://github.com/MyJetTools/my-grpc-extensions.git", features = [

@@ -31,16 +31,15 @@ async fn handle_request(
     input_data: GetSecretContract,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let result = crate::scripts::secrets::get_value(
-        &action.app,
-        input_data.env.as_deref(),
-        &input_data.name,
-    )
-    .await;
+    let secrets = action.app.secrets.get_snapshot().await;
+    let result = secrets.get_by_id(
+        input_data.product.as_deref().into(),
+        input_data.name.as_str(),
+    );
 
     match result {
         Some(result) => {
-            let model: SecretHttpModel = result.into();
+            let model: SecretHttpModel = result.as_ref().into();
             HttpOutput::as_json(model).into_ok_result(false)
         }
         None => Err(HttpFailResult::as_not_found(

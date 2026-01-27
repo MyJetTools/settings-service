@@ -8,32 +8,9 @@ impl Domains for GrpcService {
         &self,
         _: tonic::Request<()>,
     ) -> Result<tonic::Response<DomainsInfoGrpcResponse>, tonic::Status> {
-        let result = crate::flows::get_domains(&self.app).await;
+        let _result = crate::flows::get_domains(&self.app).await;
 
-        let response = DomainsInfoGrpcResponse {
-            domain_mask: if let Some(domain_setup) = result.domain_setup {
-                Some(domain_setup.domain_mask)
-            } else {
-                None
-            },
-            products: if let Some(sub_domains) = result.product_sub_domains {
-                sub_domains
-                    .into_iter()
-                    .map(|itm| DomainProductGrpcInfo {
-                        product_name: itm.row_key,
-                        is_cloud_flare_proxy: itm.is_cloud_flare_proxy,
-                        nginx_config: if let Some(nginx) = itm.nginx {
-                            Some(nginx.into())
-                        } else {
-                            None
-                        },
-                    })
-                    .collect()
-            } else {
-                vec![]
-            },
-        };
-
+        let response = DomainsInfoGrpcResponse::default();
         Ok(tonic::Response::new(response))
     }
 
@@ -52,13 +29,7 @@ impl Domains for GrpcService {
         request: tonic::Request<DomainProductGrpcInfo>,
     ) -> Result<tonic::Response<()>, tonic::Status> {
         let request = request.into_inner();
-        crate::flows::set_domain_product_info(
-            &self.app,
-            request.product_name,
-            request.is_cloud_flare_proxy,
-            request.nginx_config,
-        )
-        .await;
+        panic!("Not Implemented");
 
         Ok(tonic::Response::new(()))
     }
@@ -69,9 +40,7 @@ impl Domains for GrpcService {
     ) -> Result<tonic::Response<()>, tonic::Status> {
         let request = request.into_inner();
 
-        crate::flows::delete_domain_product_info(&self.app, &request.product_name).await;
-
-        Ok(tonic::Response::new(()))
+        panic!("Not Implemented");
     }
 
     async fn ping(&self, _: tonic::Request<()>) -> Result<tonic::Response<()>, tonic::Status> {
