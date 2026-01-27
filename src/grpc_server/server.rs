@@ -18,7 +18,9 @@ impl GrpcService {
     }
 }
 
-pub async fn start(app: Arc<AppContext>, port: u16) {
+pub async fn start(app: Arc<AppContext>) {
+    let port = app.settings.get_grpc_port();
+
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
 
     let service = GrpcService::new(app);

@@ -10,7 +10,8 @@ pub enum FaviconColor {
 
 #[derive(my_settings_reader::SettingsModel, Serialize, Deserialize, Debug, Clone)]
 pub struct SettingsModel {
-    pub http_port: u16,
+    pub http_port: Option<u16>,
+    pub grpc_port: Option<u16>,
     pub encryption_key: String,
     pub env: String,
     pub favicon_color: Option<String>,
@@ -32,6 +33,20 @@ impl SettingsModel {
                 println!("Settings.FaviconSuffix is not set. Using default favicon");
                 FaviconColor::Default
             }
+        }
+    }
+
+    pub fn get_http_port(&self) -> u16 {
+        match self.http_port {
+            Some(port) => port,
+            None => 8000,
+        }
+    }
+
+    pub fn get_grpc_port(&self) -> u16 {
+        match self.grpc_port {
+            Some(port) => port,
+            None => 8888,
         }
     }
 }

@@ -8,8 +8,8 @@ use crate::app_ctx::AppContext;
 use super::SettingsMiddleware;
 
 pub fn start(app: &Arc<AppContext>) {
-    let mut http_server =
-        MyHttpServer::new(SocketAddr::from(([0, 0, 0, 0], app.settings.http_port)));
+    let http_port = app.settings.get_http_port();
+    let mut http_server = MyHttpServer::new(SocketAddr::from(([0, 0, 0, 0], http_port)));
 
     let unix_socket = std::env::var("UNIX_SOCKET");
 

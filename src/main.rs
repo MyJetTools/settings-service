@@ -44,7 +44,7 @@ async fn main() {
 
     crate::http_server::start(&app);
 
-    tokio::spawn(crate::grpc_server::server::start(app.clone(), 8888));
+    tokio::spawn(crate::grpc_server::server::start(app.clone()));
 
     app.app_states.wait_until_shutdown().await;
 }
