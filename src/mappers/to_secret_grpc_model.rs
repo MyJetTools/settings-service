@@ -1,9 +1,4 @@
-use crate::{
-    app_ctx::AppContext,
-    caches::SecretsSnapshot,
-    models::{ProductId, SecretItem},
-    secrets_grpc::SecretGrpcModel,
-};
+use crate::{app_ctx::AppContext, caches::SecretsSnapshot, models::*, secrets_grpc::*};
 
 pub async fn to_secret_grpc_model(
     app: &AppContext,
@@ -27,5 +22,14 @@ pub async fn to_secret_grpc_model(
         updated: item.updated.to_rfc3339(),
         used_by_secrets: used_by_secrets as i32,
         used_by_templates: used_by_templates as i32,
+    }
+}
+
+impl Into<SecretValueGrpcModel> for &SecretItem {
+    fn into(self) -> SecretValueGrpcModel {
+        SecretValueGrpcModel {
+            level: self.level as i32,
+            value: self.content.to_string(),
+        }
     }
 }

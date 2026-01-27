@@ -26,7 +26,7 @@ impl Secrets for GrpcService {
     async fn get(
         &self,
         request: tonic::Request<GetSecretGrpcRequest>,
-    ) -> Result<tonic::Response<SecretGrpcModel>, tonic::Status> {
+    ) -> Result<tonic::Response<SecretValueGrpcModel>, tonic::Status> {
         let request = request.into_inner();
 
         let response = crate::flows::get_secret(
