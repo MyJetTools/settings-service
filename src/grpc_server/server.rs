@@ -25,7 +25,7 @@ pub async fn start(app: Arc<AppContext>) {
 
     let service = GrpcService::new(app);
 
-    println!("Listening to {:?} as grpc endpoint", addr);
+    println!("Listening to Tcp({:?}) as grpc endpoint", addr);
 
     anyhow::Context::context(
         Server::builder()

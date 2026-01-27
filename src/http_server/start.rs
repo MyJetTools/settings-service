@@ -9,11 +9,15 @@ use super::SettingsMiddleware;
 
 pub fn start(app: &Arc<AppContext>) {
     let http_port = app.settings.get_http_port();
-    let mut http_server = MyHttpServer::new(SocketAddr::from(([0, 0, 0, 0], http_port)));
+    let listen_addr = SocketAddr::from(([0, 0, 0, 0], http_port));
+
+    println!("Listening http server: Tcp({})", listen_addr);
+    let mut http_server = MyHttpServer::new(listen_addr);
 
     let unix_socket = std::env::var("UNIX_SOCKET");
 
     let mut unix_socket = if let Ok(unix_socket) = unix_socket {
+        println!("Listening http server: UnixSocket({})", listen_addr);
         Some(MyHttpServer::new_as_unix_socket(unix_socket))
     } else {
         None
