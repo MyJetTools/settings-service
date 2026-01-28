@@ -34,8 +34,12 @@ async fn handle_request(
     input_data: GetListOfSecretsHttpInput,
     _ctx: &HttpContext,
 ) -> Result<HttpOkResult, HttpFailResult> {
-    let secrets =
-        crate::flows::get_all_secrets(&action.app, input_data.product.as_deref().into()).await;
+    let secrets = crate::flows::get_all_secrets(
+        &action.app,
+        input_data.product.as_str(),
+        input_data.include_shared,
+    )
+    .await;
 
     let result = ListOfSecretsContract::new(secrets);
     HttpOutput::as_json(result).into_ok_result(false)
@@ -43,6 +47,8 @@ async fn handle_request(
 
 #[derive(Debug, MyHttpInput)]
 pub struct GetListOfSecretsHttpInput {
-    #[http_query(description: "Product")]
-    pub product: Option<String>,
+    #[http_query(description: "Product scope")]
+    pub product: String,
+    #[http_query(description: "Include shared scope")]
+    pub include_shared: bool,
 }

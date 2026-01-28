@@ -22,6 +22,10 @@ pub async fn to_secret_grpc_model(
         updated: item.updated.to_rfc3339(),
         used_by_secrets: used_by_secrets as i32,
         used_by_templates: used_by_templates as i32,
+        product_id: match product_id {
+            ProductId::Shared => None,
+            ProductId::Id(product_id) => Some(product_id.to_string()),
+        },
     }
 }
 

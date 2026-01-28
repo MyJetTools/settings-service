@@ -14,8 +14,12 @@ impl Secrets for GrpcService {
     ) -> Result<tonic::Response<Self::GetAllStream>, tonic::Status> {
         let request = request.into_inner();
 
-        let result =
-            crate::flows::get_all_secrets(&self.app, request.product_id.as_deref().into()).await;
+        let result = crate::flows::get_all_secrets(
+            &self.app,
+            request.product_id.as_str(),
+            request.include_shared,
+        )
+        .await;
 
         let result =
             my_grpc_extensions::grpc_server_streams::send_from_iterator(result.into_iter()).await;
