@@ -10,7 +10,7 @@ pub async fn get_secrets_used_by_the_secret(
     let product_id = match product_id {
         ProductId::Shared => {
             let result = secrets_snapshot
-                .find_into_vec_by_product(product_id, |itm| {
+                .find_all_into_vec(|itm| {
                     if itm.content.has_the_secret_inside(secret_id) {
                         Some(SecretUsageGrpcModel {
                             product_id: String::new(),
@@ -22,6 +22,7 @@ pub async fn get_secrets_used_by_the_secret(
                     }
                 })
                 .await;
+
             return result;
         }
         ProductId::Id(product_id) => product_id,

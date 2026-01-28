@@ -49,7 +49,6 @@ impl Secrets for GrpcService {
     ) -> Result<tonic::Response<()>, tonic::Status> {
         let request = request.into_inner();
 
-        println!("Request:{:?}", request);
         crate::flows::save_secret(
             &self.app,
             request.product_id.as_deref().into(),

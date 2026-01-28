@@ -183,4 +183,27 @@ impl SecretsSnapshot {
 
         result
     }
+
+    pub async fn find_all_into_vec<TResult>(
+        &self,
+        callback: impl Fn(&SecretItem) -> Option<TResult>,
+    ) -> Vec<TResult> {
+        let mut result = Vec::new();
+
+        for itm in self.shared.iter() {
+            if let Some(item) = callback(itm) {
+                result.push(item);
+            }
+        }
+
+        for by_product in self.by_product.values() {
+            for itm in by_product.iter() {
+                if let Some(item) = callback(itm) {
+                    result.push(item);
+                }
+            }
+        }
+
+        result
+    }
 }
