@@ -218,6 +218,7 @@ impl SecretsSnapshot {
 
         for itm in self.shared.iter() {
             for secret_id in itm.content.get_secrets() {
+                println!("Calculating shared secret: {}", secret_id);
                 if self.shared.contains(secret_id) {
                     self.shared_usage.inc(secret_id);
                 }
@@ -234,6 +235,10 @@ impl SecretsSnapshot {
         for (product_id, by_product) in self.by_product.iter() {
             for itm in by_product.iter() {
                 for secret_id in itm.content.get_secrets() {
+                    println!(
+                        "Calculating shared secret: {} for product: {}",
+                        secret_id, product_id
+                    );
                     if by_product.contains(secret_id) {
                         if !self.usage_by_product.contains_key(product_id) {
                             self.usage_by_product
