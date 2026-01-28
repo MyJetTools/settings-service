@@ -6,9 +6,22 @@ pub async fn to_secret_grpc_model(
     secrets: &SecretsSnapshot,
     secret_item: &SecretItem,
 ) -> SecretGrpcModel {
-    let used_by_secrets = secrets.get_count(product_id, |itm| {
-        itm.content.has_the_secret_inside(&secret_item.id)
-    });
+    let used_by_secrets = match product_id {
+        ProductId::Shared => secrets.get_count(product_id, |itm| {
+            itm.content.has_the_secret_inside(&secret_item.id)
+        }),
+        ProductId::Id(product_id) => {
+            let by_product = secrets.get_count(ProductId::Id(product_id), |itm| {
+                itm.content.has_the_secret_inside(&secret_item.id)
+            });
+
+            let shared = secrets.get_count(ProductId::Shared, |itm| {
+                itm.content.has_the_secret_inside(&secret_item.id)
+            });
+
+            by_product + shared
+        }
+    };
 
     let used_by_templates = app
         .templates
