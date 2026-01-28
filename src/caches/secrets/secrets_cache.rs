@@ -35,13 +35,13 @@ impl SecretsCache {
         for item in items {
             match product_id {
                 ProductId::Shared => {
+                    println!("Before: {:?}", write_access.0.shared.as_slice());
                     write_access.0.shared.insert_or_replace(item);
+                    println!("After: {:?}", write_access.0.shared.as_slice());
                 }
                 ProductId::Id(product_id) => match write_access.0.by_product.get_mut(product_id) {
                     Some(items) => {
-                        println!("Before: {:?}", items.as_slice());
                         items.insert_or_replace(item);
-                        println!("After: {:?}", items.as_slice());
                     }
                     None => {
                         let mut items = SortedVecWithStrKey::new();

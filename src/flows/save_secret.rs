@@ -25,7 +25,7 @@ pub async fn save_secret(
         None
     };
 
-    println!("Updating: {:?}", secret);
+    println!("ProductId:{:?}, Updating: {:?}", product_id, secret);
 
     let snapshot = app
         .secrets
