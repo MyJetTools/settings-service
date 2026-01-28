@@ -25,6 +25,8 @@ pub async fn save_secret(
         None
     };
 
+    println!("Updating: {:?}", secret);
+
     let snapshot = app
         .secrets
         .insert_or_update(product_id, [secret].into_iter())
