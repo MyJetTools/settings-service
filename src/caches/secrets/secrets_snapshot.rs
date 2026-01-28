@@ -4,13 +4,15 @@ use rust_extensions::sorted_vec::*;
 
 use crate::models::{ProductId, SecretItem};
 
+use super::*;
+
 #[derive(Default, Clone)]
 pub struct SecretsSnapshot {
     pub shared: SortedVecWithStrKey<SecretItem>,
     pub by_product: HashMap<String, SortedVecWithStrKey<SecretItem>>,
 
-    shared_usage: HashMap<String, usize>,
-    usage: HashMap<String, HashMap<String, usize>>,
+    shared_usage: Usage,
+    usage_by_product: HashMap<String, Usage>,
 }
 
 impl SecretsSnapshot {
@@ -211,19 +213,19 @@ impl SecretsSnapshot {
     }
 
     pub fn calc_usage(&mut self) {
-        self.shared_usage.clear();
-        self.usage.clear();
+        self.shared_usage.reset();
+        self.usage_by_product.clear();
 
         for itm in self.shared.iter() {
             for secret_id in itm.content.get_secrets() {
                 if self.shared.contains(secret_id) {
-                    match self.shared_usage.get_mut(secret_id) {
-                        Some(value) => {
-                            *value += 1;
-                        }
-                        None => {
-                            self.shared_usage.insert(secret_id.to_string(), 1);
-                        }
+                    self.shared_usage.inc(secret_id);
+                }
+
+                for by_product in self.by_product.values() {
+                    if by_product.contains(secret_id) {
+                        self.shared_usage.inc(secret_id);
+                        continue;
                     }
                 }
             }
@@ -233,31 +235,14 @@ impl SecretsSnapshot {
             for itm in by_product.iter() {
                 for secret_id in itm.content.get_secrets() {
                     if by_product.contains(secret_id) {
-                        if !self.usage.contains_key(product_id) {
-                            self.usage
+                        if !self.usage_by_product.contains_key(product_id) {
+                            self.usage_by_product
                                 .insert(product_id.to_string(), Default::default());
                         }
 
-                        let by_product = self.usage.get_mut(product_id).unwrap();
+                        let by_product = self.usage_by_product.get_mut(product_id).unwrap();
 
-                        match by_product.get_mut(secret_id) {
-                            Some(value) => *value += 1,
-                            None => {
-                                by_product.insert(product_id.to_string(), 1);
-                            }
-                        }
-                        continue;
-                    }
-
-                    if self.shared.contains(secret_id) {
-                        match self.shared_usage.get_mut(secret_id) {
-                            Some(value) => {
-                                *value += 1;
-                            }
-                            None => {
-                                self.shared_usage.insert(secret_id.to_string(), 1);
-                            }
-                        }
+                        by_product.inc(secret_id);
                     }
                 }
             }
@@ -266,16 +251,10 @@ impl SecretsSnapshot {
 
     pub fn get_usage(&self, product_id: ProductId<'_>, secret_id: &str) -> usize {
         match product_id {
-            ProductId::Shared => {
-                if let Some(value) = self.shared_usage.get(secret_id) {
-                    return *value;
-                }
-            }
+            ProductId::Shared => return self.shared_usage.get(secret_id),
             ProductId::Id(product_id) => {
-                if let Some(by_product) = self.usage.get(product_id) {
-                    if let Some(value) = by_product.get(secret_id) {
-                        return *value;
-                    }
+                if let Some(by_product) = self.usage_by_product.get(product_id) {
+                    return by_product.get(secret_id);
                 }
             }
         }
