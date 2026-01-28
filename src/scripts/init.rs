@@ -9,6 +9,7 @@ pub async fn init(app: &AppContext) {
     }
 
     let secrets = app.secrets_persistence.get_all().await;
+
     app.secrets.init(secrets).await;
 
     app.app_states.set_initialized();

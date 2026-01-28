@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use rust_common::placeholders::PlaceholdersIterator;
 use rust_extensions::sorted_vec::*;
 
 use crate::models::{ProductId, SecretItem};
@@ -8,10 +9,13 @@ use crate::models::{ProductId, SecretItem};
 pub struct SecretsSnapshot {
     pub shared: SortedVecWithStrKey<SecretItem>,
     pub by_product: HashMap<String, SortedVecWithStrKey<SecretItem>>,
+
+    shared_usage: HashMap<String, usize>,
+    usage: HashMap<String, HashMap<String, usize>>,
 }
 
 impl SecretsSnapshot {
-    pub async fn get_all_by_product_id<TResult>(
+    pub fn get_all_by_product_id<TResult>(
         &self,
         product_id: ProductId<'_>,
         transform: impl Fn(&SecretItem) -> TResult,
@@ -156,7 +160,7 @@ impl SecretsSnapshot {
         self.shared.contains(secret_id)
     }
 
-    pub async fn find_into_vec_by_product<TResult>(
+    pub fn find_into_vec_by_product<TResult>(
         &self,
         product_id: ProductId<'_>,
         callback: impl Fn(&SecretItem) -> Option<TResult>,
@@ -184,7 +188,7 @@ impl SecretsSnapshot {
         result
     }
 
-    pub async fn find_all_into_vec<TResult>(
+    pub fn find_all_into_vec<TResult>(
         &self,
         callback: impl Fn(&SecretItem) -> Option<TResult>,
     ) -> Vec<TResult> {
@@ -205,5 +209,78 @@ impl SecretsSnapshot {
         }
 
         result
+    }
+
+    pub fn calc_usage(&mut self) {
+        self.shared_usage.clear();
+        self.usage.clear();
+
+        for itm in self.shared.iter() {
+            for itm in PlaceholdersIterator::new(
+                itm.content.as_str(),
+                crate::consts::PLACEHOLDER_OPEN,
+                crate::consts::PLACEHOLDER_CLOSE,
+            ) {
+                match itm {
+                    rust_common::placeholders::ContentToken::Text(_) => {}
+                    rust_common::placeholders::ContentToken::Placeholder(name) => {
+                        match self.shared_usage.get_mut(name) {
+                            Some(value) => *value += 1,
+                            None => {
+                                self.shared_usage.insert(name.to_string(), 1);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for (product_id, by_product) in self.by_product.iter() {
+            for itm in by_product.iter() {
+                for itm in PlaceholdersIterator::new(
+                    itm.content.as_str(),
+                    crate::consts::PLACEHOLDER_OPEN,
+                    crate::consts::PLACEHOLDER_CLOSE,
+                ) {
+                    match itm {
+                        rust_common::placeholders::ContentToken::Text(_) => {}
+                        rust_common::placeholders::ContentToken::Placeholder(name) => {
+                            if !self.usage.contains_key(product_id) {
+                                self.usage
+                                    .insert(product_id.to_string(), Default::default());
+                            }
+
+                            let by_product = self.usage.get_mut(product_id).unwrap();
+
+                            match by_product.get_mut(name) {
+                                Some(value) => *value += 1,
+                                None => {
+                                    by_product.insert(name.to_string(), 1);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn get_usage(&self, product_id: ProductId<'_>, secret_id: &str) -> usize {
+        match product_id {
+            ProductId::Shared => {
+                if let Some(value) = self.shared_usage.get(secret_id) {
+                    return *value;
+                }
+            }
+            ProductId::Id(product_id) => {
+                if let Some(by_product) = self.usage.get(product_id) {
+                    if let Some(value) = by_product.get(secret_id) {
+                        return *value;
+                    }
+                }
+            }
+        }
+
+        0
     }
 }

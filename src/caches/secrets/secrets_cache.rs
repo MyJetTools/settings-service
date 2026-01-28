@@ -11,7 +11,8 @@ pub struct SecretsCache {
 }
 
 impl SecretsCache {
-    pub async fn init(&self, items: SecretsSnapshot) {
+    pub async fn init(&self, mut items: SecretsSnapshot) {
+        items.calc_usage();
         let mut write_access = self.inner.write().await;
 
         let snapshot = Arc::new(items.clone());
@@ -53,6 +54,8 @@ impl SecretsCache {
             };
         }
 
+        write_access.0.calc_usage();
+
         let snapshot = write_access.0.clone();
 
         write_access.1 = Arc::new(snapshot);
@@ -70,6 +73,8 @@ impl SecretsCache {
                 None => None,
             },
         };
+
+        write_access.0.calc_usage();
 
         if removed_item.is_some() {
             let snapshot = write_access.0.clone();
