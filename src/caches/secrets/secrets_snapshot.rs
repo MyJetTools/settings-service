@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use rust_common::placeholders::PlaceholdersIterator;
 use rust_extensions::sorted_vec::*;
 
 use crate::models::{ProductId, SecretItem};
@@ -216,19 +215,14 @@ impl SecretsSnapshot {
         self.usage.clear();
 
         for itm in self.shared.iter() {
-            for itm in PlaceholdersIterator::new(
-                itm.content.as_str(),
-                crate::consts::PLACEHOLDER_OPEN,
-                crate::consts::PLACEHOLDER_CLOSE,
-            ) {
-                match itm {
-                    rust_common::placeholders::ContentToken::Text(_) => {}
-                    rust_common::placeholders::ContentToken::Placeholder(name) => {
-                        match self.shared_usage.get_mut(name) {
-                            Some(value) => *value += 1,
-                            None => {
-                                self.shared_usage.insert(name.to_string(), 1);
-                            }
+            for secret_id in itm.content.get_secrets() {
+                if self.shared.contains(secret_id) {
+                    match self.shared_usage.get_mut(secret_id) {
+                        Some(value) => {
+                            *value += 1;
+                        }
+                        None => {
+                            self.shared_usage.insert(secret_id.to_string(), 1);
                         }
                     }
                 }
@@ -237,26 +231,31 @@ impl SecretsSnapshot {
 
         for (product_id, by_product) in self.by_product.iter() {
             for itm in by_product.iter() {
-                for itm in PlaceholdersIterator::new(
-                    itm.content.as_str(),
-                    crate::consts::PLACEHOLDER_OPEN,
-                    crate::consts::PLACEHOLDER_CLOSE,
-                ) {
-                    match itm {
-                        rust_common::placeholders::ContentToken::Text(_) => {}
-                        rust_common::placeholders::ContentToken::Placeholder(name) => {
-                            if !self.usage.contains_key(product_id) {
-                                self.usage
-                                    .insert(product_id.to_string(), Default::default());
+                for secret_id in itm.content.get_secrets() {
+                    if by_product.contains(secret_id) {
+                        if !self.usage.contains_key(product_id) {
+                            self.usage
+                                .insert(product_id.to_string(), Default::default());
+                        }
+
+                        let by_product = self.usage.get_mut(product_id).unwrap();
+
+                        match by_product.get_mut(secret_id) {
+                            Some(value) => *value += 1,
+                            None => {
+                                by_product.insert(product_id.to_string(), 1);
                             }
+                        }
+                        continue;
+                    }
 
-                            let by_product = self.usage.get_mut(product_id).unwrap();
-
-                            match by_product.get_mut(name) {
-                                Some(value) => *value += 1,
-                                None => {
-                                    by_product.insert(name.to_string(), 1);
-                                }
+                    if self.shared.contains(secret_id) {
+                        match self.shared_usage.get_mut(secret_id) {
+                            Some(value) => {
+                                *value += 1;
+                            }
+                            None => {
+                                self.shared_usage.insert(secret_id.to_string(), 1);
                             }
                         }
                     }
