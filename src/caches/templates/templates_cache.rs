@@ -95,21 +95,41 @@ impl TemplatesCache {
         }
     }
 
-    pub async fn find_into_vec_by_product<TResult>(
+    /*
+       pub async fn find_into_vec_by_product<TResult>(
+           &self,
+           product_id: &str,
+           callback: impl Fn(&TemplateItem) -> Option<TResult>,
+       ) -> Vec<TResult> {
+           let read_access = self.inner.read().await;
+
+           let mut result = Vec::new();
+           let Some(by_product) = read_access.items.get(product_id) else {
+               return result;
+           };
+
+           for itm in by_product.iter() {
+               if let Some(item) = callback(itm) {
+                   result.push(item);
+               }
+           }
+
+           result
+       }
+    */
+
+    pub async fn find_into_vec<TResult>(
         &self,
-        product_id: &str,
         callback: impl Fn(&TemplateItem) -> Option<TResult>,
     ) -> Vec<TResult> {
         let read_access = self.inner.read().await;
 
         let mut result = Vec::new();
-        let Some(by_product) = read_access.items.get(product_id) else {
-            return result;
-        };
-
-        for itm in by_product.iter() {
-            if let Some(item) = callback(itm) {
-                result.push(item);
+        for by_product in read_access.items.values() {
+            for itm in by_product.iter() {
+                if let Some(item) = callback(itm) {
+                    result.push(item);
+                }
             }
         }
 

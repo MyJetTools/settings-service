@@ -6,7 +6,7 @@ pub async fn get_templates_used_by_the_secret(
     secret_id: &str,
 ) -> Vec<TemplateUsageGrpcModel> {
     app.templates
-        .find_into_vec_by_product(product_id, |template| {
+        .find_into_vec(|template| {
             if template.content.has_the_secret_inside(secret_id) {
                 let item = TemplateUsageGrpcModel {
                     product: product_id.to_string(),
