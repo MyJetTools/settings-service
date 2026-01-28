@@ -224,32 +224,26 @@ impl SecretsSnapshot {
                 if self.shared.contains(secret_id) {
                     self.shared_usage.inc(secret_id);
                 }
-
-                for by_product in self.by_product.values() {
-                    if by_product.contains(secret_id) {
-                        self.shared_usage.inc(secret_id);
-                        continue;
-                    }
-                }
             }
         }
 
         for (product_id, by_product) in self.by_product.iter() {
             for itm in by_product.iter() {
                 for secret_id in itm.content.get_secrets() {
-                    println!(
-                        "Calculating shared secret: {} for product: {}",
-                        secret_id, product_id
-                    );
+                    if self.shared.contains(secret_id) {
+                        self.shared_usage.inc(secret_id);
+                    }
+
                     if by_product.contains(secret_id) {
                         if !self.usage_by_product.contains_key(product_id) {
                             self.usage_by_product
                                 .insert(product_id.to_string(), Default::default());
                         }
 
-                        let by_product = self.usage_by_product.get_mut(product_id).unwrap();
-
-                        by_product.inc(secret_id);
+                        self.usage_by_product
+                            .get_mut(product_id)
+                            .unwrap()
+                            .inc(secret_id);
                     }
                 }
             }
