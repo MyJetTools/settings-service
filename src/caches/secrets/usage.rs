@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Debug)]
 pub struct Usage {
     items: HashMap<String, usize>,
 }

@@ -12,11 +12,6 @@ pub struct SecretsCache {
 
 impl SecretsCache {
     pub async fn init(&self, mut items: SecretsSnapshot) {
-        println!(
-            "Init Shared Secrets:{}. Products list: {}",
-            items.shared.len(),
-            items.by_product.len()
-        );
         items.calc_usage();
         let mut write_access = self.inner.write().await;
 

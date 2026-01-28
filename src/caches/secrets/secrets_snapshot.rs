@@ -252,6 +252,9 @@ impl SecretsSnapshot {
                 }
             }
         }
+
+        println!("Shared: {:?}", self.shared_usage);
+        println!("ByProduct: {:?}", self.by_product);
     }
 
     pub fn get_usage(&self, product_id: ProductId<'_>, secret_id: &str) -> usize {
