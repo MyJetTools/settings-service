@@ -33,7 +33,7 @@ async fn handle_request(
 ) -> Result<HttpOkResult, HttpFailResult> {
     let result = crate::flows::get_templates_used_by_the_secret(
         &action.app,
-        &input_data.product,
+        input_data.product.as_deref().into(),
         &input_data.secret,
     )
     .await;

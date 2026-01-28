@@ -88,7 +88,7 @@ pub struct SecretHttpModel {
 #[derive(MyHttpInput)]
 pub struct ShowUsageInputContract {
     #[http_query(description = "Product")]
-    pub product: String,
+    pub product: Option<String>,
     #[http_body(description = "Id of secret")]
     pub secret: String,
 }

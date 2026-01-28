@@ -84,7 +84,7 @@ impl Secrets for GrpcService {
 
         let templates = crate::flows::get_templates_used_by_the_secret(
             &self.app,
-            request.product_id.as_str(),
+            request.product_id.as_deref().into(),
             &request.secret_id,
         )
         .await;
