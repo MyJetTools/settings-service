@@ -30,7 +30,7 @@ pub fn populate_secrets(
                     let secret = secrets_snapshot.consume_secret(product_id, secret_id);
 
                     if let Some(secret) = secret {
-                        if secret.level > min_secret_level {
+                        if secret.level < min_secret_level {
                             if secret.content.has_secret_inside() {
                                 let content = populate_secrets(
                                     app,
