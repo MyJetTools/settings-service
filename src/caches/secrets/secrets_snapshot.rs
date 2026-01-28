@@ -220,6 +220,7 @@ impl SecretsSnapshot {
             for secret_id in itm.content.get_secrets() {
                 println!("Calculating shared secret: {}", secret_id);
                 if self.shared.contains(secret_id) {
+                    println!("Has Shared secret");
                     self.shared_usage.inc(secret_id);
                 }
 
