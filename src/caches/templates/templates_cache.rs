@@ -32,6 +32,11 @@ impl TemplatesCache {
         result
     }
 
+    pub async fn get_products(&self) -> Vec<String> {
+        let read_access = self.inner.read().await;
+        read_access.items.keys().cloned().collect()
+    }
+
     pub async fn get_by_product_id<TResult>(
         &self,
         product_id: &str,

@@ -1,21 +1,12 @@
-use std::pin::Pin;
-
-use futures_core::Stream;
-
 use super::server::GrpcService;
 use crate::templates_grpc::templates_server::Templates;
 use crate::templates_grpc::*;
 
+use my_grpc_extensions::server::*;
+
 #[tonic::async_trait]
 impl Templates for GrpcService {
-    type GetAllStream = Pin<
-        Box<
-            dyn Stream<Item = Result<TemplateListItemGrpcModel, tonic::Status>>
-                + Send
-                + Sync
-                + 'static,
-        >,
-    >;
+    generate_server_stream!(stream_name: "GetAllStream", item_name:"TemplateListItemGrpcModel");
 
     async fn get_all(
         &self,
@@ -83,6 +74,19 @@ impl Templates for GrpcService {
         crate::flows::delete_template(&self.app, &request.product_id, &request.template_id).await;
 
         Ok(tonic::Response::new(()))
+    }
+
+    async fn get_products(
+        &self,
+        request: tonic::Request<()>,
+    ) -> Result<tonic::Response<GetProductsGrpcResponse>, tonic::Status> {
+        let _request = request.into_inner();
+
+        let products = self.app.templates.get_products().await;
+
+        let response = GetProductsGrpcResponse { products };
+
+        Ok(response.into())
     }
 
     async fn compile_yaml(
