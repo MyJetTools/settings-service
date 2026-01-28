@@ -216,8 +216,6 @@ impl SecretsSnapshot {
         self.shared_usage.reset();
         self.usage_by_product.clear();
 
-        println!("Shared before calculating: {:?}", self.shared);
-
         for itm in self.shared.iter() {
             for secret_id in itm.content.get_secrets() {
                 println!("Calculating shared secret: {}", secret_id);
@@ -248,9 +246,6 @@ impl SecretsSnapshot {
                 }
             }
         }
-
-        println!("Shared: {:?}", self.shared_usage);
-        println!("ByProduct: {:?}", self.by_product);
     }
 
     pub fn get_usage(&self, product_id: ProductId<'_>, secret_id: &str) -> usize {
