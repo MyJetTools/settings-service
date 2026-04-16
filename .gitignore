@@ -1,6 +1,10 @@
-/target
-Cargo.lock
-.vscode
-node_modules
-.idea
+**/target
+**/Cargo.lock
+**/node_modules
+admin/static
+mt-admin/static
 .claude
+local
+**/.margin-server
+**/.margin-admin
+tmp/
