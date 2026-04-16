@@ -1,10 +1,9 @@
 **/target
 **/Cargo.lock
 **/node_modules
-admin/static
-mt-admin/static
+**/.DS_Store
+my-settings-ui/static
 .claude
 local
-**/.margin-server
-**/.margin-admin
 tmp/
+.vscode
