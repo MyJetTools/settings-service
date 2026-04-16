@@ -41,6 +41,7 @@ async fn handle_request(
     HttpOutput::File {
         file_name: format!("settings_snapshot_{dt}.json"),
         content: export_data.to_string().into_bytes(),
+        headers: Default::default(),
     }
     .into_ok_result(false)
 }

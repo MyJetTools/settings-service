@@ -51,15 +51,12 @@ pub fn start(app: &Arc<AppContext>) {
     http_server.add_middleware(controllers);
 
     let static_files_middleware = if cfg!(debug_assertions) {
-        Arc::new(StaticFilesMiddleware::new(
-            Some(vec![my_http_server::FilesMapping::new(
-                "/typescript",
-                "./typescript",
-            )]),
-            None,
-        ))
+        let middleware = StaticFilesMiddleware::new()
+            .add_file_mapping("/typescript")
+            .add_file_mapping("./typescript");
+        Arc::new(middleware)
     } else {
-        Arc::new(StaticFilesMiddleware::new(None, None))
+        Arc::new(StaticFilesMiddleware::new())
     };
 
     if let Some(unix_socket) = unix_socket.as_mut() {
