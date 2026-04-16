@@ -64,11 +64,31 @@ async fn compile_yaml(
     app: &Arc<AppContext>,
     request: CompileYamlGrpcRequest,
 ) -> CompileYamlGrpcResponse {
-    let yaml = crate::flows::compile_yaml(app, &request.product_id, &request.template_id)
-        .await
+    let local_env_prefixes = app
+        .settings
+        .local_env_prefixes
+        .clone()
         .unwrap_or_default();
 
-    CompileYamlGrpcResponse { yaml }
+    match crate::flows::compile_yaml(app, &request.product_id, &request.template_id).await {
+        Some(compiled) => {
+            let remote_yaml = if compiled.remote == compiled.local {
+                None
+            } else {
+                Some(compiled.remote)
+            };
+            CompileYamlGrpcResponse {
+                yaml: compiled.local,
+                remote_yaml,
+                local_env_prefixes,
+            }
+        }
+        None => CompileYamlGrpcResponse {
+            yaml: String::new(),
+            remote_yaml: None,
+            local_env_prefixes,
+        },
+    }
 }
 
 async fn delete(app: &Arc<AppContext>, request: DeleteTemplateGrpcRequest) {

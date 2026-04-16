@@ -47,6 +47,10 @@ impl EditSecretState {
             return false;
         }
 
+        if self.value.level.parse::<i32>().is_err() {
+            return false;
+        }
+
         let value_on_init = match self.value_on_init.as_ref() {
             RenderState::Loaded(value) => value,
             _ => {
@@ -69,7 +73,7 @@ impl EditSecretState {
             product_id: self.product_id.as_ref().map(|itm| itm.to_string()),
             secret_id: self.secret_id.clone(),
             value: self.value.value.clone(),
-            level: self.value.level.parse().unwrap(),
+            level: self.value.level.parse().unwrap_or(0),
             remote_value: if self.value.remote_value.is_empty() {
                 None
             } else {

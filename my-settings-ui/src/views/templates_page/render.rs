@@ -310,6 +310,7 @@ pub fn TemplatesPage() -> Element {
                         DialogState::SnapshotToImport(
                             EventHandler::new(move |value| {
                                 let env_id = env_id.clone();
+                                let mut main_state = consume_context::<Signal<MainState>>();
                                 spawn(async move {
                                     crate::api::templates::upload_snapshot(
                                             env_id.to_string(),
@@ -317,7 +318,7 @@ pub fn TemplatesPage() -> Element {
                                         )
                                         .await
                                         .unwrap();
-                                    consume_context::<Signal<MainState>>().write().drop_data();
+                                    main_state.write().drop_data();
                                     crate::ui_utils::show_toast(
                                         "Templates are uploaded",
                                         ToastType::Info,
@@ -398,12 +399,14 @@ fn exec_save_template(
 ) {
     crate::storage::last_used_product::save(env_id.as_str(), &data.product_id);
 
+    let mut dialog_state = consume_context::<Signal<DialogState>>();
+    let mut main_state = consume_context::<Signal<MainState>>();
     spawn(async move {
         let product_id = data.product_id.clone();
         match crate::api::templates::save_template(env_id, data).await {
             Ok(_) => {
-                consume_context::<Signal<DialogState>>().set(DialogState::None);
-                consume_context::<Signal<MainState>>().write().drop_data();
+                dialog_state.set(DialogState::None);
+                main_state.write().drop_data();
                 cs.write().product_id = Some(product_id);
                 crate::ui_utils::show_toast("Template is saved", ToastType::Info);
             }
@@ -415,11 +418,13 @@ fn exec_save_template(
 }
 
 fn exec_delete_template(env_id: String, product_id: String, template_id: String) {
+    let mut dialog_state = consume_context::<Signal<DialogState>>();
+    let mut main_state = consume_context::<Signal<MainState>>();
     spawn(async move {
         match crate::api::templates::delete_template(env_id, product_id, template_id).await {
             Ok(_) => {
-                consume_context::<Signal<DialogState>>().set(DialogState::None);
-                consume_context::<Signal<MainState>>().write().drop_data();
+                dialog_state.set(DialogState::None);
+                main_state.write().drop_data();
                 crate::ui_utils::show_toast("Template is deleted", ToastType::Info);
             }
             Err(_) => {

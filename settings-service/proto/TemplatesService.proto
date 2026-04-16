@@ -19,6 +19,8 @@ message CompileYamlGrpcRequest {
 
 message CompileYamlGrpcResponse {
   string yaml = 1;
+  optional string remote_yaml = 2;
+  repeated string local_env_prefixes = 3;
 }
 
 message SaveTemplateGrpcRequest {

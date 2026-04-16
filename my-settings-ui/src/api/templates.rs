@@ -209,6 +209,8 @@ pub async fn load_yaml(
 
     Ok(PopulatedYamlModelApiModel {
         yaml: response.yaml,
+        remote_yaml: response.remote_yaml,
+        local_env_prefixes: response.local_env_prefixes,
     })
 }
 

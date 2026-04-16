@@ -1,6 +1,15 @@
 use crate::app_ctx::AppContext;
 
-pub async fn compile_yaml(app: &AppContext, product_id: &str, template_id: &str) -> Option<String> {
+pub struct CompiledYaml {
+    pub local: String,
+    pub remote: String,
+}
+
+pub async fn compile_yaml(
+    app: &AppContext,
+    product_id: &str,
+    template_id: &str,
+) -> Option<CompiledYaml> {
     let secrets_snapshot = app.secrets.get_snapshot().await;
 
     let content = app
@@ -8,7 +17,7 @@ pub async fn compile_yaml(app: &AppContext, product_id: &str, template_id: &str)
         .get_by_id(product_id, template_id, |itm| itm.content.clone())
         .await?;
 
-    let result = crate::scripts::populate_secrets(
+    let local = crate::scripts::populate_secrets(
         app,
         product_id.into(),
         &content,
@@ -17,5 +26,17 @@ pub async fn compile_yaml(app: &AppContext, product_id: &str, template_id: &str)
         false,
     );
 
-    Some(result.into_string())
+    let remote = crate::scripts::populate_secrets(
+        app,
+        product_id.into(),
+        &content,
+        &secrets_snapshot,
+        0,
+        true,
+    );
+
+    Some(CompiledYaml {
+        local: local.into_string(),
+        remote: remote.into_string(),
+    })
 }

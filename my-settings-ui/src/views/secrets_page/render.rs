@@ -401,10 +401,11 @@ fn exec_save_secret(env_id: String, value: UpdateSecretValueHttpModel) {
     if let Some(product_id) = value.product_id.as_ref() {
         crate::storage::last_used_product::save(env_id.as_str(), product_id);
     }
+    let mut main_state = consume_context::<Signal<MainState>>();
     spawn(async move {
         match crate::api::secrets::save_secret(env_id, value).await {
             Ok(_) => {
-                consume_context::<Signal<MainState>>().write().drop_data();
+                main_state.write().drop_data();
                 crate::ui_utils::show_toast("Secret is saved", ToastType::Info);
             }
             Err(_) => {
@@ -415,10 +416,11 @@ fn exec_save_secret(env_id: String, value: UpdateSecretValueHttpModel) {
 }
 
 fn exec_delete_secret(env_id: String, product_id: Option<String>, secret_id: String) {
+    let mut main_state = consume_context::<Signal<MainState>>();
     spawn(async move {
         match crate::api::secrets::delete_secret(env_id, product_id, secret_id).await {
             Ok(_) => {
-                consume_context::<Signal<MainState>>().write().drop_data();
+                main_state.write().drop_data();
                 crate::ui_utils::show_toast("Secret is deleted", ToastType::Info);
             }
             Err(_) => {

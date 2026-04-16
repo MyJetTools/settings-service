@@ -20,4 +20,6 @@ pub struct UpdateTemplateHttpModel {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PopulatedYamlModelApiModel {
     pub yaml: String,
+    pub remote_yaml: Option<String>,
+    pub local_env_prefixes: Vec<String>,
 }
