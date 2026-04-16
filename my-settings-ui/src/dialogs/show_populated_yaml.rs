@@ -28,7 +28,7 @@ pub fn ShowPopulatedYaml(
         Some(remote) => {
             let remote = highlight_yaml_errors(remote);
             rsx! {
-                div { style: "display:flex; flex-direction:column; height:100%; gap:8px;",
+                div { style: "display:flex; flex-direction:column; height:100%; gap:8px; text-align:left;",
                     {prefixes_label}
                     div {
                         style: "flex:1 1 50%; min-height:0; display:flex; flex-direction:column;",
@@ -52,7 +52,7 @@ pub fn ShowPopulatedYaml(
             }
         }
         None => rsx! {
-            div { style: "display:flex; flex-direction:column; height:100%; gap:8px;",
+            div { style: "display:flex; flex-direction:column; height:100%; gap:8px; text-align:left;",
                 {prefixes_label}
                 div {
                     class: "form-control",
@@ -111,33 +111,20 @@ pub struct LoadedYaml {
 
 fn render_prefixes_label(prefixes: &[String]) -> Element {
     if prefixes.is_empty() {
-        return rsx! {
-            div { style: "font-size:12px; color:#888;",
-                "No local env prefixes configured — every request is treated as "
-                b { "Local" }
-                ". Header "
-                code { "env-info" }
-                " is ignored."
-            }
-        };
+        return rsx! {};
     }
 
-    let items = prefixes
-        .iter()
-        .map(|p| rsx! { code { style: "margin-right:6px; background:#eef; padding:1px 4px;", "{p}*" } })
-        .collect::<Vec<_>>();
+    let text = format!(
+        "Local: {}",
+        prefixes
+            .iter()
+            .map(|p| format!("{p}*"))
+            .collect::<Vec<_>>()
+            .join(";")
+    );
 
     rsx! {
-        div { style: "font-size:12px; color:#555;",
-            "Requests whose "
-            code { "env-info" }
-            " header starts with any of these prefixes are treated as "
-            b { "Local" }
-            ", others as "
-            b { "Remote" }
-            ": "
-            {items.into_iter()}
-        }
+        div { style: "font-size:12px; color:#555;", {text} }
     }
 }
 
