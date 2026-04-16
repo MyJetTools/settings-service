@@ -420,7 +420,9 @@ fn exec_delete_secret(env_id: String, product_id: Option<String>, secret_id: Str
     spawn(async move {
         match crate::api::secrets::delete_secret(env_id, product_id, secret_id).await {
             Ok(_) => {
+                dioxus_utils::console_log("#1");
                 main_state.write().drop_data();
+                dioxus_utils::console_log("#2");
                 crate::ui_utils::show_toast("Secret is deleted", ToastType::Info);
             }
             Err(_) => {

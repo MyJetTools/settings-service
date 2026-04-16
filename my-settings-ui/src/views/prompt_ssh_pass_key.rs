@@ -18,7 +18,7 @@ pub fn PromptSshPassKey() -> Element {
                     oninput: move |cx| {
                         component_state.write().pass_phrase = cx.value();
                     },
-                    value: component_state_read_access.pass_phrase.as_str()
+                    value: component_state_read_access.pass_phrase.as_str(),
                 }
             }
             div { class: "d-grid gap-2",
@@ -49,7 +49,7 @@ impl PromptSshPassKeyState {
     }
 }
 
-#[server]
+#[post("/api/pass-phrase")]
 async fn apply_pass_phrase(pass_phrase: String) -> Result<(), ServerFnError> {
     crate::server::APP_CTX
         .private_key_resolver

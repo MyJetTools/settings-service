@@ -423,6 +423,7 @@ fn exec_delete_template(env_id: String, product_id: String, template_id: String)
     spawn(async move {
         match crate::api::templates::delete_template(env_id, product_id, template_id).await {
             Ok(_) => {
+
                 dialog_state.set(DialogState::None);
                 main_state.write().drop_data();
                 crate::ui_utils::show_toast("Template is deleted", ToastType::Info);
