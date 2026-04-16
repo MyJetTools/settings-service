@@ -54,6 +54,7 @@ impl Secrets for GrpcService {
             request.product_id.as_deref().into(),
             request.id,
             request.value,
+            request.remote_value,
             request.level as u8,
         )
         .await;

@@ -93,7 +93,7 @@ class Actions {
         $.ajax({ type: "POST", url: "/api/secrets/get", data })
             .then((data: ISecretValue) => {
                 let value: IEditSecretDialogModel = {
-                    name, secret: data.value, level: data.level
+                    name, secret: data.value, level: data.level, remote_value: data.remote_value
                 };
                 Dialog.populateData(value);
             })
@@ -136,8 +136,18 @@ class Actions {
         let data = { name };
 
         $.ajax({ type: "POST", url: "/api/secrets/show", data })
-            .then((data) => {
-                elToUpdate.innerHTML = data;
+            .then((data: IShowSecretResponse) => {
+                elToUpdate.innerHTML = '';
+                let local = document.createElement('div');
+                local.innerHTML = '<b>Local:</b> ';
+                local.appendChild(document.createTextNode(data.value));
+                elToUpdate.appendChild(local);
+                if (data.remote_value !== undefined && data.remote_value !== null) {
+                    let remote = document.createElement('div');
+                    remote.innerHTML = '<b>Remote:</b> ';
+                    remote.appendChild(document.createTextNode(data.remote_value));
+                    elToUpdate.appendChild(remote);
+                }
             })
             .fail(() => {
 

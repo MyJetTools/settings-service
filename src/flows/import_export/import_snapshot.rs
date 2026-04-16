@@ -18,6 +18,10 @@ pub async fn import_snapshot(
 
     for secret in model.secrets.iter_mut() {
         secret.value = get_content_from_base64(&secret.value);
+        secret.remote_value = secret
+            .remote_value
+            .as_deref()
+            .map(|v| get_content_from_base64(v));
     }
 
     let now = DateTimeAsMicroseconds::now();
@@ -53,6 +57,7 @@ pub async fn import_snapshot(
         let item = SecretItem {
             id: secret.id,
             content: secret.value.into(),
+            remote_value: secret.remote_value.map(|v| v.into()),
             level: secret.level,
             created: now,
             updated: now,

@@ -31,11 +31,18 @@ interface IEditSecretDialogModel {
     name: string,
     secret: string,
     level: number,
+    remote_value?: string,
 }
 
 interface ISecretValue {
     value: string,
     level: number,
+    remote_value?: string,
+}
+
+interface IShowSecretResponse {
+    value: string,
+    remote_value?: string,
 }
 
 interface IDeleteSecretModel {

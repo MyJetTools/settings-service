@@ -16,6 +16,8 @@ pub struct SecretValue {
     pub created: i64,
     #[prost(int64, tag = "6")]
     pub updated: i64,
+    #[prost(string, optional, tag = "7")]
+    pub remote_value: Option<String>,
 }
 impl SecretValue {
     pub fn from_item(product_id: String, src: &SecretItem) -> Self {
@@ -26,6 +28,7 @@ impl SecretValue {
             level: src.level as i32,
             created: src.created.unix_microseconds,
             updated: src.updated.unix_microseconds,
+            remote_value: src.remote_value.as_ref().map(|c| c.to_string()),
         }
     }
 
@@ -33,6 +36,7 @@ impl SecretValue {
         let result = SecretItem {
             id: self.secret_id,
             content: self.value.into(),
+            remote_value: self.remote_value.map(|v| v.into()),
             level: self.level as u8,
             created: DateTimeAsMicroseconds::new(self.created),
             updated: DateTimeAsMicroseconds::new(self.updated),

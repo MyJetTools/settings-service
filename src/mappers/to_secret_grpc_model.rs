@@ -32,6 +32,7 @@ impl Into<SecretValueGrpcModel> for &SecretItem {
         SecretValueGrpcModel {
             level: self.level as i32,
             value: self.content.to_string(),
+            remote_value: self.remote_value.as_ref().map(|c| c.to_string()),
         }
     }
 }

@@ -73,7 +73,7 @@ var Actions = /** @class */ (function () {
             .then(function (data) {
             var value = {
                 name: name,
-                secret: data.value, level: data.level
+                secret: data.value, level: data.level, remote_value: data.remote_value
             };
             Dialog.populateData(value);
         })
@@ -106,7 +106,17 @@ var Actions = /** @class */ (function () {
         var data = { name: name };
         $.ajax({ type: "POST", url: "/api/secrets/show", data: data })
             .then(function (data) {
-            elToUpdate.innerHTML = data;
+            elToUpdate.innerHTML = '';
+            var local = document.createElement('div');
+            local.innerHTML = '<b>Local:</b> ';
+            local.appendChild(document.createTextNode(data.value));
+            elToUpdate.appendChild(local);
+            if (data.remote_value !== undefined && data.remote_value !== null) {
+                var remote = document.createElement('div');
+                remote.innerHTML = '<b>Remote:</b> ';
+                remote.appendChild(document.createTextNode(data.remote_value));
+                elToUpdate.appendChild(remote);
+            }
         })
             .fail(function () {
         });

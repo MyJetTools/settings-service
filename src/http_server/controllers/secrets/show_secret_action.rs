@@ -13,7 +13,7 @@ use crate::app_ctx::*;
     controller: "Secrets",
     input_data: GetSecretContract,
     result:[
-        {status_code: 200, description: "Ok response", model: "SecretValueHttpModel"},
+        {status_code: 200, description: "Ok response", model: "ShowSecretHttpResponse"},
     ]
 )]
 pub struct ShowSecretAction {
@@ -33,21 +33,38 @@ async fn handle_request(
 ) -> Result<HttpOkResult, HttpFailResult> {
     let product_id = input_data.product.as_deref().into();
 
-    let secrets = action.app.secrets.get_snapshot().await;
-    let secret_result = secrets.get_by_id(product_id, &input_data.name);
+    let secrets_snapshot = action.app.secrets.get_snapshot().await;
+    let secret_result = secrets_snapshot.get_by_id(product_id, &input_data.name);
 
-    match secret_result {
-        Some(secret_result) => {
-            let secrets_snapshot = action.app.secrets.get_snapshot().await;
-            let result = crate::scripts::populate_secrets(
-                action.app.as_ref(),
-                product_id,
-                &secret_result.content,
-                &secrets_snapshot,
-                0,
-            );
-            return HttpOutput::as_text(result.into_string()).into_ok_result(false);
-        }
-        None => HttpOutput::as_not_found("Secret not found").into_err(false, false),
-    }
+    let Some(secret_item) = secret_result else {
+        return HttpOutput::as_not_found("Secret not found").into_err(false, false);
+    };
+
+    let value = crate::scripts::populate_secrets(
+        action.app.as_ref(),
+        product_id,
+        &secret_item.content,
+        &secrets_snapshot,
+        0,
+        false,
+    );
+
+    let remote_value = secret_item.remote_value.as_ref().map(|remote| {
+        crate::scripts::populate_secrets(
+            action.app.as_ref(),
+            product_id,
+            remote,
+            &secrets_snapshot,
+            0,
+            true,
+        )
+        .into_string()
+    });
+
+    let response = ShowSecretHttpResponse {
+        value: value.into_string(),
+        remote_value,
+    };
+
+    HttpOutput::as_json(response).into_ok_result(false)
 }

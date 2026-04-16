@@ -14,6 +14,8 @@ pub struct PostSecretContract {
     pub secret: String,
     #[http_body(description = "Level")]
     pub level: u8,
+    #[http_body(description = "Remote value")]
+    pub remote_value: Option<String>,
 }
 
 #[derive(MyHttpInput)]
@@ -24,9 +26,16 @@ pub struct GetSecretContract {
     pub name: String,
 }
 #[derive(Serialize, Debug, MyHttpObjectStructure)]
+pub struct ShowSecretHttpResponse {
+    pub value: String,
+    pub remote_value: Option<String>,
+}
+
+#[derive(Serialize, Debug, MyHttpObjectStructure)]
 pub struct SecretValueHttpModel {
     pub value: String,
     pub level: u8,
+    pub remote_value: Option<String>,
 }
 
 impl Into<SecretValueHttpModel> for SecretItem {
@@ -34,6 +43,7 @@ impl Into<SecretValueHttpModel> for SecretItem {
         SecretValueHttpModel {
             value: self.content.into_string(),
             level: self.level,
+            remote_value: self.remote_value.map(|c| c.into_string()),
         }
     }
 }
@@ -43,6 +53,7 @@ impl Into<SecretValueHttpModel> for &'_ SecretItem {
         SecretValueHttpModel {
             value: self.content.to_string(),
             level: self.level,
+            remote_value: self.remote_value.as_ref().map(|c| c.to_string()),
         }
     }
 }

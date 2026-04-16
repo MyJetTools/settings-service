@@ -51,6 +51,7 @@ async fn handle_request(
         product_id,
         input_data.name,
         random_value,
+        None,
         input_data.level,
     )
     .await;

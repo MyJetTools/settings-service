@@ -38,6 +38,7 @@ async fn handle_request(
         product.as_deref().into(),
         name,
         input_data.secret,
+        input_data.remote_value,
         input_data.level,
     )
     .await;

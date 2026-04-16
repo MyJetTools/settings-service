@@ -27,6 +27,7 @@ pub async fn export_snapshot(
                 id: secret.id.to_string(),
                 value: secret.content.to_base_64(),
                 level: secret.level,
+                remote_value: secret.remote_value.as_ref().map(|c| c.to_base_64()),
             });
         }
 
@@ -38,6 +39,7 @@ pub async fn export_snapshot(
                         id: secret.id.to_string(),
                         value: secret.content.to_base_64(),
                         level: secret.level,
+                        remote_value: secret.remote_value.as_ref().map(|c| c.to_base_64()),
                     });
                 }
             }

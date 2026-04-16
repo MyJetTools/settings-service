@@ -8,8 +8,14 @@ pub async fn compile_yaml(app: &AppContext, product_id: &str, template_id: &str)
         .get_by_id(product_id, template_id, |itm| itm.content.clone())
         .await?;
 
-    let result =
-        crate::scripts::populate_secrets(app, product_id.into(), &content, &secrets_snapshot, 0);
+    let result = crate::scripts::populate_secrets(
+        app,
+        product_id.into(),
+        &content,
+        &secrets_snapshot,
+        0,
+        false,
+    );
 
     Some(result.into_string())
 }

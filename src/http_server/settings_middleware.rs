@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
-use my_http_server::{HttpContext, HttpFailResult, HttpOkResult, HttpOutput, HttpServerMiddleware};
+use my_http_server::{
+    HttpContext, HttpFailResult, HttpOkResult, HttpOutput, HttpRequestHeaders, HttpServerMiddleware,
+};
 use rust_extensions::{date_time::DateTimeAsMicroseconds, str_utils::StrUtils};
 
 use crate::app_ctx::AppContext;
@@ -72,6 +74,16 @@ impl HttpServerMiddleware for SettingsMiddleware {
             .await
             .update(product_id, template_id, now);
 
+        let env_info = ctx
+            .request
+            .get_headers()
+            .try_get_case_insensitive_as_str("env-info")
+            .ok()
+            .flatten()
+            .map(|v| v.to_string());
+
+        let is_remote = !self.app.settings.is_local_env(env_info.as_deref());
+
         let secrets_snapshot = self.app.secrets.get_snapshot().await;
 
         let populated_content = crate::scripts::populate_secrets(
@@ -80,6 +92,7 @@ impl HttpServerMiddleware for SettingsMiddleware {
             &content,
             &secrets_snapshot,
             0,
+            is_remote,
         );
 
         Some(HttpOutput::as_text(populated_content.into_string()).into_ok_result(false))

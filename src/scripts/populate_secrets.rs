@@ -11,6 +11,7 @@ pub fn populate_secrets(
     content: &Content,
     secrets_snapshot: &SecretsSnapshot,
     min_secret_level: u8,
+    is_remote: bool,
 ) -> Content {
     let mut result = String::new();
 
@@ -31,18 +32,20 @@ pub fn populate_secrets(
 
                     if let Some(secret) = secret {
                         if secret.level >= min_secret_level {
-                            if secret.content.has_secret_inside() {
+                            let value = secret.resolve_content(is_remote);
+                            if value.has_secret_inside() {
                                 let content = populate_secrets(
                                     app,
                                     product_id,
-                                    &secret.content,
+                                    value,
                                     &secrets_snapshot,
                                     secret.level,
+                                    is_remote,
                                 );
 
                                 result.push_str(content.as_str());
                             } else {
-                                result.push_str(secret.content.as_str());
+                                result.push_str(value.as_str());
                             }
                         } else {
                             fill_token_has_wrong_level(&secret, secret.level, &mut result);
@@ -58,7 +61,14 @@ pub fn populate_secrets(
     let mut result: Content = result.into();
 
     while result.has_secret_inside() {
-        result = populate_secrets(app, product_id, content, secrets_snapshot, min_secret_level);
+        result = populate_secrets(
+            app,
+            product_id,
+            content,
+            secrets_snapshot,
+            min_secret_level,
+            is_remote,
+        );
     }
 
     result

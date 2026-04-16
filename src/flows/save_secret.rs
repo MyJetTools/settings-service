@@ -9,11 +9,15 @@ pub async fn save_secret(
     product_id: ProductId<'_>,
     secret_id: String,
     secret_value: String,
+    remote_value: Option<String>,
     level: u8,
 ) -> Option<SecretItem> {
     let mut secret = SecretItem {
         id: secret_id,
         content: secret_value.into(),
+        remote_value: remote_value
+            .filter(|v| !v.is_empty())
+            .map(|v| v.into()),
         level,
         created: DateTimeAsMicroseconds::now(),
         updated: DateTimeAsMicroseconds::now(),
