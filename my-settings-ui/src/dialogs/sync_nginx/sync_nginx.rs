@@ -42,7 +42,11 @@ pub fn SyncNginxConfiguration(cx: Scope, domain: Rc<String>, config: Rc<String>)
 
         div {
             div { class: "form-floating mb-3",
-                input { class: "form-control", disabled: true, value: "{domain.as_str()}" }
+                input {
+                    class: "form-control",
+                    disabled: true,
+                    value: "{domain.as_str()}",
+                }
                 label { "Domain" }
             }
             div { class: "form-floating mb-3",
@@ -50,7 +54,11 @@ pub fn SyncNginxConfiguration(cx: Scope, domain: Rc<String>, config: Rc<String>)
                 label { "CA" }
             }
             div { class: "form-floating mb-3",
-                input { class: "form-control", disabled: true, value: "{template}" }
+                input {
+                    class: "form-control",
+                    disabled: true,
+                    value: "{template}",
+                }
                 label { "Template" }
             }
 
@@ -60,7 +68,7 @@ pub fn SyncNginxConfiguration(cx: Scope, domain: Rc<String>, config: Rc<String>)
                     th { "Proxy pass" }
                     th { "Template" }
                 }
-                items
+                items {}
             }
         }
         div { class: "modal-footer",
@@ -94,7 +102,7 @@ pub fn SyncNginxConfiguration(cx: Scope, domain: Rc<String>, config: Rc<String>)
     }
 }
 
-#[server]
+#[post("/api/nginx/sync")]
 pub async fn sync_with_nginx(
     domain: String,
     model: NginxConfigHttpModel,

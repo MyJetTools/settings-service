@@ -378,7 +378,7 @@ fn compile_nginx_config(
     Some(result)
 }
 
-#[server]
+#[post("/api/domain/save-product")]
 async fn save_domain_product<'s>(
     product_name: String,
     is_cloud_flare_proxy: bool,
@@ -416,7 +416,7 @@ pub struct NginxData {
     ca: Vec<String>,
 }
 
-#[server]
+#[get("/api/nginx/load-templates")]
 async fn load_nginx_templates<'s>() -> Result<NginxData, ServerFnError> {
     let url = crate::APP_CTX.settings.get_nginx_api();
 

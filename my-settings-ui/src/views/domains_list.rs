@@ -28,7 +28,10 @@ pub fn domains_list(cx: Scope) -> Element {
             main_state.write().set_domains(Some(response));
         });
 
-        return render! { h1 { "Loading..." } };
+        return render! {
+            h1 { "Loading..." }
+
+        };
     }
 
     let widget_state_value = widget_state_value.unwrap();
@@ -44,7 +47,10 @@ pub fn domains_list(cx: Scope) -> Element {
                 cloud_flare_domains.write().set_value(response);
             });
 
-            return render! { h1 { "Loading Cf Domains.." } };
+            return render! {
+                h1 { "Loading Cf Domains.." }
+
+            };
         }
 
         (
@@ -56,7 +62,10 @@ pub fn domains_list(cx: Scope) -> Element {
                         let dialog_state = use_shared_state::<DialogState>(cx).unwrap();
                         dialog_state
                             .write()
-                            .show_dialog("Edit product domain".to_string(), DialogType::AddDomainProduct);
+                            .show_dialog(
+                                "Edit product domain".to_string(),
+                                DialogType::AddDomainProduct,
+                            );
                     },
                     add_icon {}
                 }
@@ -64,7 +73,12 @@ pub fn domains_list(cx: Scope) -> Element {
         )
     } else {
         domain_mask_read_only = true;
-        ("", rsx! {div{}})
+        (
+            "",
+            rsx! {
+                div {}
+            },
+        )
     };
 
     let lb_ip = Rc::new(widget_state_value.lb_ip.clone());
@@ -103,7 +117,9 @@ pub fn domains_list(cx: Scope) -> Element {
         };
 
         let nginx_difference = if nginx_difference {
-            rsx! { div { class: "badge text-bg-success", "Nginx is ok" } }
+            rsx! {
+                div { class: "badge text-bg-success", "Nginx is ok" }
+            }
         } else {
             if let Some(nginx_config) = nginx_config.as_ref() {
                 let config_as_str =
@@ -127,7 +143,9 @@ pub fn domains_list(cx: Scope) -> Element {
                     }
                 }
             } else {
-                rsx! { div { class: "badge text-bg-warning", "Nginx configuration missing" } }
+                rsx! {
+                    div { class: "badge text-bg-warning", "Nginx configuration missing" }
+                }
             }
         };
 
@@ -140,14 +158,16 @@ pub fn domains_list(cx: Scope) -> Element {
             tr { style: "border-bottom: 1px solid lightgray; text-align: left;",
 
                 td { "{product_domain_name.as_str()}" }
-                td { ProxyPassIcon { proxy_pass: proxy_pass, height: 32 } }
+                td {
+                    ProxyPassIcon { proxy_pass, height: 32 }
+                }
                 td { nginx_config_to_render }
                 td { nginx_setup_to_render }
                 td {
                     RenderCloudFlareStatus {
                         domain: product_domain_name.clone(),
                         ip: lb_ip.clone(),
-                        proxied: proxy_pass
+                        proxied: proxy_pass,
                     }
                     div { nginx_difference }
                 }
@@ -188,7 +208,7 @@ pub fn domains_list(cx: Scope) -> Element {
                     div { add_btn }
                 }
             }
-            products
+            products {}
         }
     };
 
@@ -198,7 +218,13 @@ pub fn domains_list(cx: Scope) -> Element {
         table { style: "width:100%",
             tr {
                 td { "Domain mask is: " }
-                td { input { class: "form-control", value: "{domain_mask}", readonly: domain_mask_read_only } }
+                td {
+                    input {
+                        class: "form-control",
+                        value: "{domain_mask}",
+                        readonly: domain_mask_read_only,
+                    }
+                }
                 td {
                     button {
                         class: "btn btn-primary",
@@ -220,7 +246,7 @@ pub fn domains_list(cx: Scope) -> Element {
 
         h2 { "Product domains:" }
 
-        product_domains
+        product_domains {}
     }
 }
 
@@ -233,7 +259,9 @@ fn RenderCloudFlareStatus(cx: Scope, domain: Rc<String>, ip: Rc<String>, proxied
     let domains_state = domains_state.get_value();
 
     if domains_state.is_none() {
-        return render! { div { class: "alert alert-warning", "Loading Cloudflare info..." } };
+        return render! {
+            div { class: "alert alert-warning", "Loading Cloudflare info..." }
+        };
     }
 
     let domains_state = domains_state.as_ref().unwrap();
@@ -284,7 +312,9 @@ fn RenderCloudFlareStatus(cx: Scope, domain: Rc<String>, ip: Rc<String>, proxied
                 }
             }
         },
-        None => render! { div { class: "badge bg-success", "Cloudflare OK" } },
+        None => render! {
+            div { class: "badge bg-success", "Cloudflare OK" }
+        },
     }
 }
 
@@ -295,21 +325,29 @@ fn generate_nginx_configuration<'s>(
     let nginx = if let Some(nginx_config) = nginx_config {
         let ca = if let Some(ca) = nginx_config.ca.as_ref() {
             render!(
-                div { style: "padding: 0;", div { class: "badge text-bg-success", "Protected with CA {ca}" } }
+                div { style: "padding: 0;",
+                    div { class: "badge text-bg-success", "Protected with CA {ca}" }
+                }
             )
         } else {
             render! {
-                div { style: "padding: 0;", div { class: "badge text-bg-light", "No CA" } }
+                div { style: "padding: 0;",
+                    div { class: "badge text-bg-light", "No CA" }
+                }
             }
         };
 
         let templates = if let Some(template) = nginx_config.template.as_ref() {
             render!(
-                div { style: "padding: 0;", div { class: "badge text-bg-primary", "Template: {template}" } }
+                div { style: "padding: 0;",
+                    div { class: "badge text-bg-primary", "Template: {template}" }
+                }
             )
         } else {
             render! {
-                div { style: "padding: 0;", div { class: "badge text-bg-warning", "No global templates" } }
+                div { style: "padding: 0;",
+                    div { class: "badge text-bg-warning", "No global templates" }
+                }
             }
         };
 
@@ -327,10 +365,17 @@ fn generate_nginx_configuration<'s>(
             }
         });
 
-        render! { ca, templates, routes }
+        render! {
+            ca {}
+            templates {}
+            routes {}
+
+        }
     } else {
         render! {
-            div { style: "padding: 0;", div { class: "badge text-bg-danger", "No nginx config found" } }
+            div { style: "padding: 0;",
+                div { class: "badge text-bg-danger", "No nginx config found" }
+            }
         }
     };
 
@@ -396,7 +441,7 @@ pub struct NginxRouteHttpModel {
     pub template: Option<String>,
 }
 
-#[server]
+#[get("/api/domains")]
 pub async fn load_domains() -> Result<DomainsApiModel, ServerFnError> {
     let response = crate::grpc_client::DomainsGrpcClient::get().await.unwrap();
 
@@ -438,7 +483,7 @@ pub async fn load_domains() -> Result<DomainsApiModel, ServerFnError> {
     Ok(result)
 }
 
-#[server]
+#[get("/api/cf")]
 async fn get_cf_records(domain: String) -> Result<Vec<CfDnsRecordRestApiModel>, ServerFnError> {
     let response = crate::cf_http_client::get_dns_records(domain).await;
     Ok(response)

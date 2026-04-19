@@ -18,7 +18,7 @@ pub fn edit_domain_mask<'s>(mask: String) -> Element {
                     oninput: move |cx| {
                         let mut widget_state = widget_state.write();
                         widget_state.set_value(cx.value.as_str());
-                    }
+                    },
                 }
                 label { "Domain mask. Example: *-evn.domain.com" }
             }
@@ -55,7 +55,7 @@ pub fn edit_domain_mask<'s>(mask: String) -> Element {
     }
 }
 
-#[server]
+#[post("/api/domain/set-mask")]
 async fn save_domain_mask<'s>(domain_mask: String) -> Result<(), ServerFnError> {
     crate::grpc_client::DomainsGrpcClient::save_domain_mask(domain_mask)
         .await

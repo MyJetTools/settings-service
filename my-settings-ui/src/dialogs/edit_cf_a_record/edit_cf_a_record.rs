@@ -21,25 +21,35 @@ pub fn EditCfRecord(
     let req_is_being_processed = use_state(cx, || false);
 
     let save_icon = if *req_is_being_processed.get() {
-        rsx! { wait_button_icon {} }
+        rsx! {
+            wait_button_icon {}
+        }
     } else {
-        rsx! { ok_button_icon {} }
+        rsx! {
+            ok_button_icon {}
+        }
     };
 
     let cf_rec_id_content = if cf_record_id.len() > 0 {
-        rsx! { div { "{cf_record_id}" } }
+        rsx! {
+            div { "{cf_record_id}" }
+        }
     } else {
-        rsx! { div {} }
+        rsx! {
+            div {}
+        }
     };
 
     render! {
-        cf_rec_id_content,
+        cf_rec_id_content {}
         div {
             table { style: "width:100%",
                 tr {
                     td { "{domain.as_str()}" }
                     td {
-                        div { ProxyPassIcon { proxy_pass: *proxied, height: 16 } }
+                        div {
+                            ProxyPassIcon { proxy_pass: *proxied, height: 16 }
+                        }
                     }
                 }
             }
@@ -51,7 +61,7 @@ pub fn EditCfRecord(
                     value: "{ip_state_value}",
                     oninput: move |cx| {
                         ip_state.set(cx.value.to_string());
-                    }
+                    },
                 }
                 label { "Ip" }
             }
@@ -95,7 +105,7 @@ pub fn EditCfRecord(
     }
 }
 
-#[server]
+#[post("/api/dns")]
 async fn set_dns_record(
     domain: String,
     id: String,
