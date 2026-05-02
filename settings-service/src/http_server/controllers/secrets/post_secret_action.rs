@@ -40,6 +40,7 @@ async fn handle_request(
         input_data.secret,
         input_data.remote_value,
         input_data.level,
+        input_data.description,
     )
     .await;
 

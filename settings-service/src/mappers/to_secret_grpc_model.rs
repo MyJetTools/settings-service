@@ -24,6 +24,7 @@ pub async fn to_secret_grpc_model(
             ProductId::Shared => None,
             ProductId::Id(product_id) => Some(product_id.to_string()),
         },
+        description: secret_item.description.clone(),
     }
 }
 
@@ -33,6 +34,7 @@ impl Into<SecretValueGrpcModel> for &SecretItem {
             level: self.level as i32,
             value: self.content.to_string(),
             remote_value: self.remote_value.as_ref().map(|c| c.to_string()),
+            description: self.description.clone(),
         }
     }
 }

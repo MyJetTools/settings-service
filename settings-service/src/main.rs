@@ -17,6 +17,7 @@ mod settings;
 
 mod consts;
 mod mappers;
+mod mcp;
 mod persistence;
 mod scripts;
 
@@ -42,7 +43,7 @@ async fn main() {
 
     crate::scripts::init(&app).await;
 
-    crate::http_server::start(&app);
+    crate::http_server::start(&app).await;
 
     tokio::spawn(crate::grpc_server::start(app.clone()));
 

@@ -38,4 +38,6 @@ pub struct SecretExportModel {
     pub level: u8,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub remote_value: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
 }

@@ -29,6 +29,11 @@ flurl = { tag = "0.6.1", git = "https://github.com/MyJetTools/fl-url.git" }
 my-settings-reader = { tag = "0.4.1", git = "https://github.com/MyJetTools/my-settings-reader.git" }
 encryption = { tag = "0.1.1", git = "https://github.com/MyJetTools/encryption.git" }
 
+mcp-server-middleware = { tag = "0.8.3", git = "https://github.com/my-ai-utils/mcp-server-middleware.git" }
+my-ai-agent = { tag = "0.1.0", git = "https://github.com/my-ai-utils/my-ai-agent.git", features = [
+    "agent",
+] }
+
 tonic = { version = "*" }
 tonic-prost = "*"
 prost = "*"

@@ -18,6 +18,8 @@ pub struct SecretValue {
     pub updated: i64,
     #[prost(string, optional, tag = "7")]
     pub remote_value: Option<String>,
+    #[prost(string, optional, tag = "8")]
+    pub description: Option<String>,
 }
 impl SecretValue {
     pub fn from_item(product_id: String, src: &SecretItem) -> Self {
@@ -29,6 +31,7 @@ impl SecretValue {
             created: src.created.unix_microseconds,
             updated: src.updated.unix_microseconds,
             remote_value: src.remote_value.as_ref().map(|c| c.to_string()),
+            description: src.description.clone(),
         }
     }
 
@@ -40,6 +43,7 @@ impl SecretValue {
             level: self.level as u8,
             created: DateTimeAsMicroseconds::new(self.created),
             updated: DateTimeAsMicroseconds::new(self.updated),
+            description: self.description.filter(|d| !d.is_empty()),
         };
 
         (self.product_id, result)

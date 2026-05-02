@@ -28,6 +28,7 @@ pub async fn export_snapshot(
                 value: secret.content.to_base_64(),
                 level: secret.level,
                 remote_value: secret.remote_value.as_ref().map(|c| c.to_base_64()),
+                description: secret.description.clone(),
             });
         }
 
@@ -40,6 +41,7 @@ pub async fn export_snapshot(
                         value: secret.content.to_base_64(),
                         level: secret.level,
                         remote_value: secret.remote_value.as_ref().map(|c| c.to_base_64()),
+                        description: secret.description.clone(),
                     });
                 }
             }

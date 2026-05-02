@@ -11,6 +11,8 @@ pub async fn save_secret(
     secret_value: String,
     remote_value: Option<String>,
     level: u8,
+    // None = keep existing description on update; Some("") = clear it; Some(text) = set/replace.
+    description: Option<String>,
 ) -> Option<SecretItem> {
     let mut secret = SecretItem {
         id: secret_id,
@@ -21,9 +23,20 @@ pub async fn save_secret(
         level,
         created: DateTimeAsMicroseconds::now(),
         updated: DateTimeAsMicroseconds::now(),
+        description: description.clone().and_then(|d| {
+            let trimmed = d.trim();
+            if trimmed.is_empty() {
+                None
+            } else {
+                Some(trimmed.to_string())
+            }
+        }),
     };
     let removed = if let Some(removed) = app.secrets.remove(product_id, &secret.id).await {
         secret.created = removed.created;
+        if description.is_none() {
+            secret.description = removed.description.clone();
+        }
         Some(removed)
     } else {
         None

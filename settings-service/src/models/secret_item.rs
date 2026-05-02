@@ -10,6 +10,7 @@ pub struct SecretItem {
     pub level: u8,
     pub created: DateTimeAsMicroseconds,
     pub updated: DateTimeAsMicroseconds,
+    pub description: Option<String>,
 }
 
 impl SecretItem {

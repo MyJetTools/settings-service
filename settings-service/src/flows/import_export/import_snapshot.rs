@@ -51,7 +51,7 @@ pub async fn import_snapshot(
     let mut shared_secrets = Vec::new();
     let mut not_shared = Vec::new();
 
-    for secret in model.secrets {
+    for mut secret in model.secrets {
         let shared = secret.shared.is_some();
 
         let item = SecretItem {
@@ -61,6 +61,7 @@ pub async fn import_snapshot(
             level: secret.level,
             created: now,
             updated: now,
+            description: secret.description.take(),
         };
 
         if shared {

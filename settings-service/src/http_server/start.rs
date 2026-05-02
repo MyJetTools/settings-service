@@ -7,7 +7,7 @@ use crate::app_ctx::AppContext;
 
 use super::SettingsMiddleware;
 
-pub fn start(app: &Arc<AppContext>) {
+pub async fn start(app: &Arc<AppContext>) {
     let http_port = app.settings.get_http_port();
     let listen_addr = SocketAddr::from(([0, 0, 0, 0], http_port));
 
@@ -41,12 +41,17 @@ pub fn start(app: &Arc<AppContext>) {
 
     let swagger_middleware = Arc::new(swagger_middleware);
 
+    let mcp_middleware = Arc::new(crate::mcp::build_mcp_middleware(app).await);
+
     if let Some(unix_socket) = unix_socket.as_mut() {
         unix_socket.add_middleware(swagger_middleware.clone());
+        unix_socket.add_middleware(mcp_middleware.clone());
         unix_socket.add_middleware(controllers.clone());
     }
 
     http_server.add_middleware(swagger_middleware);
+
+    http_server.add_middleware(mcp_middleware);
 
     http_server.add_middleware(controllers);
 
