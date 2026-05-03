@@ -7,14 +7,14 @@ use crate::app_ctx::AppContext;
 const MCP_PATH: &str = "/mcp";
 const MCP_NAME: &str = "SettingsService";
 const MCP_VERSION: &str = env!("CARGO_PKG_VERSION");
+const MCP_INSTRUCTIONS: &str = include_str!("../../MCP_INSTRUCTION.md");
 
 pub async fn build_mcp_middleware(app: &Arc<AppContext>) -> McpMiddleware {
-    let mut middleware = McpMiddleware::new(
-        MCP_PATH,
-        MCP_NAME,
-        MCP_VERSION,
-        super::instructions::MCP_INSTRUCTIONS,
-    );
+    let mut middleware = McpMiddleware::new(MCP_PATH, MCP_NAME, MCP_VERSION, MCP_INSTRUCTIONS);
+
+    middleware
+        .register_prompt(Arc::new(super::HowToUseSettingsPromptHandler))
+        .await;
 
     middleware
         .register_tool_call(Arc::new(super::ListProductsHandler::new(app.clone())))

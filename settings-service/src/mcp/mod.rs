@@ -13,7 +13,8 @@ pub use list_secrets_tool_call::*;
 mod list_products_tool_call;
 pub use list_products_tool_call::*;
 
-mod instructions;
+mod how_to_use_settings_prompt;
+pub use how_to_use_settings_prompt::*;
 
 mod builder;
 pub use builder::*;
