@@ -7,6 +7,9 @@ pub use upsert_template_tool_call::*;
 mod get_secret_info_tool_call;
 pub use get_secret_info_tool_call::*;
 
+mod upsert_secret_description_tool_call;
+pub use upsert_secret_description_tool_call::*;
+
 mod list_secrets_tool_call;
 pub use list_secrets_tool_call::*;
 

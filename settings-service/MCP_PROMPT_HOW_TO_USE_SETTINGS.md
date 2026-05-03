@@ -46,6 +46,8 @@ Local vs remote distinction does NOT apply to this tool: since values are not su
 
 5. **Create or update a template** — call `upsert_template` with `(product_id, template_id, yaml)`. The call performs create-or-overwrite. To verify, follow up with `compile_template_yaml`. If a placeholder you wrote references a missing secret, the next compile will surface it.
 
+6. **Annotate a secret** — call `upsert_secret_description` with `(product_id, secret_id, description)` to attach or replace the human-readable description of an existing secret. The secret's value, remote variant, and level are preserved unchanged; pass an empty string to clear the description. This call never creates a new secret — it fails when the secret does not yet exist.
+
 # Conventions
 
 - Identifiers (`product_id`, `template_id`, `secret_id`) are case-sensitive and stored verbatim. The string `"Shared"` is the only value that is matched case-insensitively (because it names the special scope).
