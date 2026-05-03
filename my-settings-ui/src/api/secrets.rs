@@ -40,6 +40,7 @@ pub async fn save_secret(
             value: value.value,
             level: value.level,
             remote_value: value.remote_value,
+            description: None,
         })
         .await
         .unwrap();
@@ -126,6 +127,7 @@ pub async fn copy_secret_to_other_env(
             value: secret_model.value,
             level: secret_model.level,
             remote_value: secret_model.remote_value,
+            description: secret_model.description,
         })
         .await
         .unwrap();
