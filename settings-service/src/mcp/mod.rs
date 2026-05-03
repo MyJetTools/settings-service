@@ -10,5 +10,10 @@ pub use get_secret_info_tool_call::*;
 mod list_secrets_tool_call;
 pub use list_secrets_tool_call::*;
 
+mod list_products_tool_call;
+pub use list_products_tool_call::*;
+
+mod instructions;
+
 mod builder;
 pub use builder::*;
