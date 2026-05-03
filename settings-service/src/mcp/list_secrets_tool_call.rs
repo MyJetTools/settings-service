@@ -15,6 +15,9 @@ pub struct ListSecretsInputData {
 
     #[property(description: "When true and product_id is not \"Shared\", shared secrets are merged into the listing as well. Ignored for \"Shared\".")]
     pub include_shared: Option<bool>,
+
+    #[property(description: "Optional Rust-flavoured regular expression matched against the secret_id. When provided, only secrets whose id matches the pattern are returned. Matching is case-sensitive and uses `Regex::is_match` (a partial match is enough — anchor with ^ and $ for exact). Invalid patterns return an error string.")]
+    pub id_regex: Option<String>,
 }
 
 #[derive(ApplyJsonSchema, Debug, Serialize, Deserialize)]
@@ -40,7 +43,7 @@ pub struct ListSecretsResponse {
     #[property(description: "Total number of secrets returned.")]
     pub count: i64,
 
-    #[property(description: "Secrets matching the query. Values are intentionally not included; use `get_secret_info` to read a specific value.")]
+    #[property(description: "Secrets matching the query. Values are intentionally never returned by this MCP — agents should know whether a secret exists, not what it stores.")]
     pub secrets: Vec<SecretListEntry>,
 }
 
@@ -56,7 +59,7 @@ impl ListSecretsHandler {
 
 impl ToolDefinition for ListSecretsHandler {
     const FUNC_NAME: &'static str = "list_secrets";
-    const DESCRIPTION: &'static str = "Browse the directory of secrets for a product (with their human-readable descriptions, levels, and a flag for whether a remote-datacenter variant exists). Secret VALUES are not returned by this call — read a specific value with `get_secret_info`. Use \"Shared\" as `product_id` to list shared secrets, or pass `include_shared: true` to merge shared secrets into a per-product listing.";
+    const DESCRIPTION: &'static str = "Browse the directory of secrets for a product (with their human-readable descriptions, levels, and a flag for whether a remote-datacenter variant exists). Secret VALUES are NEVER returned by this MCP — you can confirm a secret exists, but reading its value is not allowed. Use \"Shared\" as `product_id` to list shared secrets, or pass `include_shared: true` to merge shared secrets into a per-product listing. Pass `id_regex` to filter the result by a regular expression against secret_id (e.g. `^db_` for everything starting with db_, or `(?i)token` for any id containing \"token\" case-insensitively).";
 }
 
 #[async_trait::async_trait]
@@ -72,23 +75,40 @@ impl McpToolCall<ListSecretsInputData, ListSecretsResponse> for ListSecretsHandl
         let is_shared_query = product_id_input.eq_ignore_ascii_case(SHARED_LITERAL);
         let include_shared = model.include_shared.unwrap_or(false);
 
+        let id_regex = match model.id_regex.as_deref().map(|s| s.trim()).filter(|s| !s.is_empty()) {
+            Some(pattern) => Some(
+                regex::Regex::new(pattern)
+                    .map_err(|err| format!("Invalid `id_regex` pattern: {}", err))?,
+            ),
+            None => None,
+        };
+        let matches = |secret_id: &str| -> bool {
+            id_regex.as_ref().map(|re| re.is_match(secret_id)).unwrap_or(true)
+        };
+
         let snapshot = self.app.secrets.get_snapshot().await;
 
         let mut secrets: Vec<SecretListEntry> = Vec::new();
 
         if is_shared_query {
             for item in snapshot.shared.iter() {
-                secrets.push(to_entry(SHARED_LITERAL.to_string(), item));
+                if matches(item.id.as_str()) {
+                    secrets.push(to_entry(SHARED_LITERAL.to_string(), item));
+                }
             }
         } else {
             if let Some(by_product) = snapshot.by_product.get(product_id_input) {
                 for item in by_product.iter() {
-                    secrets.push(to_entry(product_id_input.to_string(), item));
+                    if matches(item.id.as_str()) {
+                        secrets.push(to_entry(product_id_input.to_string(), item));
+                    }
                 }
             }
             if include_shared {
                 for item in snapshot.shared.iter() {
-                    secrets.push(to_entry(SHARED_LITERAL.to_string(), item));
+                    if matches(item.id.as_str()) {
+                        secrets.push(to_entry(SHARED_LITERAL.to_string(), item));
+                    }
                 }
             }
         }

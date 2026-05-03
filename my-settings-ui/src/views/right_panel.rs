@@ -18,5 +18,8 @@ pub fn RightPanel() -> Element {
         LocationState::Secrets => {
             rsx!(crate::views::secrets_page::SecretsPage {})
         }
+        LocationState::Products => {
+            rsx!(crate::views::products_page::ProductsPage {})
+        }
     }
 }

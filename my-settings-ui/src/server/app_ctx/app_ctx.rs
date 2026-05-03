@@ -9,6 +9,7 @@ use super::SshPrivateKeyResolver;
 pub struct AppCtxByEnv {
     pub templates_grpc: TemplatesGrpcClient,
     pub secrets_grpc: SecretsGrpcClient,
+    pub products_grpc: ProductsGrpcClient,
 }
 
 pub struct AppCtx {
@@ -56,9 +57,15 @@ impl AppCtx {
             .set_ssh_private_key_resolver(self.private_key_resolver.clone())
             .await;
 
+        let products_grpc = ProductsGrpcClient::new(env_app_settings.clone());
+        products_grpc
+            .set_ssh_private_key_resolver(self.private_key_resolver.clone())
+            .await;
+
         let ctx = AppCtxByEnv {
             templates_grpc,
             secrets_grpc,
+            products_grpc,
         };
 
         let ctx = Arc::new(ctx);

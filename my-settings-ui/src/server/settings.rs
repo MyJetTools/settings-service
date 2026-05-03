@@ -107,6 +107,13 @@ impl my_grpc_extensions::GrpcClientSettings for EnvSettings {
             };
         }
 
+        if name == ProductsGrpcClient::get_service_name() {
+            return my_grpc_extensions::GrpcUrl {
+                url: self.url.to_string(),
+                host_metadata: self.host.clone(),
+            };
+        }
+
         panic!("Unknown grpc service name: {}", name)
     }
 }

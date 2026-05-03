@@ -26,27 +26,32 @@ When calling any tool that takes `product_id`, pass `"Shared"` (case-insensitive
 
 This guarantees that real secret values are never returned by this tool — the AI sees the YAML structure and the names of every dependency, with missing ones standing out at a glance. The same response also lists the missing ids in `missing_keys` (deduplicated) plus a boolean `has_missing_keys`, so you can summarize "what is unresolved" without re-parsing the YAML.
 
-Local vs remote distinction does NOT apply to this tool: since values are not substituted, the rendering is independent of datacenter. To learn whether a particular secret has a remote-datacenter variant, call `get_secret_info` and read its `has_remote_value` flag.
+Local vs remote distinction does NOT apply to this tool: since values are not substituted, the rendering is independent of datacenter. To learn whether a particular secret has a remote-datacenter variant, look at its `has_remote_value` flag in `list_secrets`.
 
 # Privacy rules baked into the tools
 
-- `list_secrets` returns metadata only — id, description, level, `has_remote_value`. It NEVER returns the actual `value` or `remote_value`. To inspect a value, follow up with `get_secret_info`.
-- `get_secret_info` returns the root `value` and `description`, plus a `has_remote_value: bool` flag that tells you whether a remote variant exists. The remote value itself is intentionally not returned by this tool.
-- `compile_template_yaml` NEVER returns secret values either: every `${secret_id}` becomes `SECRET_<id>_VALUE` or `SECRET_<id>_NOT_FOUND`. To read a real value, use `get_secret_info`.
+**Secret VALUES are never exposed to AI agents through this MCP.** You can confirm a secret exists, read its description, level, and `has_remote_value` flag, but you cannot read the value itself. There is no tool to fetch a secret value, and there will not be one — values are managed by humans through the UI.
+
+- `list_secrets` returns metadata only — id, description, level, `has_remote_value`. It NEVER returns the actual `value` or `remote_value`.
+- `compile_template_yaml` NEVER returns secret values either: every `${secret_id}` becomes `SECRET_<id>_VALUE` or `SECRET_<id>_NOT_FOUND`. The marker tells you the secret exists (or does not); it never reveals what it stores.
 
 # Recommended workflow when wiring up an app from chat
 
-1. **Discover scope** — call `list_products` to see what products already exist (each entry includes counts of templates and secrets). Pick the right `product_id`, or use `"Shared"` for cross-product configuration.
+1. **Discover scope** — call `list_products` to see what products already exist (each entry includes counts of templates and secrets, an optional `description`, and a `has_prompt` flag). Pick the right `product_id`, or use `"Shared"` for cross-product configuration.
 
-2. **Discover available secrets** — call `list_secrets` with that `product_id`. Read the `description` field on each entry to figure out which secret matches the AI's intended use. Pass `include_shared: true` to also see fallback secrets from the Shared scope.
+2. **Load product context** — when the chosen `product_id` has `has_prompt: true`, call `get_product_prompt` to fetch the description and the free-form prompt that explains what the product is and how its settings are organised. Read it BEFORE working with the product's secrets/templates. When `has_metadata` comes back as `false`, the product exists only implicitly — it has no recorded context, and you should ask the user for one or use `upsert_product` to record it.
 
-3. **Read a specific secret** (when needed) — call `get_secret_info` to read a single secret's value, description, level, and remote-variant flag.
+3. **Discover available secrets** — call `list_secrets` with that `product_id`. Read the `description` field on each entry to figure out which secret matches the AI's intended use. Pass `include_shared: true` to also see fallback secrets from the Shared scope. Pass `id_regex` (e.g. `^db_`, `(?i)token`) to narrow the result to secret ids matching a regular expression — useful when the directory is large. The returned entries include `secret_id`, `description`, `level`, and `has_remote_value` — never the value itself.
 
-4. **Read a template** — call `compile_template_yaml` with `(product_id, template_id)`. The returned YAML has every `${...}` rewritten as `SECRET_<id>_VALUE` (resolvable) or `SECRET_<id>_NOT_FOUND` (missing). Compare the rendered YAML against the model/struct the app code defines, and inspect `missing_keys` to find references the template makes to non-existent secrets — these are the most common drift between "what the template asks for" and "what the secret store provides".
+4. **Inspect a secret's dependency graph** — when a secret's value itself contains `${other_secret}` placeholders, call `get_secret_dependencies(product_id, secret_id)` to list every secret it references and where each one was resolved from (`Product`, `Shared`, or `Missing`). The actual value is not returned — only the dependency names — so you can audit the wiring without reading sensitive content.
 
-5. **Create or update a template** — call `upsert_template` with `(product_id, template_id, yaml)`. The call performs create-or-overwrite. To verify, follow up with `compile_template_yaml`. If a placeholder you wrote references a missing secret, the next compile will surface it.
+5. **Read a template** — call `compile_template_yaml` with `(product_id, template_id)`. The returned YAML has every `${...}` rewritten as `SECRET_<id>_VALUE` (resolvable) or `SECRET_<id>_NOT_FOUND` (missing). Compare the rendered YAML against the model/struct the app code defines, and inspect `missing_keys` to find references the template makes to non-existent secrets — these are the most common drift between "what the template asks for" and "what the secret store provides".
 
-6. **Annotate a secret** — call `upsert_secret_description` with `(product_id, secret_id, description)` to attach or replace the human-readable description of an existing secret. The secret's value, remote variant, and level are preserved unchanged; pass an empty string to clear the description. This call never creates a new secret — it fails when the secret does not yet exist.
+6. **Create or update a template** — call `upsert_template` with `(product_id, template_id, yaml)`. The call performs create-or-overwrite. To verify, follow up with `compile_template_yaml`. If a placeholder you wrote references a missing secret, the next compile will surface it.
+
+7. **Annotate a secret** — call `upsert_secret_description` with `(product_id, secret_id, description)` to attach or replace the human-readable description of an existing secret. The secret's value, remote variant, and level are preserved unchanged; pass an empty string to clear the description. This call never creates a new secret — it fails when the secret does not yet exist.
+
+8. **Record product context** — call `upsert_product` with `(product_id, description, prompt)` to create or update the explicit description and prompt for a product. The prompt should explain what the product is and how its secrets/templates are organised — future agents will read it via `get_product_prompt`.
 
 # Conventions
 

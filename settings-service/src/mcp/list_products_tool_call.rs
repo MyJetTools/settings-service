@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, sync::Arc};
+use std::sync::Arc;
 
 use mcp_server_middleware::McpToolCall;
 use my_ai_agent::{macros::ApplyJsonSchema, ToolDefinition};
@@ -24,6 +24,12 @@ pub struct ProductListEntry {
 
     #[property(description: "Number of secrets owned by this product.")]
     pub secrets_count: i64,
+
+    #[property(description: "Short product description (only present when an explicit product record exists).")]
+    pub description: Option<String>,
+
+    #[property(description: "True when this product has an explicit prompt the AI should read via `get_product_prompt` before working with its secrets/templates.")]
+    pub has_prompt: bool,
 }
 
 #[derive(ApplyJsonSchema, Debug, Serialize, Deserialize)]
@@ -31,7 +37,7 @@ pub struct ListProductsResponse {
     #[property(description: "Total number of products returned.")]
     pub count: i64,
 
-    #[property(description: "Products discovered from the union of templates and secrets, ordered alphabetically (with \"Shared\" first when present).")]
+    #[property(description: "Products discovered from the union of explicit product records, templates and secrets, ordered alphabetically (with \"Shared\" first when present).")]
     pub products: Vec<ProductListEntry>,
 }
 
@@ -47,7 +53,7 @@ impl ListProductsHandler {
 
 impl ToolDefinition for ListProductsHandler {
     const FUNC_NAME: &'static str = "list_products";
-    const DESCRIPTION: &'static str = "List all known products in the SettingsService — every product_id that owns at least one template or one secret. Each entry also reports how many templates and secrets it has, so the AI can pick a product before drilling into `list_secrets` or `compile_template_yaml`. The special \"Shared\" scope is included by default.";
+    const DESCRIPTION: &'static str = "List all known products in the SettingsService — every product_id that owns at least one template, one secret, or has an explicit description/prompt record. Each entry reports how many templates and secrets it has, an optional description, and `has_prompt` to signal that you should call `get_product_prompt` next to load the product context. The special \"Shared\" scope is included by default.";
 }
 
 #[async_trait::async_trait]
@@ -58,22 +64,9 @@ impl McpToolCall<ListProductsInputData, ListProductsResponse> for ListProductsHa
     ) -> Result<ListProductsResponse, String> {
         let include_shared = model.include_shared.unwrap_or(true);
 
-        let mut counts: BTreeMap<String, (i64, i64)> = BTreeMap::new();
-
-        let templates_per_product = self
-            .app
-            .templates
-            .find_into_vec(|product_id, _| Some(product_id.to_string()))
-            .await;
-        for product_id in templates_per_product {
-            counts.entry(product_id).or_default().0 += 1;
-        }
+        let aggregated = crate::flows::get_all_products(&self.app).await;
 
         let secrets_snapshot = self.app.secrets.get_snapshot().await;
-        for (product_id, items) in secrets_snapshot.by_product.iter() {
-            counts.entry(product_id.clone()).or_default().1 += items.len() as i64;
-        }
-
         let shared_secrets_count = secrets_snapshot.shared.len() as i64;
 
         let mut products: Vec<ProductListEntry> = Vec::new();
@@ -83,14 +76,23 @@ impl McpToolCall<ListProductsInputData, ListProductsResponse> for ListProductsHa
                 product_id: SHARED_LITERAL.to_string(),
                 templates_count: 0,
                 secrets_count: shared_secrets_count,
+                description: None,
+                has_prompt: false,
             });
         }
 
-        for (product_id, (templates_count, secrets_count)) in counts {
+        for item in aggregated {
+            let has_prompt = item
+                .prompt
+                .as_ref()
+                .map(|p| !p.trim().is_empty())
+                .unwrap_or(false);
             products.push(ProductListEntry {
-                product_id,
-                templates_count,
-                secrets_count,
+                product_id: item.id,
+                templates_count: item.templates_count as i64,
+                secrets_count: item.secrets_count as i64,
+                description: item.description.filter(|d| !d.trim().is_empty()),
+                has_prompt,
             });
         }
 

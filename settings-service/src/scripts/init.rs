@@ -12,5 +12,8 @@ pub async fn init(app: &AppContext) {
 
     app.secrets.init(secrets).await;
 
+    let products = app.products_persistence.load_all().await;
+    app.products.init(products).await;
+
     app.app_states.set_initialized();
 }

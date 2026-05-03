@@ -14,6 +14,7 @@ pub fn LeftPanel() -> Element {
 
     let mut secrets_active = "";
     let mut templates_active = "";
+    let mut products_active = "";
 
     match current_location {
         LocationState::None => {}
@@ -22,6 +23,9 @@ pub fn LeftPanel() -> Element {
         }
         LocationState::Secrets => {
             secrets_active = ACTIVE_CLASS;
+        }
+        LocationState::Products => {
+            products_active = ACTIVE_CLASS;
         }
     }
 
@@ -63,6 +67,17 @@ pub fn LeftPanel() -> Element {
                         }
                     },
                     "Templates"
+                }
+            }
+            div { class: "menu-item {products_active}",
+                Link {
+                    to: AppRoute::Products,
+                    onclick: move |_| {
+                        if !current_location.is_products() {
+                            main_state.write().set_location(LocationState::Products);
+                        }
+                    },
+                    "Products"
                 }
             }
         }

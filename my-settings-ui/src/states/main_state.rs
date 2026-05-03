@@ -9,6 +9,7 @@ pub enum LocationState {
     None,
     Templates,
     Secrets,
+    Products,
 }
 
 impl LocationState {
@@ -25,6 +26,13 @@ impl LocationState {
             _ => false,
         }
     }
+
+    pub fn is_products(&self) -> bool {
+        match self {
+            Self::Products => true,
+            _ => false,
+        }
+    }
 }
 
 pub struct MainState {
@@ -33,6 +41,7 @@ pub struct MainState {
     pub location: LocationState,
     pub templates: DataState<Vec<Rc<TemplateHttpModel>>>,
     pub secrets: DataState<Vec<SecretHttpModel>>,
+    pub products_list: DataState<Vec<ProductHttpModel>>,
     pub prompt_ssh_key: Option<bool>,
     pub products: BTreeSet<String>,
 }
@@ -44,6 +53,7 @@ impl MainState {
             location,
             templates: DataState::default(),
             secrets: DataState::default(),
+            products_list: DataState::default(),
             user: "".to_string(),
             prompt_ssh_key: None,
             products: Default::default(),
@@ -58,6 +68,7 @@ impl MainState {
     pub fn drop_data(&mut self) {
         self.templates.reset();
         self.secrets.reset();
+        self.products_list.reset();
     }
 
     pub fn set_templates_as_loaded(&mut self, templates: Vec<TemplateHttpModel>) {

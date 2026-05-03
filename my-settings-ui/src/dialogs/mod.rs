@@ -8,6 +8,8 @@ mod show_secret_usage_by_secret;
 pub use show_secret_usage_by_secret::*;
 mod edit_secret;
 pub use edit_secret::*;
+mod edit_product;
+pub use edit_product::*;
 //mod delete_secret;
 //pub use delete_secret::*;
 mod edit_template;

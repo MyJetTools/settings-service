@@ -1,7 +1,8 @@
 fn main() {
     ci_utils::ProtoFileBuilder::new("../proto-files/")
         .sync_and_build("TemplatesService.proto")
-        .sync_and_build("SecretsService.proto");
+        .sync_and_build("SecretsService.proto")
+        .sync_and_build("ProductsService.proto");
 
     //let url =
     //    "https://raw.githubusercontent.com/MyJetTools/settings-service/refs/heads/main/proto/";

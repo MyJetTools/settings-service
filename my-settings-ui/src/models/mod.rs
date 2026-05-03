@@ -8,3 +8,5 @@ mod secrets;
 pub use secrets::*;
 mod envs;
 pub use envs::*;
+mod product_http_model;
+pub use product_http_model::*;

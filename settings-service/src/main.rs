@@ -31,6 +31,11 @@ pub mod secrets_grpc {
     tonic::include_proto!("secrets");
 }
 
+#[allow(non_snake_case)]
+pub mod products_grpc {
+    tonic::include_proto!("products");
+}
+
 #[tokio::main]
 async fn main() {
     let settings = SettingsModel::first_load("~/.settings-service")

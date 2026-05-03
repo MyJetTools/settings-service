@@ -1,0 +1,40 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+package products;
+
+message SaveProductGrpcRequest {
+  string id          = 1;
+  string description = 2;
+  string prompt      = 3;
+}
+
+message GetProductGrpcRequest {
+  string id = 1;
+}
+
+message DeleteProductGrpcRequest {
+  string id = 1;
+}
+
+message ProductGrpcModel {
+  string id                  = 1;
+  optional string description = 2;
+  optional string prompt      = 3;
+  int32  templates_amount    = 4;
+  int32  secrets_amount      = 5;
+  bool   has_metadata        = 6;
+  int64  created             = 7;
+  int64  updated             = 8;
+}
+
+message GetAllProductsGrpcResponse {
+  repeated ProductGrpcModel products = 1;
+}
+
+service Products {
+  rpc Save(SaveProductGrpcRequest) returns (google.protobuf.Empty);
+  rpc Get(GetProductGrpcRequest) returns (ProductGrpcModel);
+  rpc GetAll(google.protobuf.Empty) returns (GetAllProductsGrpcResponse);
+  rpc Delete(DeleteProductGrpcRequest) returns (google.protobuf.Empty);
+  rpc Ping(google.protobuf.Empty) returns (google.protobuf.Empty);
+}

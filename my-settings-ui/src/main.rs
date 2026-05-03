@@ -32,6 +32,8 @@ pub enum AppRoute {
     Templates,
     #[route("/secrets")]
     Secrets,
+    #[route("/products")]
+    Products,
 }
 
 fn main() {
@@ -66,6 +68,14 @@ fn Templates() -> Element {
 #[component]
 fn Secrets() -> Element {
     use_context_provider(|| Signal::new(MainState::new(LocationState::Secrets)));
+    rsx! {
+        MyLayout {}
+    }
+}
+
+#[component]
+fn Products() -> Element {
+    use_context_provider(|| Signal::new(MainState::new(LocationState::Products)));
     rsx! {
         MyLayout {}
     }

@@ -33,6 +33,16 @@ pub fn RenderDialog() -> Element {
                 }
             }
         }
+
+        DialogState::EditProduct {
+            env_id,
+            product_id,
+            on_ok,
+        } => {
+            return rsx! {
+                EditProduct { env_id, product_id, on_ok }
+            }
+        }
         DialogState::SecretUsage {
             env_id,
             product_id,

@@ -29,10 +29,6 @@ pub async fn build_mcp_middleware(app: &Arc<AppContext>) -> McpMiddleware {
         .await;
 
     middleware
-        .register_tool_call(Arc::new(super::GetSecretInfoHandler::new(app.clone())))
-        .await;
-
-    middleware
         .register_tool_call(Arc::new(super::UpsertSecretDescriptionHandler::new(
             app.clone(),
         )))
@@ -40,6 +36,20 @@ pub async fn build_mcp_middleware(app: &Arc<AppContext>) -> McpMiddleware {
 
     middleware
         .register_tool_call(Arc::new(super::ListSecretsHandler::new(app.clone())))
+        .await;
+
+    middleware
+        .register_tool_call(Arc::new(super::GetSecretDependenciesHandler::new(
+            app.clone(),
+        )))
+        .await;
+
+    middleware
+        .register_tool_call(Arc::new(super::GetProductPromptHandler::new(app.clone())))
+        .await;
+
+    middleware
+        .register_tool_call(Arc::new(super::UpsertProductHandler::new(app.clone())))
         .await;
 
     middleware

@@ -27,3 +27,10 @@ mod compile_yaml;
 pub use compile_yaml::*;
 mod import_export;
 pub use import_export::*;
+
+mod save_product;
+pub use save_product::*;
+mod delete_product;
+pub use delete_product::*;
+mod get_all_products;
+pub use get_all_products::*;

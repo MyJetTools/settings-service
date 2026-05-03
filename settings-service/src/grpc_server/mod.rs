@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use crate::app_ctx::AppContext;
 
+mod products_grpc_service;
 mod secrets_grpc_service;
 mod templates_grpc_service;
 
@@ -27,7 +28,10 @@ pub async fn start(app: Arc<AppContext>) {
         .add_service(crate::secrets_grpc::secrets_server::SecretsServer::new(
             service.clone(),
         ))
-        .add_service(crate::templates_grpc::templates_server::TemplatesServer::new(service))
+        .add_service(crate::templates_grpc::templates_server::TemplatesServer::new(service.clone()))
+        .add_service(crate::products_grpc::products_server::ProductsServer::new(
+            service,
+        ))
         .serve(addr)
         .await
         .expect("gRPC server failed");

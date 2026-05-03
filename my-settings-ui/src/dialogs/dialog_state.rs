@@ -25,6 +25,12 @@ pub enum DialogState {
         on_ok: EventHandler<UpdateSecretValueHttpModel>,
     },
 
+    EditProduct {
+        env_id: Rc<String>,
+        product_id: Rc<String>,
+        on_ok: EventHandler<UpdateProductHttpModel>,
+    },
+
     EditTemplate {
         env_id: Rc<String>,
         data: EditTemplateDialogData,

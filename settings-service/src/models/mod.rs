@@ -6,3 +6,5 @@ mod content;
 pub use content::*;
 mod product_id;
 pub use product_id::*;
+mod product;
+pub use product::*;

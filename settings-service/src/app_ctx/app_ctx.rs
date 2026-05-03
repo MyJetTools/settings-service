@@ -20,6 +20,9 @@ pub struct AppContext {
     pub secrets: SecretsCache,
     pub secrets_persistence: SecretsPersistence,
 
+    pub products: ProductsCache,
+    pub products_persistence: ProductsPersistence,
+
     pub last_time_access: Mutex<LastRequestTimeCache>,
 }
 
@@ -42,7 +45,11 @@ impl AppContext {
             templates_persistence: TemplatesPersistence::new(db_path.clone()),
 
             secrets: SecretsCache::default(),
-            secrets_persistence: SecretsPersistence::new(db_path, aes_key),
+            secrets_persistence: SecretsPersistence::new(db_path.clone(), aes_key),
+
+            products: ProductsCache::default(),
+            products_persistence: ProductsPersistence::new(db_path),
+
             last_time_access: Mutex::new(LastRequestTimeCache::new()),
         }
     }
