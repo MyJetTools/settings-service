@@ -256,6 +256,9 @@ pub fn SecretsPage() -> Element {
                         "{itm.secret_id}"
                         {last_edited}
                     }
+                    td { style: "padding: 10px; color: #555;",
+                        {itm.description.as_deref().unwrap_or("")}
+                    }
                     td { "{itm.level}" }
                     td { "{created.without_microseconds()}" }
                     td { "{updated.without_microseconds()}" }
@@ -300,7 +303,7 @@ pub fn SecretsPage() -> Element {
                         "Product scope"
                         {select_product}
                     }
-                    th { style: "width:50%",
+                    th { style: "width:35%",
                         table {
                             tr {
                                 td {
@@ -326,6 +329,7 @@ pub fn SecretsPage() -> Element {
                             }
                         }
                     }
+                    th { style: "width:25%", "Description" }
                     th { "Level" }
                     th { "Created" }
                     th {

@@ -61,6 +61,7 @@ impl EditSecretState {
         if self.value.value == value_on_init.value
             && self.value.level == value_on_init.level
             && self.value.remote_value == value_on_init.remote_value
+            && self.value.description == value_on_init.description
         {
             return false;
         }
@@ -79,6 +80,7 @@ impl EditSecretState {
             } else {
                 Some(self.value.remote_value.clone())
             },
+            description: Some(self.value.description.clone()),
         }
     }
 
@@ -92,4 +94,5 @@ pub struct SecretValue {
     pub value: String,
     pub level: String,
     pub remote_value: String,
+    pub description: String,
 }

@@ -9,6 +9,7 @@ pub struct SecretHttpModel {
     pub updated: i64,
     pub used_by_templates: i32,
     pub used_by_secrets: i32,
+    pub description: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -16,6 +17,7 @@ pub struct SecretValueApiModel {
     pub value: String,
     pub level: i32,
     pub remote_value: Option<String>,
+    pub description: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -25,4 +27,5 @@ pub struct UpdateSecretValueHttpModel {
     pub value: String,
     pub level: i32,
     pub remote_value: Option<String>,
+    pub description: Option<String>,
 }

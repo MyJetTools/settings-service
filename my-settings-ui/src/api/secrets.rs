@@ -40,7 +40,7 @@ pub async fn save_secret(
             value: value.value,
             level: value.level,
             remote_value: value.remote_value,
-            description: None,
+            description: value.description,
         })
         .await
         .unwrap();
@@ -91,6 +91,7 @@ pub async fn load_secret(
         value: response.value,
         level: response.level,
         remote_value: response.remote_value,
+        description: response.description,
     };
 
     Ok(result)
@@ -157,6 +158,7 @@ pub async fn load_secret_value(
         value: response.value,
         level: response.level,
         remote_value: response.remote_value,
+        description: response.description,
     };
 
     Ok(result)
@@ -247,6 +249,7 @@ impl From<crate::server::secrets_grpc::SecretGrpcModel> for SecretHttpModel {
             .unix_microseconds,
             used_by_templates: item.used_by_templates,
             used_by_secrets: item.used_by_secrets,
+            description: item.description,
         }
     }
 }

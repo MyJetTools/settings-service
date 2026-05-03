@@ -98,6 +98,18 @@ pub fn EditSecret(
             }
             label { "Secret level" }
         }
+
+        div { class: "form-floating mb-3",
+            textarea {
+                class: "form-control",
+                style: "height: 100px;",
+                oninput: move |cx| {
+                    cs.write().value.description = cx.value();
+                },
+                value: cs_ra.value.description.as_str(),
+            }
+            label { "Description (optional)" }
+        }
     };
 
     rsx! {
@@ -145,6 +157,7 @@ fn get_data(
                             value: value.value,
                             level: value.level.to_string(),
                             remote_value: value.remote_value.unwrap_or_default(),
+                            description: value.description.unwrap_or_default(),
                         });
                     }
                     Err(err) => {
