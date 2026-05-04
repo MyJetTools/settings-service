@@ -25,5 +25,8 @@ pub use upsert_product_tool_call::*;
 mod how_to_use_settings_prompt;
 pub use how_to_use_settings_prompt::*;
 
+mod product_prompt;
+pub use product_prompt::*;
+
 mod builder;
 pub use builder::*;

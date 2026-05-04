@@ -17,6 +17,10 @@ pub async fn build_mcp_middleware(app: &Arc<AppContext>) -> McpMiddleware {
         .await;
 
     middleware
+        .register_prompt(Arc::new(super::ProductPromptHandler::new(app.clone())))
+        .await;
+
+    middleware
         .register_tool_call(Arc::new(super::ListProductsHandler::new(app.clone())))
         .await;
 

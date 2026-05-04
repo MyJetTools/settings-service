@@ -39,7 +39,11 @@ Local vs remote distinction does NOT apply to this tool: since values are not su
 
 1. **Discover scope** — call `list_products` to see what products already exist (each entry includes counts of templates and secrets, an optional `description`, and a `has_prompt` flag). Pick the right `product_id`, or use `"Shared"` for cross-product configuration.
 
-2. **Load product context** — when the chosen `product_id` has `has_prompt: true`, call `get_product_prompt` to fetch the description and the free-form prompt that explains what the product is and how its settings are organised. Read it BEFORE working with the product's secrets/templates. When `has_metadata` comes back as `false`, the product exists only implicitly — it has no recorded context, and you should ask the user for one or use `upsert_product` to record it.
+2. **Load product context** — when the chosen `product_id` has `has_prompt: true`, fetch the product's description and free-form prompt BEFORE working with its secrets/templates. Two equivalent ways:
+   - Tool call `get_product_prompt(product_id)` — programmatic, returns structured fields.
+   - MCP prompt `product_prompt` (argument `product_id`) — same content rendered as a prompt message, useful when the client wants to inject the product context directly into the conversation.
+
+   When `has_metadata` comes back as `false`, the product exists only implicitly — it has no recorded context, and you should ask the user for one or use `upsert_product` to record it.
 
 3. **Discover available secrets** — call `list_secrets` with that `product_id`. Read the `description` field on each entry to figure out which secret matches the AI's intended use. Pass `include_shared: true` to also see fallback secrets from the Shared scope. Pass `id_regex` (e.g. `^db_`, `(?i)token`) to narrow the result to secret ids matching a regular expression — useful when the directory is large. The returned entries include `secret_id`, `description`, `level`, and `has_remote_value` — never the value itself.
 
