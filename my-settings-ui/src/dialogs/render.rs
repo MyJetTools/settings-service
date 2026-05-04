@@ -43,6 +43,12 @@ pub fn RenderDialog() -> Element {
                 EditProduct { env_id, product_id, on_ok }
             }
         }
+
+        DialogState::ShowProductPrompt { env_id, product_id } => {
+            return rsx! {
+                ShowProductPrompt { env_id, product_id }
+            }
+        }
         DialogState::SecretUsage {
             env_id,
             product_id,

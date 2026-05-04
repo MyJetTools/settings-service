@@ -23,8 +23,31 @@ pub fn ProductsPage() -> Element {
 
     let rows = products.iter().cloned().map(|itm| {
         let product_id = Rc::new(itm.id.clone());
+        let env_id_view = selected_env_id.clone();
         let env_id_edit = selected_env_id.clone();
         let env_id_delete = selected_env_id.clone();
+
+        let view_btn = if itm.has_metadata {
+            let product_id = product_id.clone();
+            rsx! {
+                button {
+                    class: "btn btn-sm btn-success",
+                    title: "View prompt (read-only)",
+                    onclick: move |_| {
+                        let env_id = env_id_view.clone();
+                        let product_id = product_id.clone();
+                        consume_context::<Signal<DialogState>>()
+                            .set(DialogState::ShowProductPrompt {
+                                env_id,
+                                product_id,
+                            });
+                    },
+                    {view_template_icon()}
+                }
+            }
+        } else {
+            rsx! {}
+        };
 
         let edit_btn = {
             let product_id = product_id.clone();
@@ -94,6 +117,7 @@ pub fn ProductsPage() -> Element {
                 td { style: "text-align:center", "{itm.secrets_amount}" }
                 td {
                     div { class: "btn-group",
+                        {view_btn}
                         {edit_btn}
                         {delete_btn}
                     }

@@ -10,6 +10,8 @@ mod edit_secret;
 pub use edit_secret::*;
 mod edit_product;
 pub use edit_product::*;
+mod show_product_prompt;
+pub use show_product_prompt::*;
 //mod delete_secret;
 //pub use delete_secret::*;
 mod edit_template;
