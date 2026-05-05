@@ -121,12 +121,40 @@ pub fn SecretsPage() -> Element {
                                 env_id: env_id.clone(),
                                 product_id,
                                 secret_id,
+                                clone_from: None,
                                 on_ok: EventHandler::new(move |value| {
                                     exec_save_secret(env_id.to_string(), value);
                                 }),
                             })
                     },
                     EditIcon {}
+                }
+            };
+
+            let clone_env_id = selected_env_id.clone();
+            let clone_product_id = item_product_id.clone();
+            let clone_source_secret_id = secret_id.clone();
+
+            let clone_btn = rsx! {
+                button {
+                    class: "btn btn-sm btn-warning",
+                    title: "Clone secret",
+                    onclick: move |_| {
+                        let env_id = clone_env_id.clone();
+                        let product_id = clone_product_id.clone();
+                        let source_secret_id = clone_source_secret_id.clone();
+                        consume_context::<Signal<DialogState>>()
+                            .set(DialogState::EditSecret {
+                                env_id: env_id.clone(),
+                                product_id,
+                                secret_id: "".to_string().into(),
+                                clone_from: Some(source_secret_id),
+                                on_ok: EventHandler::new(move |value| {
+                                    exec_save_secret(env_id.to_string(), value);
+                                }),
+                            });
+                    },
+                    CopyFromIcon {}
                 }
             };
 
@@ -266,6 +294,7 @@ pub fn SecretsPage() -> Element {
                         div { class: "btn-group",
                             {copy_to_env}
                             {view_template_btn}
+                            {clone_btn}
                             {edit_btn}
                             {delete_btn}
                         }
@@ -351,6 +380,7 @@ pub fn SecretsPage() -> Element {
                                             env_id: env_id.clone(),
                                             product_id,
                                             secret_id: "".to_string().into(),
+                                            clone_from: None,
                                             on_ok: EventHandler::new(move |value| {
                                                 exec_save_secret(env_id.to_string(), value);
                                             }),

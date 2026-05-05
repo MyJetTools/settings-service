@@ -17,12 +17,20 @@ pub fn EditSecret(
     env_id: Rc<String>,
     product_id: Option<Rc<String>>,
     secret_id: Rc<String>,
+    clone_from: Option<Rc<String>>,
     on_ok: EventHandler<UpdateSecretValueHttpModel>,
 ) -> Element {
-    let mut cs = use_signal(|| EditSecretState::new(secret_id.to_string(), &product_id));
+    let is_clone = clone_from.is_some();
+    let mut cs = use_signal(|| EditSecretState::new(secret_id.to_string(), &product_id, is_clone));
     let cs_ra = cs.read();
 
-    match get_data(cs, &cs_ra, &env_id, &product_id, &secret_id) {
+    let load_secret_id: Rc<String> = if let Some(src) = clone_from.as_ref() {
+        src.clone()
+    } else {
+        secret_id.clone()
+    };
+
+    match get_data(cs, &cs_ra, &env_id, &product_id, &load_secret_id) {
         Ok(_) => {}
         Err(err) => return err,
     };
@@ -112,10 +120,18 @@ pub fn EditSecret(
         }
     };
 
+    let header = if is_clone {
+        "Clone secret"
+    } else if cs_ra.new_secret {
+        "New secret"
+    } else {
+        "Edit secret"
+    };
+
     rsx! {
 
         DialogTemplate {
-            header: "Edit secret",
+            header,
             content,
             ok_button: rsx! {
                 button {

@@ -22,6 +22,7 @@ pub fn RenderDialog() -> Element {
             env_id,
             product_id,
             secret_id,
+            clone_from,
             on_ok,
         } => {
             return rsx! {
@@ -29,6 +30,7 @@ pub fn RenderDialog() -> Element {
                     env_id,
                     product_id,
                     secret_id,
+                    clone_from,
                     on_ok,
                 }
             }

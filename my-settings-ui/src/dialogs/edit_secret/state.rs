@@ -10,15 +10,16 @@ pub struct EditSecretState {
     pub value: SecretValue,
     pub value_on_init: DataState<SecretValue>,
     pub new_secret: bool,
+    pub is_clone: bool,
 }
 
 impl EditSecretState {
-    pub fn new(secret_id: String, product_id: &Option<Rc<String>>) -> Self {
+    pub fn new(secret_id: String, product_id: &Option<Rc<String>>, is_clone: bool) -> Self {
         let new_secret = secret_id.len() == 0;
 
         let value = SecretValue::default();
 
-        let value_on_init = if new_secret {
+        let value_on_init = if new_secret && !is_clone {
             DataState::new_as_loaded(value.clone())
         } else {
             DataState::new()
@@ -26,6 +27,7 @@ impl EditSecretState {
 
         Self {
             new_secret,
+            is_clone,
             product_id: product_id.as_ref().map(|itm| itm.to_string()),
             secret_id,
             value_on_init,
@@ -34,8 +36,13 @@ impl EditSecretState {
     }
 
     pub fn init_value(&mut self, value: SecretValue) {
-        self.value = value.clone();
-        self.value_on_init.set_loaded(value);
+        if self.is_clone {
+            self.value = value;
+            self.value_on_init.set_loaded(SecretValue::default());
+        } else {
+            self.value = value.clone();
+            self.value_on_init.set_loaded(value);
+        }
     }
 
     pub fn can_be_saved(&self) -> bool {

@@ -22,6 +22,7 @@ pub enum DialogState {
         env_id: Rc<String>,
         product_id: Option<Rc<String>>,
         secret_id: Rc<String>,
+        clone_from: Option<Rc<String>>,
         on_ok: EventHandler<UpdateSecretValueHttpModel>,
     },
 
