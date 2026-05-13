@@ -30,6 +30,7 @@ pub fn select_product(
     rsx! {
         select {
             class: "form-select form-select-sm",
+            style: "min-width: 80px;",
             value,
             disabled: read_only,
             onchange: move |ctx| {

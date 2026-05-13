@@ -15,15 +15,19 @@ impl<'s> ProductId<'s> {
 
 impl<'s> Into<ProductId<'s>> for &'s str {
     fn into(self) -> ProductId<'s> {
-        ProductId::Id(self)
+        if self.is_empty() {
+            ProductId::Shared
+        } else {
+            ProductId::Id(self)
+        }
     }
 }
 
 impl<'s> Into<ProductId<'s>> for Option<&'s str> {
     fn into(self) -> ProductId<'s> {
         match self {
-            Some(value) => ProductId::Id(value),
-            None => ProductId::Shared,
+            Some(value) if !value.is_empty() => ProductId::Id(value),
+            _ => ProductId::Shared,
         }
     }
 }
