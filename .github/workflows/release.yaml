@@ -1,8 +1,7 @@
 name: Release App
 on:
   push:
-    tags:
-      - "settings-service-*"
+    tags: "*"
 
 env:
   IMAGE_NAME: ghcr.io/myjettools/settings-service
@@ -23,10 +22,7 @@ jobs:
 
       - name: Get the version
         id: get_version
-        run: |
-          TAG="${{ github.ref_name }}"
-          VERSION="${TAG##*-}"
-          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+        run: echo "VERSION=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: Update versions
         run: |
