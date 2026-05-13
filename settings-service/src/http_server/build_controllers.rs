@@ -7,11 +7,6 @@ use crate::app_ctx::AppContext;
 pub fn build_controllers(app: &Arc<AppContext>) -> Arc<ControllersMiddleware> {
     let mut result = ControllersMiddleware::new(None, None);
 
-    // Home (SPA index.html)
-    result.register_get_action(Arc::new(super::controllers::home::IndexAction::new(
-        app.clone(),
-    )));
-
     // v1::envs
     result.register_get_action(Arc::new(
         super::controllers::v1::envs::GetEnvInfoAction::new(app.clone()),

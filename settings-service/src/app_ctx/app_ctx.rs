@@ -10,7 +10,6 @@ pub const APP_NAME: &'static str = env!("CARGO_PKG_NAME");
 
 pub struct AppContext {
     pub app_states: Arc<AppStates>,
-    pub process_id: String,
 
     pub settings: Arc<SettingsModel>,
 
@@ -37,8 +36,6 @@ impl AppContext {
         Self {
             settings,
             app_states: Arc::new(AppStates::create_un_initialized()),
-
-            process_id: uuid::Uuid::new_v4().to_string(),
 
             templates: TemplatesCache::new(),
 

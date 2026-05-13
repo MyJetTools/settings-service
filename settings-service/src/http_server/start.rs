@@ -55,14 +55,15 @@ pub async fn start(app: &Arc<AppContext>) {
 
     http_server.add_middleware(controllers);
 
-    let static_files_middleware = if cfg!(debug_assertions) {
-        let middleware = StaticFilesMiddleware::new()
-            .add_file_mapping("/typescript")
-            .add_file_mapping("./typescript");
-        Arc::new(middleware)
-    } else {
-        Arc::new(StaticFilesMiddleware::new())
-    };
+    // wwwroot/ holds the Dioxus WASM SPA bundle (см. my-settings-ui/build.sh).
+    // add_index_file("index.html") makes "/" return the SPA shell;
+    // set_not_found_file("index.html") gives SPA-routing fallback so deep
+    // links like /templates, /secrets, /products survive a page reload.
+    let static_files_middleware = Arc::new(
+        StaticFilesMiddleware::new()
+            .add_index_file("index.html")
+            .set_not_found_file("index.html".to_string()),
+    );
 
     if let Some(unix_socket) = unix_socket.as_mut() {
         unix_socket.add_middleware(static_files_middleware.clone());
