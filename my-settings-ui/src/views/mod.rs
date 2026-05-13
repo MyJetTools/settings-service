@@ -7,6 +7,3 @@ pub mod templates_page;
 pub mod secrets_page;
 
 pub mod products_page;
-
-mod envs_selector;
-pub use envs_selector::*;

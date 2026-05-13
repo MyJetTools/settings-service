@@ -1,4 +1,3 @@
-use super::*;
 use crate::{states::*, AppRoute};
 use dioxus::prelude::*;
 
@@ -29,9 +28,8 @@ pub fn LeftPanel() -> Element {
         }
     }
 
-    let user_info = if main_state_read_access.user.as_str().len() > 0 {
+    let env_badge = if main_state_read_access.user.as_str().len() > 0 {
         rsx! {
-
             div { style: "position: absolute;bottom: 0;width: var(--left-panel-width);",
                 {main_state_read_access.user.as_str()}
             }
@@ -41,10 +39,9 @@ pub fn LeftPanel() -> Element {
     };
 
     rsx! {
-        EnvsSelector {}
         h1 { "Settings" }
 
-        {user_info}
+        {env_badge}
 
         div { id: "menu",
             div { class: "menu-item {secrets_active}",
