@@ -59,9 +59,4 @@ pub enum DialogState {
     SnapshotToExport(Rc<String>),
 
     SnapshotToImport(EventHandler<String>),
-
-    CopyToEnvConfirmation {
-        from_env_id: Rc<String>,
-        on_ok: EventHandler<String>,
-    },
 }

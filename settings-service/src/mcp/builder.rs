@@ -12,57 +12,35 @@ const MCP_INSTRUCTIONS: &str = include_str!("../../MCP_INSTRUCTION.md");
 pub async fn build_mcp_middleware(app: &Arc<AppContext>) -> McpMiddleware {
     let mut middleware = McpMiddleware::new(MCP_PATH, MCP_NAME, MCP_VERSION, MCP_INSTRUCTIONS);
 
-    middleware
-        .register_prompt(Arc::new(super::HowToUseSettingsPromptHandler))
-        .await;
+    middleware.register_prompt(Arc::new(super::HowToUseSettingsPromptHandler));
 
-    middleware
-        .register_prompt(Arc::new(super::ProductPromptHandler::new(app.clone())))
-        .await;
+    middleware.register_prompt(Arc::new(super::ProductPromptHandler::new(app.clone())));
 
-    middleware
-        .register_tool_call(Arc::new(super::ListProductsHandler::new(app.clone())))
-        .await;
+    middleware.register_tool_call(Arc::new(super::ListProductsHandler::new(app.clone())));
 
-    middleware
-        .register_tool_call(Arc::new(super::CompileTemplateYamlHandler::new(app.clone())))
-        .await;
+    middleware.register_tool_call(Arc::new(super::CompileTemplateYamlHandler::new(
+        app.clone(),
+    )));
 
-    middleware
-        .register_tool_call(Arc::new(super::UpsertTemplateHandler::new(app.clone())))
-        .await;
+    middleware.register_tool_call(Arc::new(super::UpsertTemplateHandler::new(app.clone())));
 
-    middleware
-        .register_tool_call(Arc::new(super::UpsertSecretDescriptionHandler::new(
-            app.clone(),
-        )))
-        .await;
+    middleware.register_tool_call(Arc::new(super::UpsertSecretDescriptionHandler::new(
+        app.clone(),
+    )));
 
-    middleware
-        .register_tool_call(Arc::new(super::CreateSecretHandler::new(app.clone())))
-        .await;
+    middleware.register_tool_call(Arc::new(super::CreateSecretHandler::new(app.clone())));
 
-    middleware
-        .register_tool_call(Arc::new(super::GetSecretValueHandler::new(app.clone())))
-        .await;
+    middleware.register_tool_call(Arc::new(super::GetSecretValueHandler::new(app.clone())));
 
-    middleware
-        .register_tool_call(Arc::new(super::ListSecretsHandler::new(app.clone())))
-        .await;
+    middleware.register_tool_call(Arc::new(super::ListSecretsHandler::new(app.clone())));
 
-    middleware
-        .register_tool_call(Arc::new(super::GetSecretDependenciesHandler::new(
-            app.clone(),
-        )))
-        .await;
+    middleware.register_tool_call(Arc::new(super::GetSecretDependenciesHandler::new(
+        app.clone(),
+    )));
 
-    middleware
-        .register_tool_call(Arc::new(super::GetProductPromptHandler::new(app.clone())))
-        .await;
+    middleware.register_tool_call(Arc::new(super::GetProductPromptHandler::new(app.clone())));
 
-    middleware
-        .register_tool_call(Arc::new(super::UpsertProductHandler::new(app.clone())))
-        .await;
+    middleware.register_tool_call(Arc::new(super::UpsertProductHandler::new(app.clone())));
 
     middleware
 }

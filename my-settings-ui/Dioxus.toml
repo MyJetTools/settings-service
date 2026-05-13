@@ -21,10 +21,7 @@ title = "Settings"
 [web.watcher]
 
 # when watcher trigger, regenerate the `index.html`
-reload_html = true
-
-# which files or dirs will be watcher monitoring
-#watch_path = ["src", "public", "index.html"]
+reload_html = false
 
 # let the SPA handle any non "/" path
 index_on_404 = true
@@ -33,7 +30,7 @@ index_on_404 = true
 [web.resource]
 
 # CSS style file
-style = ["/assets/styled.css", "/assets/app.css"]
+style = ["/assets/styled.css", "/assets/app.css", "/assets/bootstrap.css"]
 
 # Javascript code file
 script = ["/assets/bootstrap.js"]

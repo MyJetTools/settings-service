@@ -183,45 +183,6 @@ pub fn SecretsPage() -> Element {
                 }
             };
 
-            let copy_to_env_selected_env_id = selected_env_id.clone();
-            let copy_to_env_secret_id = secret_id.clone();
-            let copy_to_env_product_id = item_product_id.clone();
-
-            let copy_to_env = rsx! {
-                button {
-                    class: "btn btn-sm btn-danger",
-                    onclick: move |_| {
-                        let from_env_id = copy_to_env_selected_env_id.clone();
-                        let secret_id = copy_to_env_secret_id.clone();
-                        let product_id = copy_to_env_product_id.clone();
-                        consume_context::<Signal<DialogState>>()
-                            .set(DialogState::CopyToEnvConfirmation {
-                                from_env_id: from_env_id.clone(),
-                                on_ok: EventHandler::new(move |env_id: String| {
-                                    let from_env_id = from_env_id.clone();
-                                    let secret_id = secret_id.clone();
-                                    let product_id = product_id.clone();
-                                    spawn(async move {
-                                        crate::api::secrets::copy_secret_to_other_env(
-                                                from_env_id.to_string(),
-                                                env_id.to_string(),
-                                                product_id.map(|itm| itm.to_string()),
-                                                secret_id.to_string(),
-                                            )
-                                            .await
-                                            .unwrap();
-                                        crate::ui_utils::show_toast(
-                                            format!("Secret has a copy at env {}", env_id.as_str()),
-                                            ToastType::Info,
-                                        );
-                                    });
-                                }),
-                            });
-                    },
-                    CopyFromIcon {}
-                }
-            };
-
             let env_id_show_secret = selected_env_id.clone();
             let usage_product_id = item_product_id.clone();
             let usage_secret_id = secret_id.clone();
@@ -306,7 +267,6 @@ pub fn SecretsPage() -> Element {
                     td { "{updated.without_microseconds()}" }
                     td {
                         div { class: "btn-group",
-                            {copy_to_env}
                             {view_template_btn}
                             {clone_btn}
                             {edit_btn}

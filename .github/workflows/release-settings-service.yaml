@@ -6,11 +6,15 @@ on:
 
 env:
   IMAGE_NAME: ghcr.io/myjettools/settings-service
-  DIR: settings-service
+  UI_DIR: my-settings-ui
+  SERVER_DIR: settings-service
+  APP_NAME: my-settings-ui
 
 jobs:
   build:
     runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/myjettools/dioxus-docker:0.7.7
     steps:
       - uses: actions/checkout@v6.0.2
       - uses: actions-rs/toolchain@v1
@@ -24,17 +28,32 @@ jobs:
           VERSION="${TAG##*-}"
           echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Updating version
+      - name: Update versions
         run: |
-          cd ${DIR}
-          sed -i -e 's/^version = .*/version = "${{ steps.get_version.outputs.VERSION }}"/' Cargo.toml
+          sed -i -e 's/^version = .*/version = "${{ steps.get_version.outputs.VERSION }}"/' ${SERVER_DIR}/Cargo.toml
+          sed -i -e 's/^version = .*/version = "${{ steps.get_version.outputs.VERSION }}"/' ${UI_DIR}/Cargo.toml
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
 
-      - run: |
+      - name: Build UI (WASM)
+        run: |
           export GIT_HUB_TOKEN="${{ secrets.PUBLISH_TOKEN }}"
-          cd ${DIR}
+          cd ${UI_DIR}
+          dx bundle --web --release
+          cp -f ./public/assets/bootstrap.js ./target/dx/${APP_NAME}/release/web/public/assets/bootstrap.js
+          python3 build.py ./target/dx/${APP_NAME}/release/web/public/index.html
+
+      - name: Copy UI bundle into server wwwroot
+        run: |
+          mkdir -p ${SERVER_DIR}/wwwroot
+          rm -rf ${SERVER_DIR}/wwwroot/* ${SERVER_DIR}/wwwroot/.[!.]* 2>/dev/null || true
+          cp -r ${UI_DIR}/target/dx/${APP_NAME}/release/web/public/* ${SERVER_DIR}/wwwroot/
+
+      - name: Build server (release)
+        run: |
+          export GIT_HUB_TOKEN="${{ secrets.PUBLISH_TOKEN }}"
+          cd ${SERVER_DIR}
           cargo build --release
 
       - name: Docker login
@@ -43,6 +62,6 @@ jobs:
 
       - name: Docker Build and Publish
         run: |
-          cd ${DIR}
+          cd ${SERVER_DIR}
           docker build -t ${IMAGE_NAME}:${{ steps.get_version.outputs.VERSION }} .
           docker push ${IMAGE_NAME}:${{ steps.get_version.outputs.VERSION }}

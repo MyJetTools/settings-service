@@ -1,260 +1,156 @@
-use dioxus::prelude::*;
-
 use crate::models::*;
 
-#[get("/api/secrets/load?env_id&product_id")]
+use super::base_url;
+
 pub async fn load_secrets(
-    env_id: String,
+    _env_id: String,
     product_id: String,
-) -> Result<Vec<SecretHttpModel>, ServerFnError> {
-    use crate::server::secrets_grpc::*;
-    let ctx = crate::server::APP_CTX.get_app_ctx(env_id.as_str()).await;
-
-    let result: Vec<SecretHttpModel> = ctx
-        .secrets_grpc
-        .get_all(GetAllSecretsGrpcRequest {
-            product_id,
-            include_shared: true,
-        })
-        .await
-        .unwrap()
-        .into_vec()
-        .await
-        .unwrap();
-
-    Ok(result)
+) -> Result<Vec<SecretHttpModel>, String> {
+    let url = format!(
+        "{}/api/v1/secrets?product_id={}&include_shared=true",
+        base_url(),
+        urlencode(&product_id),
+    );
+    let resp = reqwest::get(&url).await.map_err(|e| e.to_string())?;
+    if !resp.status().is_success() {
+        return Err(format!("GET {url} → {}", resp.status()));
+    }
+    resp.json().await.map_err(|e| e.to_string())
 }
 
-#[post("/api/secrets/save")]
 pub async fn save_secret(
-    env_id: String,
+    _env_id: String,
     value: UpdateSecretValueHttpModel,
-) -> Result<(), ServerFnError> {
-    use crate::server::secrets_grpc::*;
-    let ctx = crate::server::APP_CTX.get_app_ctx(env_id.as_str()).await;
-
-    ctx.secrets_grpc
-        .save(SaveSecretGrpcRequest {
-            product_id: value.product_id,
-            id: value.secret_id,
-            value: value.value,
-            level: value.level,
-            remote_value: value.remote_value,
-            description: value.description,
-            visible_for_mcp: Some(value.visible_for_mcp),
-        })
+) -> Result<(), String> {
+    let url = format!("{}/api/v1/secrets", base_url());
+    let resp = reqwest::Client::new()
+        .post(&url)
+        .json(&value)
+        .send()
         .await
-        .unwrap();
-
+        .map_err(|e| e.to_string())?;
+    if !resp.status().is_success() {
+        return Err(format!("POST {url} → {}", resp.status()));
+    }
     Ok(())
 }
 
-#[post("/api/secrets/delete")]
+#[derive(serde::Serialize)]
+struct DeleteSecretPayload<'a> {
+    product_id: Option<&'a str>,
+    secret_id: &'a str,
+}
+
 pub async fn delete_secret(
-    env_id: String,
+    _env_id: String,
     product_id: Option<String>,
     secret_id: String,
-) -> Result<(), ServerFnError> {
-    use crate::server::secrets_grpc::*;
-    let ctx = crate::server::APP_CTX.get_app_ctx(env_id.as_str()).await;
-
-    ctx.secrets_grpc
-        .delete(DeleteSecretGrpcRequest {
-            secret_id,
-            product_id,
+) -> Result<(), String> {
+    let url = format!("{}/api/v1/secrets/delete", base_url());
+    let resp = reqwest::Client::new()
+        .post(&url)
+        .json(&DeleteSecretPayload {
+            product_id: product_id.as_deref(),
+            secret_id: &secret_id,
         })
+        .send()
         .await
-        .unwrap();
-
+        .map_err(|e| e.to_string())?;
+    if !resp.status().is_success() {
+        return Err(format!("POST {url} → {}", resp.status()));
+    }
     Ok(())
 }
 
-#[get("/api/secrets/load_one?env_id&product_id&secret_id")]
 pub async fn load_secret(
-    env_id: String,
+    _env_id: String,
     product_id: Option<String>,
     secret_id: String,
-) -> Result<SecretApiModel, ServerFnError> {
-    use crate::server::secrets_grpc::*;
-    let ctx = crate::server::APP_CTX.get_app_ctx(env_id.as_str()).await;
-
-    let response = ctx
-        .secrets_grpc
-        .get(GetSecretGrpcRequest {
-            secret_id: secret_id.to_string(),
-            product_id,
-        })
-        .await
-        .unwrap();
-
-    let result = SecretApiModel {
-        secret_id: secret_id,
-        value: response.value,
-        level: response.level,
-        remote_value: response.remote_value,
-        description: response.description,
-        visible_for_mcp: response.visible_for_mcp,
-    };
-
-    Ok(result)
+) -> Result<SecretApiModel, String> {
+    let url = format!(
+        "{}/api/v1/secrets/get?product_id={}&secret_id={}",
+        base_url(),
+        urlencode(product_id.as_deref().unwrap_or("")),
+        urlencode(&secret_id),
+    );
+    let resp = reqwest::get(&url).await.map_err(|e| e.to_string())?;
+    if !resp.status().is_success() {
+        return Err(format!("GET {url} → {}", resp.status()));
+    }
+    let value: SecretValueApiModel = resp.json().await.map_err(|e| e.to_string())?;
+    Ok(SecretApiModel {
+        secret_id,
+        value: value.value,
+        level: value.level,
+        remote_value: value.remote_value,
+        description: value.description,
+        visible_for_mcp: value.visible_for_mcp,
+    })
 }
 
-#[post("/api/secrets/copy_to_other_env")]
-pub async fn copy_secret_to_other_env(
-    from_env_id: String,
-    to_env_id: String,
-    product_id: Option<String>,
-    secret_id: String,
-) -> Result<(), ServerFnError> {
-    use crate::server::secrets_grpc::*;
-    let from_env_ctx = crate::server::APP_CTX
-        .get_app_ctx(from_env_id.as_str())
-        .await;
-
-    let to_env_ctx = crate::server::APP_CTX.get_app_ctx(to_env_id.as_str()).await;
-
-    let secret_model = from_env_ctx
-        .secrets_grpc
-        .get(GetSecretGrpcRequest {
-            secret_id: secret_id.clone(),
-            product_id: product_id.clone(),
-        })
-        .await
-        .unwrap();
-
-    to_env_ctx
-        .secrets_grpc
-        .save(SaveSecretGrpcRequest {
-            product_id,
-            id: secret_id,
-            value: secret_model.value,
-            level: secret_model.level,
-            remote_value: secret_model.remote_value,
-            description: secret_model.description,
-            visible_for_mcp: Some(secret_model.visible_for_mcp),
-        })
-        .await
-        .unwrap();
-
-    Ok(())
-}
-
-#[get("/api/secrets/load_secret_value?env_id&product_id&secret_id")]
 pub async fn load_secret_value(
-    env_id: String,
+    _env_id: String,
     product_id: Option<String>,
     secret_id: String,
-) -> Result<SecretValueApiModel, ServerFnError> {
-    use crate::server::secrets_grpc::*;
-    let ctx = crate::server::APP_CTX.get_app_ctx(env_id.as_str()).await;
-
-    let response = ctx
-        .secrets_grpc
-        .get(GetSecretGrpcRequest {
-            product_id,
-            secret_id,
-        })
-        .await
-        .unwrap();
-
-    let result = SecretValueApiModel {
-        value: response.value,
-        level: response.level,
-        remote_value: response.remote_value,
-        description: response.description,
-        visible_for_mcp: response.visible_for_mcp,
-    };
-
-    Ok(result)
+) -> Result<SecretValueApiModel, String> {
+    let url = format!(
+        "{}/api/v1/secrets/get?product_id={}&secret_id={}",
+        base_url(),
+        urlencode(product_id.as_deref().unwrap_or("")),
+        urlencode(&secret_id),
+    );
+    let resp = reqwest::get(&url).await.map_err(|e| e.to_string())?;
+    if !resp.status().is_success() {
+        return Err(format!("GET {url} → {}", resp.status()));
+    }
+    resp.json().await.map_err(|e| e.to_string())
 }
 
-#[get("/api/secrets/get_secret_usage_by_secret?env_id&product_id&secret_id")]
 pub async fn load_secret_usage_by_secret(
-    env_id: String,
+    _env_id: String,
     product_id: Option<String>,
     secret_id: String,
-) -> Result<Vec<SecretUsageBySecretApiModel>, ServerFnError> {
-    use crate::server::secrets_grpc::*;
-    let ctx = crate::server::APP_CTX.get_app_ctx(env_id.as_str()).await;
-
-    let response = ctx
-        .secrets_grpc
-        .get_secrets_usage(DeleteSecretGrpcRequest {
-            secret_id,
-            product_id,
-        })
-        .await
-        .unwrap();
-
-    let result: Vec<_> = response
-        .secrets
-        .into_iter()
-        .map(|itm| SecretUsageBySecretApiModel {
-            product_id: if itm.product_id.len() == 0 {
-                None
-            } else {
-                Some(itm.product_id)
-            },
-            secret_id: itm.id,
-            value: itm.value,
-        })
-        .collect();
-
-    Ok(result)
+) -> Result<Vec<SecretUsageBySecretApiModel>, String> {
+    let url = format!(
+        "{}/api/v1/secrets/usage/by-secrets?product_id={}&secret_id={}",
+        base_url(),
+        urlencode(product_id.as_deref().unwrap_or("")),
+        urlencode(&secret_id),
+    );
+    let resp = reqwest::get(&url).await.map_err(|e| e.to_string())?;
+    if !resp.status().is_success() {
+        return Err(format!("GET {url} → {}", resp.status()));
+    }
+    resp.json().await.map_err(|e| e.to_string())
 }
 
-#[get("/api/secrets/load_secret_usage_by_templates?env_id&product_id&secret_id")]
 pub async fn load_secret_usage_by_templates(
-    env_id: String,
+    _env_id: String,
     product_id: Option<String>,
     secret_id: String,
-) -> Result<Vec<TemplateUsageApiModel>, ServerFnError> {
-    use crate::server::secrets_grpc::*;
-    let ctx = crate::server::APP_CTX.get_app_ctx(env_id.as_str()).await;
-
-    let response = ctx
-        .secrets_grpc
-        .get_templates_usage(GetTemplatesUsageGrpcRequest {
-            product_id,
-            secret_id,
-        })
-        .await
-        .unwrap();
-
-    let result: Vec<TemplateUsageApiModel> = response
-        .templates
-        .into_iter()
-        .map(|itm| TemplateUsageApiModel {
-            product_id: itm.product,
-            template_id: itm.template_id,
-            yaml: itm.template_content,
-        })
-        .collect();
-
-    Ok(result)
+) -> Result<Vec<TemplateUsageApiModel>, String> {
+    let url = format!(
+        "{}/api/v1/secrets/usage/by-templates?product_id={}&secret_id={}",
+        base_url(),
+        urlencode(product_id.as_deref().unwrap_or("")),
+        urlencode(&secret_id),
+    );
+    let resp = reqwest::get(&url).await.map_err(|e| e.to_string())?;
+    if !resp.status().is_success() {
+        return Err(format!("GET {url} → {}", resp.status()));
+    }
+    resp.json().await.map_err(|e| e.to_string())
 }
 
-#[cfg(feature = "server")]
-impl From<crate::server::secrets_grpc::SecretGrpcModel> for SecretHttpModel {
-    fn from(item: crate::server::secrets_grpc::SecretGrpcModel) -> Self {
-        SecretHttpModel {
-            product_id: item.product_id,
-            secret_id: item.secret_id,
-            level: item.level,
-            created: rust_extensions::date_time::DateTimeAsMicroseconds::from_str(
-                item.created.as_str(),
-            )
-            .unwrap()
-            .unix_microseconds,
-            updated: rust_extensions::date_time::DateTimeAsMicroseconds::from_str(
-                item.updated.as_str(),
-            )
-            .unwrap()
-            .unix_microseconds,
-            used_by_templates: item.used_by_templates,
-            used_by_secrets: item.used_by_secrets,
-            description: item.description,
-            visible_for_mcp: item.visible_for_mcp,
+fn urlencode(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for byte in s.as_bytes() {
+        match byte {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                out.push(*byte as char)
+            }
+            _ => out.push_str(&format!("%{:02X}", byte)),
         }
     }
+    out
 }

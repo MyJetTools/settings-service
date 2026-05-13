@@ -137,45 +137,6 @@ pub fn TemplatesPage() -> Element {
                 }
             };
 
-            let copy_to_env_selected_env_id = selected_env.clone();
-            let copy_to_env_template_product_id = product_id.clone();
-            let copy_to_env_template_template_id = template_id.clone();
-
-            let copy_to_env = rsx! {
-                button {
-                    class: "btn btn-sm btn-danger",
-                    onclick: move |_| {
-                        let from_env_id = copy_to_env_selected_env_id.clone();
-                        let product_id = copy_to_env_template_product_id.clone();
-                        let template_id = copy_to_env_template_template_id.clone();
-                        consume_context::<Signal<DialogState>>()
-                            .set(DialogState::CopyToEnvConfirmation {
-                                from_env_id: from_env_id.clone(),
-                                on_ok: EventHandler::new(move |env_id: String| {
-                                    let from_env_id = from_env_id.clone();
-                                    let product_id = product_id.clone();
-                                    let template_id = template_id.clone();
-                                    spawn(async move {
-                                        crate::api::templates::copy_template_to_other_env(
-                                                from_env_id.to_string(),
-                                                env_id.to_string(),
-                                                product_id.to_string(),
-                                                template_id.to_string(),
-                                            )
-                                            .await
-                                            .unwrap();
-                                        crate::ui_utils::show_toast(
-                                            format!("Template has a copy at env {}", env_id.as_str()),
-                                            ToastType::Info,
-                                        );
-                                    });
-                                }),
-                            });
-                    },
-                    CopyFromIcon {}
-                }
-            };
-
             let selected = cs_ra.is_selected(&product_id.as_str(), template_id.as_str());
 
             let selected = crate::icons::render_bool_checkbox(selected, EventHandler::new(move |value|{
@@ -201,7 +162,6 @@ pub fn TemplatesPage() -> Element {
                     }
                     td {
                         div { class: "btn-group",
-                            {copy_to_env}
                             button {
                                 class: "btn btn-sm btn-success",
                                 onclick: move |_| {

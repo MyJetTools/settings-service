@@ -12,24 +12,14 @@ mod edit_product;
 pub use edit_product::*;
 mod show_product_prompt;
 pub use show_product_prompt::*;
-//mod delete_secret;
-//pub use delete_secret::*;
 mod edit_template;
 pub use edit_template::*;
 mod show_populated_yaml;
 pub use show_populated_yaml::*;
 mod snapshot_to_export;
 pub use snapshot_to_export::*;
-//mod delete_template;
-//pub use delete_template::*;
-//mod edit_domain_product;
-//pub use edit_domain_product::*;
-//mod edit_domain_mask;
-//pub use edit_domain_mask::*;
-//mod edit_cf_a_record;
-//pub use edit_cf_a_record::*;
-//mod sync_nginx;
-//pub use sync_nginx::*;
+mod snapshot_to_import;
+pub use snapshot_to_import::*;
 
 mod dialog_template;
 pub use dialog_template::*;
@@ -38,8 +28,3 @@ pub use confirmation_dialog::*;
 
 mod dialog_state;
 pub use dialog_state::*;
-
-mod snapshot_to_import;
-pub use snapshot_to_import::*;
-mod copy_to_env;
-pub use copy_to_env::*;

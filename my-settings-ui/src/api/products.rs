@@ -1,90 +1,79 @@
-use dioxus::prelude::*;
-
 use crate::models::*;
 
-#[get("/api/products/list?env_id")]
-pub async fn get_list_of_products(env_id: String) -> Result<Vec<String>, ServerFnError> {
-    let ctx = crate::server::APP_CTX.get_app_ctx(env_id.as_str()).await;
+use super::base_url;
 
-    let result = ctx.templates_grpc.get_products(()).await.unwrap();
-
-    Ok(result.products)
+pub async fn load_all_products(_env_id: String) -> Result<Vec<ProductHttpModel>, String> {
+    let url = format!("{}/api/v1/products", base_url());
+    let resp = reqwest::get(&url).await.map_err(|e| e.to_string())?;
+    if !resp.status().is_success() {
+        return Err(format!("GET {url} → {}", resp.status()));
+    }
+    resp.json().await.map_err(|e| e.to_string())
 }
 
-#[get("/api/products/load_all?env_id")]
-pub async fn load_all_products(env_id: String) -> Result<Vec<ProductHttpModel>, ServerFnError> {
-    let ctx = crate::server::APP_CTX.get_app_ctx(env_id.as_str()).await;
-
-    let response = ctx.products_grpc.get_all(()).await.unwrap();
-
-    let result = response
-        .products
-        .into_iter()
-        .map(|item| ProductHttpModel {
-            id: item.id,
-            description: item.description,
-            prompt: item.prompt,
-            templates_amount: item.templates_amount,
-            secrets_amount: item.secrets_amount,
-            has_metadata: item.has_metadata,
-        })
-        .collect();
-
-    Ok(result)
-}
-
-#[get("/api/products/load_one?env_id&product_id")]
 pub async fn load_product(
-    env_id: String,
+    _env_id: String,
     product_id: String,
-) -> Result<ProductHttpModel, ServerFnError> {
-    use crate::server::products_grpc::*;
-    let ctx = crate::server::APP_CTX.get_app_ctx(env_id.as_str()).await;
-
-    let response = ctx
-        .products_grpc
-        .get(GetProductGrpcRequest {
-            id: product_id.clone(),
-        })
-        .await
-        .unwrap();
-
-    Ok(ProductHttpModel {
-        id: response.id,
-        description: response.description,
-        prompt: response.prompt,
-        templates_amount: response.templates_amount,
-        secrets_amount: response.secrets_amount,
-        has_metadata: response.has_metadata,
-    })
+) -> Result<ProductHttpModel, String> {
+    let url = format!(
+        "{}/api/v1/products/get?product_id={}",
+        base_url(),
+        urlencode(&product_id),
+    );
+    let resp = reqwest::get(&url).await.map_err(|e| e.to_string())?;
+    if !resp.status().is_success() {
+        return Err(format!("GET {url} → {}", resp.status()));
+    }
+    resp.json().await.map_err(|e| e.to_string())
 }
 
-#[post("/api/products/save")]
-pub async fn save_product(env_id: String, value: UpdateProductHttpModel) -> Result<(), ServerFnError> {
-    use crate::server::products_grpc::*;
-    let ctx = crate::server::APP_CTX.get_app_ctx(env_id.as_str()).await;
-
-    ctx.products_grpc
-        .save(SaveProductGrpcRequest {
-            id: value.id,
-            description: value.description,
-            prompt: value.prompt,
-        })
+pub async fn save_product(
+    _env_id: String,
+    value: UpdateProductHttpModel,
+) -> Result<(), String> {
+    let url = format!("{}/api/v1/products", base_url());
+    let resp = reqwest::Client::new()
+        .post(&url)
+        .json(&value)
+        .send()
         .await
-        .unwrap();
-
+        .map_err(|e| e.to_string())?;
+    if !resp.status().is_success() {
+        return Err(format!("POST {url} → {}", resp.status()));
+    }
     Ok(())
 }
 
-#[post("/api/products/delete")]
-pub async fn delete_product(env_id: String, product_id: String) -> Result<(), ServerFnError> {
-    use crate::server::products_grpc::*;
-    let ctx = crate::server::APP_CTX.get_app_ctx(env_id.as_str()).await;
+#[derive(serde::Serialize)]
+struct DeleteProductPayload<'a> {
+    product_id: &'a str,
+}
 
-    ctx.products_grpc
-        .delete(DeleteProductGrpcRequest { id: product_id })
+pub async fn delete_product(_env_id: String, product_id: String) -> Result<(), String> {
+    let url = format!("{}/api/v1/products/delete", base_url());
+    let resp = reqwest::Client::new()
+        .post(&url)
+        .json(&DeleteProductPayload {
+            product_id: &product_id,
+        })
+        .send()
         .await
-        .unwrap();
-
+        .map_err(|e| e.to_string())?;
+    if !resp.status().is_success() {
+        return Err(format!("POST {url} → {}", resp.status()));
+    }
     Ok(())
+}
+
+fn urlencode(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for byte in s.as_bytes() {
+        match byte {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                out.push(*byte as char)
+            }
+            _ => out.push_str(&format!("%{:02X}", byte)),
+        }
+    }
+    out
 }

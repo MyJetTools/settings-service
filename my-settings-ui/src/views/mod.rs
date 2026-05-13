@@ -10,7 +10,3 @@ pub mod products_page;
 
 mod envs_selector;
 pub use envs_selector::*;
-//mod domains_list;
-//pub use domains_list::*;
-mod prompt_ssh_pass_key;
-pub use prompt_ssh_pass_key::*;

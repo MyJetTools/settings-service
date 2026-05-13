@@ -1,23 +1,17 @@
 use crate::models::*;
-use dioxus::prelude::*;
 
-#[get("/api/envs", headers: dioxus::fullstack::HeaderMap)]
-pub async fn get_envs() -> Result<EnvsHttpResponse, ServerFnError> {
-    let user_id = {
-        if let Some(user) = headers.get("x-ssl-user") {
-            user.to_str().unwrap().to_string()
-        } else {
-            "".to_string()
-        }
-    };
+use super::base_url;
 
-    println!("Sending envs for user: [{}]", user_id);
-
-    let (envs, prompt_ssh_pass_key) = crate::server::APP_CTX.get_envs(&user_id).await;
-
+pub async fn get_envs() -> Result<EnvsHttpResponse, String> {
+    let url = format!("{}/api/v1/env", base_url());
+    let resp = reqwest::get(&url).await.map_err(|e| e.to_string())?;
+    if !resp.status().is_success() {
+        return Err(format!("GET {url} → {}", resp.status()));
+    }
+    let info: EnvInfoModel = resp.json().await.map_err(|e| e.to_string())?;
     Ok(EnvsHttpResponse {
-        name: user_id,
-        envs,
-        prompt_ssh_pass_key,
+        name: info.name.clone(),
+        envs: vec![info.name],
+        prompt_ssh_pass_key: false,
     })
 }

@@ -42,7 +42,6 @@ pub struct MainState {
     pub templates: DataState<Vec<Rc<TemplateHttpModel>>>,
     pub secrets: DataState<Vec<SecretHttpModel>>,
     pub products_list: DataState<Vec<ProductHttpModel>>,
-    pub prompt_ssh_key: Option<bool>,
     pub products: BTreeSet<String>,
 }
 
@@ -55,7 +54,6 @@ impl MainState {
             secrets: DataState::default(),
             products_list: DataState::default(),
             user: "".to_string(),
-            prompt_ssh_key: None,
             products: Default::default(),
         }
     }

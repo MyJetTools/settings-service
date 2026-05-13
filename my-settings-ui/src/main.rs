@@ -17,11 +17,6 @@ mod views;
 use dioxus_utils::*;
 use serde::*;
 
-#[cfg(feature = "server")]
-mod server;
-#[cfg(feature = "server")]
-use dioxus::server::*;
-
 use crate::states::*;
 
 #[derive(Routable, Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -37,16 +32,11 @@ pub enum AppRoute {
 }
 
 fn main() {
-    dioxus::LaunchBuilder::new()
-        .with_cfg(server_only!(ServeConfig::builder().incremental(
-            IncrementalRendererConfig::default()
-                .invalidate_after(std::time::Duration::from_secs(120)),
-        )))
-        .launch(|| {
-            rsx! {
-                Router::<AppRoute> {}
-            }
-        })
+    dioxus::launch(|| {
+        rsx! {
+            Router::<AppRoute> {}
+        }
+    });
 }
 
 #[component]
@@ -97,12 +87,6 @@ fn MyLayout() -> Element {
         return err;
     }
 
-    if ms_ra.prompt_ssh_key.unwrap_or(false) {
-        return rsx! {
-            PromptSshPassKey {}
-        };
-    }
-
     rsx! {
         div { id: "layout",
             div { id: "left-panel", LeftPanel {} }
@@ -138,7 +122,7 @@ fn init_envs(mut ms: Signal<MainState>, ms_ra: &MainState) -> Result<(), Element
                 let envs_resp = match crate::api::envs::get_envs().await {
                     Ok(resp) => {
                         if resp.envs.is_empty() {
-                            ms.write().envs.set_error("Unauthorized access".to_string());
+                            ms.write().envs.set_error("No envs available".to_string());
                             return;
                         }
                         resp
@@ -164,7 +148,6 @@ fn init_envs(mut ms: Signal<MainState>, ms_ra: &MainState) -> Result<(), Element
 
                 let mut write_access = ms.write();
                 write_access.user = envs_resp.name;
-                write_access.prompt_ssh_key = Some(envs_resp.prompt_ssh_pass_key);
                 write_access.set_templates_as_loaded(templates);
                 write_access.envs.set_value(envs);
             });
