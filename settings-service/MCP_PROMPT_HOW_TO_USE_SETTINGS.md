@@ -11,6 +11,7 @@ SettingsService manages two kinds of entities, both scoped by a `product_id`:
    - `remote_value` (optional) — an alternative value used when rendering for a non-root (remote) datacenter. If absent or empty, the root `value` is used in both cases.
    - `level` (u8) — permission level. A secret's value may itself contain `${other_secret}` placeholders; nested resolution is allowed only when the inner secret's `level` is high enough.
    - `description` (optional, free text) — human-readable purpose of the secret. Use it to find the right secret without guessing from the name.
+   - `visible_for_mcp` (bool, default false) — explicit opt-in that allows AI agents to read the secret's value via `get_secret_value`. Only humans can flip this flag via the UI.
 
 # The "Shared" product
 
@@ -30,10 +31,11 @@ Local vs remote distinction does NOT apply to this tool: since values are not su
 
 # Privacy rules baked into the tools
 
-**Secret VALUES are never exposed to AI agents through this MCP.** You can confirm a secret exists, read its description, level, and `has_remote_value` flag, but you cannot read the value itself. There is no tool to fetch a secret value, and there will not be one — values are managed by humans through the UI.
+**Secret values are private by default.** Every secret has a `visible_for_mcp` flag (default `false`). Only when a human explicitly sets it to `true` (via the UI) can the AI read the value through `get_secret_value`. Use this opt-in for non-sensitive configuration (feature flags, environment names, public URLs); credentials should stay private. The remote-datacenter variant is always private — never returned by any MCP tool, even when `visible_for_mcp = true`.
 
-- `list_secrets` returns metadata only — id, description, level, `has_remote_value`. It NEVER returns the actual `value` or `remote_value`.
-- `compile_template_yaml` NEVER returns secret values either: every `${secret_id}` becomes `SECRET_<id>_VALUE` or `SECRET_<id>_NOT_FOUND`. The marker tells you the secret exists (or does not); it never reveals what it stores.
+- `list_secrets` returns metadata only — id, description, level, `has_remote_value`, `visible_for_mcp`. It NEVER returns the actual `value` or `remote_value`. Use the `visible_for_mcp` field to know which secrets can be read via `get_secret_value`.
+- `get_secret_value` returns the root value of a secret, but only when `visible_for_mcp == true`. For any other secret it returns an error pointing the user to flip the flag in the UI.
+- `compile_template_yaml` NEVER returns secret values: every `${secret_id}` becomes `SECRET_<id>_VALUE` or `SECRET_<id>_NOT_FOUND`. The marker tells you the secret exists (or does not); it never reveals what it stores.
 
 # Recommended workflow when wiring up an app from chat
 
@@ -45,17 +47,21 @@ Local vs remote distinction does NOT apply to this tool: since values are not su
 
    When `has_metadata` comes back as `false`, the product exists only implicitly — it has no recorded context, and you should ask the user for one or use `upsert_product` to record it.
 
-3. **Discover available secrets** — call `list_secrets` with that `product_id`. Read the `description` field on each entry to figure out which secret matches the AI's intended use. Pass `include_shared: true` to also see fallback secrets from the Shared scope. Pass `id_regex` (e.g. `^db_`, `(?i)token`) to narrow the result to secret ids matching a regular expression — useful when the directory is large. The returned entries include `secret_id`, `description`, `level`, and `has_remote_value` — never the value itself.
+3. **Discover available secrets** — call `list_secrets` with that `product_id`. Read the `description` field on each entry to figure out which secret matches the AI's intended use. Pass `include_shared: true` to also see fallback secrets from the Shared scope. Pass `id_regex` (e.g. `^db_`, `(?i)token`) to narrow the result to secret ids matching a regular expression — useful when the directory is large. The returned entries include `secret_id`, `description`, `level`, `has_remote_value` and `visible_for_mcp` — never the value itself.
 
-4. **Inspect a secret's dependency graph** — when a secret's value itself contains `${other_secret}` placeholders, call `get_secret_dependencies(product_id, secret_id)` to list every secret it references and where each one was resolved from (`Product`, `Shared`, or `Missing`). The actual value is not returned — only the dependency names — so you can audit the wiring without reading sensitive content.
+4. **Read a secret's value** — only when an entry from step 3 has `visible_for_mcp: true`, call `get_secret_value(product_id, secret_id)` to read the root value. For any other secret the call returns an error — never try to bypass it. The remote-datacenter variant is always private.
 
-5. **Read a template** — call `compile_template_yaml` with `(product_id, template_id)`. The returned YAML has every `${...}` rewritten as `SECRET_<id>_VALUE` (resolvable) or `SECRET_<id>_NOT_FOUND` (missing). Compare the rendered YAML against the model/struct the app code defines, and inspect `missing_keys` to find references the template makes to non-existent secrets — these are the most common drift between "what the template asks for" and "what the secret store provides".
+5. **Inspect a secret's dependency graph** — when a secret's value itself contains `${other_secret}` placeholders, call `get_secret_dependencies(product_id, secret_id)` to list every secret it references and where each one was resolved from (`Product`, `Shared`, or `Missing`). The actual value is not returned — only the dependency names — so you can audit the wiring without reading sensitive content.
 
-6. **Create or update a template** — call `upsert_template` with `(product_id, template_id, yaml)`. The call performs create-or-overwrite. To verify, follow up with `compile_template_yaml`. If a placeholder you wrote references a missing secret, the next compile will surface it.
+6. **Read a template** — call `compile_template_yaml` with `(product_id, template_id)`. The returned YAML has every `${...}` rewritten as `SECRET_<id>_VALUE` (resolvable) or `SECRET_<id>_NOT_FOUND` (missing). Compare the rendered YAML against the model/struct the app code defines, and inspect `missing_keys` to find references the template makes to non-existent secrets — these are the most common drift between "what the template asks for" and "what the secret store provides".
 
-7. **Annotate a secret** — call `upsert_secret_description` with `(product_id, secret_id, description)` to attach or replace the human-readable description of an existing secret. The secret's value, remote variant, and level are preserved unchanged; pass an empty string to clear the description. This call never creates a new secret — it fails when the secret does not yet exist.
+7. **Create or update a template** — call `upsert_template` with `(product_id, template_id, yaml)`. The call performs create-or-overwrite. To verify, follow up with `compile_template_yaml`. If a placeholder you wrote references a missing secret, the next compile will surface it.
 
-8. **Record product context** — call `upsert_product` with `(product_id, description, prompt)` to create or update the explicit description and prompt for a product. The prompt should explain what the product is and how its secrets/templates are organised — future agents will read it via `get_product_prompt`.
+8. **Annotate a secret** — call `upsert_secret_description` with `(product_id, secret_id, description)` to attach or replace the human-readable description of an existing secret. The secret's value, remote variant, level, and visibility flag are preserved unchanged; pass an empty string to clear the description. This call never creates a new secret — it fails when the secret does not yet exist.
+
+9. **Create a new secret** — call `create_secret` with `(product_id, secret_id, value, remote_value, description, visible_for_mcp)` to add a brand-new secret. Fails with an error if a secret with that id already exists in the product — this call NEVER overwrites. Use `remote_value = ""` if you don't need a remote-datacenter variant. Set `visible_for_mcp: true` only for non-sensitive configuration (it lets future MCP calls read the value); keep it `false` for credentials.
+
+10. **Record product context** — call `upsert_product` with `(product_id, description, prompt)` to create or update the explicit description and prompt for a product. The prompt should explain what the product is and how its secrets/templates are organised — future agents will read it via `get_product_prompt`.
 
 # Conventions
 

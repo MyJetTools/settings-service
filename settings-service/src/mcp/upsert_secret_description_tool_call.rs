@@ -93,6 +93,7 @@ impl McpToolCall<UpsertSecretDescriptionInputData, UpsertSecretDescriptionRespon
             remote_value,
             level,
             Some(model.description),
+            None,
         )
         .await;
 

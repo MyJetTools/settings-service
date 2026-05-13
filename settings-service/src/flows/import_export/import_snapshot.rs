@@ -62,6 +62,7 @@ pub async fn import_snapshot(
             created: now,
             updated: now,
             description: secret.description.take(),
+            visible_for_mcp: false,
         };
 
         if shared {

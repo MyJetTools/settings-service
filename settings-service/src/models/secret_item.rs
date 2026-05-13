@@ -11,6 +11,7 @@ pub struct SecretItem {
     pub created: DateTimeAsMicroseconds,
     pub updated: DateTimeAsMicroseconds,
     pub description: Option<String>,
+    pub visible_for_mcp: bool,
 }
 
 impl SecretItem {

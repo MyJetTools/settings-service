@@ -41,6 +41,7 @@ pub async fn save_secret(
             level: value.level,
             remote_value: value.remote_value,
             description: value.description,
+            visible_for_mcp: Some(value.visible_for_mcp),
         })
         .await
         .unwrap();
@@ -92,6 +93,7 @@ pub async fn load_secret(
         level: response.level,
         remote_value: response.remote_value,
         description: response.description,
+        visible_for_mcp: response.visible_for_mcp,
     };
 
     Ok(result)
@@ -129,6 +131,7 @@ pub async fn copy_secret_to_other_env(
             level: secret_model.level,
             remote_value: secret_model.remote_value,
             description: secret_model.description,
+            visible_for_mcp: Some(secret_model.visible_for_mcp),
         })
         .await
         .unwrap();
@@ -159,6 +162,7 @@ pub async fn load_secret_value(
         level: response.level,
         remote_value: response.remote_value,
         description: response.description,
+        visible_for_mcp: response.visible_for_mcp,
     };
 
     Ok(result)
@@ -250,6 +254,7 @@ impl From<crate::server::secrets_grpc::SecretGrpcModel> for SecretHttpModel {
             used_by_templates: item.used_by_templates,
             used_by_secrets: item.used_by_secrets,
             description: item.description,
+            visible_for_mcp: item.visible_for_mcp,
         }
     }
 }

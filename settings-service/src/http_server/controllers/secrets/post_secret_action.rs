@@ -41,6 +41,7 @@ async fn handle_request(
         input_data.remote_value,
         input_data.level,
         input_data.description,
+        input_data.visible_for_mcp,
     )
     .await;
 

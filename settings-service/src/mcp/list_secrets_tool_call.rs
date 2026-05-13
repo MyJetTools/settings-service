@@ -36,6 +36,9 @@ pub struct SecretListEntry {
 
     #[property(description: "Permission level of the secret.")]
     pub level: u8,
+
+    #[property(description: "True when the secret's value is readable via `get_secret_value`. When false, only existence and metadata are observable.")]
+    pub visible_for_mcp: bool,
 }
 
 #[derive(ApplyJsonSchema, Debug, Serialize, Deserialize)]
@@ -131,5 +134,6 @@ fn to_entry(product_id: String, item: &SecretItem) -> SecretListEntry {
         secret_description: item.description.clone(),
         has_remote_value,
         level: item.level,
+        visible_for_mcp: item.visible_for_mcp,
     }
 }

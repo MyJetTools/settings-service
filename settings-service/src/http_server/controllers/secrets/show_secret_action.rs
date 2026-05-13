@@ -65,6 +65,7 @@ async fn handle_request(
         value: value.into_string(),
         remote_value,
         description: secret_item.description.clone(),
+        visible_for_mcp: secret_item.visible_for_mcp,
     };
 
     HttpOutput::as_json(response).into_ok_result(false)

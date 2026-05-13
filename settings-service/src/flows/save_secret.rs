@@ -13,6 +13,8 @@ pub async fn save_secret(
     level: u8,
     // None = keep existing description on update; Some("") = clear it; Some(text) = set/replace.
     description: Option<String>,
+    // None = keep existing visibility on update (false on create); Some(b) = set explicitly.
+    visible_for_mcp: Option<bool>,
 ) -> Option<SecretItem> {
     let mut secret = SecretItem {
         id: secret_id,
@@ -31,11 +33,15 @@ pub async fn save_secret(
                 Some(trimmed.to_string())
             }
         }),
+        visible_for_mcp: visible_for_mcp.unwrap_or(false),
     };
     let removed = if let Some(removed) = app.secrets.remove(product_id, &secret.id).await {
         secret.created = removed.created;
         if description.is_none() {
             secret.description = removed.description.clone();
+        }
+        if visible_for_mcp.is_none() {
+            secret.visible_for_mcp = removed.visible_for_mcp;
         }
         Some(removed)
     } else {

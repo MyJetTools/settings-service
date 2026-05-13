@@ -20,6 +20,8 @@ pub struct SecretValue {
     pub remote_value: Option<String>,
     #[prost(string, optional, tag = "8")]
     pub description: Option<String>,
+    #[prost(bool, tag = "9")]
+    pub visible_for_mcp: bool,
 }
 impl SecretValue {
     pub fn from_item(product_id: String, src: &SecretItem) -> Self {
@@ -32,6 +34,7 @@ impl SecretValue {
             updated: src.updated.unix_microseconds,
             remote_value: src.remote_value.as_ref().map(|c| c.to_string()),
             description: src.description.clone(),
+            visible_for_mcp: src.visible_for_mcp,
         }
     }
 
@@ -44,6 +47,7 @@ impl SecretValue {
             created: DateTimeAsMicroseconds::new(self.created),
             updated: DateTimeAsMicroseconds::new(self.updated),
             description: self.description.filter(|d| !d.is_empty()),
+            visible_for_mcp: self.visible_for_mcp,
         };
 
         (self.product_id, result)

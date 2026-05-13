@@ -39,6 +39,14 @@ pub async fn build_mcp_middleware(app: &Arc<AppContext>) -> McpMiddleware {
         .await;
 
     middleware
+        .register_tool_call(Arc::new(super::CreateSecretHandler::new(app.clone())))
+        .await;
+
+    middleware
+        .register_tool_call(Arc::new(super::GetSecretValueHandler::new(app.clone())))
+        .await;
+
+    middleware
         .register_tool_call(Arc::new(super::ListSecretsHandler::new(app.clone())))
         .await;
 

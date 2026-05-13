@@ -234,6 +234,19 @@ pub fn SecretsPage() -> Element {
                     span { class: "badge text-bg-warning", "Shared" }
                 },
             };
+
+            let mcp_badge = if itm.visible_for_mcp {
+                Some(rsx! {
+                    span {
+                        class: "badge text-bg-success",
+                        style: "margin-left: 6px;",
+                        title: "AI can read this secret's value via MCP",
+                        "MCP"
+                    }
+                })
+            } else {
+                None
+            };
             rsx! {
                 tr { style: "border-top: 1px solid lightgray;",
                     td { style: "padding-left: 10px",
@@ -282,6 +295,7 @@ pub fn SecretsPage() -> Element {
                     td { {product_scope} }
                     td { style: "padding: 10px",
                         "{itm.secret_id}"
+                        {mcp_badge}
                         {last_edited}
                     }
                     td { style: "padding: 10px; color: #555;",

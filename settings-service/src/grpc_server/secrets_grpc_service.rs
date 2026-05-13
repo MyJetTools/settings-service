@@ -52,6 +52,7 @@ async fn save(app: &Arc<AppContext>, request: SaveSecretGrpcRequest) {
         request.remote_value,
         request.level as u8,
         request.description,
+        request.visible_for_mcp,
     )
     .await;
 }

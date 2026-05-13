@@ -118,6 +118,30 @@ pub fn EditSecret(
             }
             label { "Description (optional)" }
         }
+
+        div {
+            class: "form-check mb-3",
+            style: "padding-top: 4px;",
+            input {
+                class: "form-check-input",
+                id: "visible-for-mcp-checkbox",
+                r#type: "checkbox",
+                checked: cs_ra.value.visible_for_mcp,
+                onchange: move |cx| {
+                    cs.write().value.visible_for_mcp = cx.value() == "true";
+                },
+            }
+            label {
+                class: "form-check-label",
+                r#for: "visible-for-mcp-checkbox",
+                style: "margin-left: 6px;",
+                "Visible for MCP / AI agents"
+            }
+            div {
+                style: "font-size: 0.85em; color: #777; margin-top: 4px;",
+                "When on, AI can read this secret's value through the MCP tool `get_secret_value`. Keep off for credentials; turn on only for non-sensitive config."
+            }
+        }
     };
 
     let header = if is_clone {
@@ -174,6 +198,7 @@ fn get_data(
                             level: value.level.to_string(),
                             remote_value: value.remote_value.unwrap_or_default(),
                             description: value.description.unwrap_or_default(),
+                            visible_for_mcp: value.visible_for_mcp,
                         });
                     }
                     Err(err) => {

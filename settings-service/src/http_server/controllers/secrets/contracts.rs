@@ -18,6 +18,8 @@ pub struct PostSecretContract {
     pub remote_value: Option<String>,
     #[http_body(description = "Description")]
     pub description: Option<String>,
+    #[http_body(description = "Visible for MCP / AI agents")]
+    pub visible_for_mcp: Option<bool>,
 }
 
 #[derive(MyHttpInput)]
@@ -32,6 +34,7 @@ pub struct ShowSecretHttpResponse {
     pub value: String,
     pub remote_value: Option<String>,
     pub description: Option<String>,
+    pub visible_for_mcp: bool,
 }
 
 #[derive(Serialize, Debug, MyHttpObjectStructure)]
@@ -40,6 +43,7 @@ pub struct SecretValueHttpModel {
     pub level: u8,
     pub remote_value: Option<String>,
     pub description: Option<String>,
+    pub visible_for_mcp: bool,
 }
 
 impl Into<SecretValueHttpModel> for SecretItem {
@@ -49,6 +53,7 @@ impl Into<SecretValueHttpModel> for SecretItem {
             level: self.level,
             remote_value: self.remote_value.map(|c| c.into_string()),
             description: self.description,
+            visible_for_mcp: self.visible_for_mcp,
         }
     }
 }
@@ -60,6 +65,7 @@ impl Into<SecretValueHttpModel> for &'_ SecretItem {
             level: self.level,
             remote_value: self.remote_value.as_ref().map(|c| c.to_string()),
             description: self.description.clone(),
+            visible_for_mcp: self.visible_for_mcp,
         }
     }
 }
@@ -81,6 +87,7 @@ impl ListOfSecretsContract {
                 created: item.created,
                 updated: item.updated,
                 level: item.level,
+                visible_for_mcp: item.visible_for_mcp,
             });
         }
 
@@ -98,6 +105,7 @@ pub struct SecretHttpModel {
     pub created: String,
     pub updated: String,
     pub level: i32,
+    pub visible_for_mcp: bool,
 }
 
 // Secret Usage

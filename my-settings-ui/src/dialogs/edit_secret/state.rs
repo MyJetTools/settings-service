@@ -69,6 +69,7 @@ impl EditSecretState {
             && self.value.level == value_on_init.level
             && self.value.remote_value == value_on_init.remote_value
             && self.value.description == value_on_init.description
+            && self.value.visible_for_mcp == value_on_init.visible_for_mcp
         {
             return false;
         }
@@ -88,6 +89,7 @@ impl EditSecretState {
                 Some(self.value.remote_value.clone())
             },
             description: Some(self.value.description.clone()),
+            visible_for_mcp: self.value.visible_for_mcp,
         }
     }
 
@@ -102,4 +104,5 @@ pub struct SecretValue {
     pub level: String,
     pub remote_value: String,
     pub description: String,
+    pub visible_for_mcp: bool,
 }

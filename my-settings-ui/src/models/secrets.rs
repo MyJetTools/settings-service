@@ -7,6 +7,7 @@ pub struct SecretApiModel {
     pub level: i32,
     pub remote_value: Option<String>,
     pub description: Option<String>,
+    pub visible_for_mcp: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

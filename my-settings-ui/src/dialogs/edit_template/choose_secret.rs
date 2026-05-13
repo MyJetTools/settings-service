@@ -82,6 +82,7 @@ pub fn ChooseSecret(
                                     level: secret_level,
                                     remote_value: None,
                                     description: None,
+                                    visible_for_mcp: false,
                                 };
                                 crate::api::secrets::save_secret(env_id.to_string(), value).await.unwrap();
                             });
