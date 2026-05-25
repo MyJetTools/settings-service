@@ -37,6 +37,31 @@ Local vs remote distinction does NOT apply to this tool: since values are not su
 - `get_secret_value` returns the root value of a secret, but only when `visible_for_mcp == true`. For any other secret it returns an error pointing the user to flip the flag in the UI.
 - `compile_template_yaml` NEVER returns secret values: every `${secret_id}` becomes `SECRET_<id>_VALUE` or `SECRET_<id>_NOT_FOUND`. The marker tells you the secret exists (or does not); it never reveals what it stores.
 
+# Authoring rule: inject secrets, do not hardcode
+
+When you write or edit a template, default to `${secret_id}` placeholders for ANY value that is not a stable, public, behavioral constant. Hardcoding is the exception, not the default.
+
+Treat as a placeholder (never hardcode):
+- credentials, tokens, API keys, passwords, connection strings;
+- hostnames, URLs, ports, endpoints — even when they look "obviously public" (they differ across datacenters and environments);
+- per-environment identifiers (account ids, bucket names, queue names, topic names, schema names);
+- anything a human might want to rotate without editing YAML;
+- anything that already exists as a secret in the product or in `Shared` — reuse it rather than reintroducing the literal.
+
+Acceptable to hardcode:
+- structural keys and enum-like flags whose value is part of the app contract (`enabled: true`, `mode: "strict"`, `log_level: "info"`);
+- small numeric tunables that are intentionally code-reviewed (timeouts, retry counts, page sizes);
+- values the user explicitly asked you to put in the template literally.
+
+How to apply this when generating a template:
+1. Before writing the YAML, call `list_secrets` (with `include_shared: true`) for the target product and skim descriptions. If a matching secret exists, reuse its id — do NOT invent a new one.
+2. For every value you are tempted to write as a literal, ask: "would a human ever want to change this without editing the template?" If yes — make it `${secret_id}`.
+3. For each new placeholder that has no backing secret yet, create it via `create_secret` with a meaningful `description`. Leave `visible_for_mcp: false` by default; only set it to `true` for non-sensitive configuration the user explicitly marks as safe to read.
+4. After `upsert_template`, run `compile_template_yaml` and inspect `missing_keys` — every entry there is a placeholder you wrote without a backing secret. Resolve each one (create the secret, or fix the id) before declaring the template done.
+5. If you find yourself writing the same literal twice across templates, stop and replace both with a shared `${...}` reference (prefer the `Shared` scope when the value is genuinely cross-product).
+
+Surface the trade-off to the user when in doubt — propose the placeholder, name it, and ask whether to inject or keep literal. Defaulting to "inject" is the right bias.
+
 # Recommended workflow when wiring up an app from chat
 
 1. **Discover scope** — call `list_products` to see what products already exist (each entry includes counts of templates and secrets, an optional `description`, and a `has_prompt` flag). Pick the right `product_id`, or use `"Shared"` for cross-product configuration.
