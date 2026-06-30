@@ -10,6 +10,9 @@ pub use upsert_secret_description_tool_call::*;
 mod create_secret_tool_call;
 pub use create_secret_tool_call::*;
 
+mod move_secret_tool_call;
+pub use move_secret_tool_call::*;
+
 mod get_secret_value_tool_call;
 pub use get_secret_value_tool_call::*;
 

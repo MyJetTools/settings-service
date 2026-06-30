@@ -12,6 +12,8 @@ mod save_secret;
 pub use save_secret::*;
 mod delete_secret;
 pub use delete_secret::*;
+mod move_secret;
+pub use move_secret::*;
 
 mod get_templates_used_by_the_secret;
 pub use get_templates_used_by_the_secret::*;
