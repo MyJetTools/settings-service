@@ -16,14 +16,9 @@ pub async fn move_secret(
     to: ProductId<'_>,
     item: SecretItem,
 ) {
-    let secret_id = item.id.clone();
+    // Relocate under a single write lock so the secret is never observable in
+    // both scopes, then persist the resulting snapshot once.
+    let snapshot = app.secrets.move_secret(from, to, item).await;
 
-    // Insert into the target scope first (keeping the exact same item) ...
-    app.secrets.insert_or_update(to, [item].into_iter()).await;
-
-    // ... then drop it from the source scope.
-    app.secrets.remove(from, &secret_id).await;
-
-    let snapshot = app.secrets.get_snapshot().await;
     app.secrets_persistence.save(&snapshot).await;
 }

@@ -4,9 +4,23 @@ use mcp_server_middleware::McpToolCall;
 use my_ai_agent::{macros::ApplyJsonSchema, ToolDefinition};
 use serde::{Deserialize, Serialize};
 
-use crate::{app_ctx::AppContext, caches::SecretsSnapshot, models::ProductId};
+use crate::{
+    app_ctx::AppContext,
+    caches::SecretsSnapshot,
+    models::{Content, ProductId},
+};
 
 const SHARED_LITERAL: &str = "Shared";
+
+/// Does `content` actually reference `secret_id` as a `${secret_id}` placeholder?
+///
+/// Uses the SAME placeholder parser as secret resolution (`Content::get_secrets`),
+/// not a naive substring test — so adversarial/nested content such as `${a${b}`
+/// (which parses as a single placeholder `a${b`, not a reference to `b`) is not
+/// mis-detected as a consumer.
+fn references_secret(content: &Content, secret_id: &str) -> bool {
+    content.get_secrets().iter().any(|name| *name == secret_id)
+}
 
 #[derive(ApplyJsonSchema, Debug, Serialize, Deserialize)]
 pub struct MoveSecretInputData {
@@ -181,7 +195,7 @@ impl McpToolCall<MoveSecretInputData, MoveSecretResponse> for MoveSecretHandler 
             if from_is_shared && shared_item.id == secret_id {
                 continue; // the secret being moved is not a consumer of itself
             }
-            if shared_item.content.has_the_secret_inside(secret_id)
+            if references_secret(&shared_item.content, secret_id)
                 && ctx.consumer_breaks(ProductId::Shared)
             {
                 broken_consumers.push(MoveConsumerEntry {
@@ -199,7 +213,7 @@ impl McpToolCall<MoveSecretInputData, MoveSecretResponse> for MoveSecretHandler 
                 if !from_is_shared && product_id == from_input && product_item.id == secret_id {
                     continue; // the secret being moved is not a consumer of itself
                 }
-                if breaks && product_item.content.has_the_secret_inside(secret_id) {
+                if breaks && references_secret(&product_item.content, secret_id) {
                     broken_consumers.push(MoveConsumerEntry {
                         scope: product_id.clone(),
                         kind: "Secret".to_string(),
@@ -213,7 +227,7 @@ impl McpToolCall<MoveSecretInputData, MoveSecretResponse> for MoveSecretHandler 
             .app
             .templates
             .find_into_vec(|product_id, template| {
-                if template.content.has_the_secret_inside(secret_id) {
+                if references_secret(&template.content, secret_id) {
                     Some((product_id.to_string(), template.id.clone()))
                 } else {
                     None
