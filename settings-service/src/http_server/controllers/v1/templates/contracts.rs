@@ -1,10 +1,39 @@
 use my_http_server::{
     macros::{MyHttpInput, MyHttpObjectStructure},
-    types::FileContent,
+    FileContent,
+};
+use my_http_utils::{
+    http_input::{HttpInputValue, HttpParseError},
+    schema::data_types::{DataTypeProvider, HttpDataType},
 };
 use serde::{Deserialize, Serialize};
 
 use crate::models::TemplateItem;
+
+/// `#[http_form_data]` file field. `FileContent` has no `DataTypeProvider`/`as_str` impl in
+/// my-http-utils 0.1.0 (the derive's client-request-builder codegen still expects every custom
+/// struct field to behave like a string wrapper, even though it is never used to build a client
+/// request here), so this thin wrapper supplies both.
+pub struct SnapshotFile(pub FileContent);
+
+impl DataTypeProvider for SnapshotFile {
+    fn get_data_type() -> HttpDataType {
+        HttpDataType::as_binary()
+    }
+}
+
+impl SnapshotFile {
+    pub fn as_str(&self) -> &str {
+        self.0.file_name.as_str()
+    }
+}
+
+impl<'s> TryFrom<HttpInputValue<'s>> for SnapshotFile {
+    type Error = HttpParseError;
+    fn try_from(value: HttpInputValue<'s>) -> Result<Self, Self::Error> {
+        Ok(SnapshotFile(value.try_into()?))
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug, MyHttpObjectStructure)]
 pub struct TemplateHttpModel {
@@ -75,7 +104,7 @@ pub struct SnapshotImportInput {
     #[http_query(description = "Product id")]
     pub product_id: String,
     #[http_form_data(name = "snapshot", description = "Snapshot file (json)")]
-    pub snapshot: FileContent,
+    pub snapshot: SnapshotFile,
 }
 
 pub fn template_to_http_model(

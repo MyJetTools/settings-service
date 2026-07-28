@@ -34,7 +34,7 @@ async fn handle_request(
     crate::flows::import_snapshot(
         &action.app,
         &input_data.product_id,
-        &input_data.snapshot.content,
+        &input_data.snapshot.0.content,
         false,
     )
     .await;
