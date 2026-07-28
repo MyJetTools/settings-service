@@ -3,7 +3,7 @@ set -e
 cd "$(dirname "$0")"
 
 DX_OUT=./target/dx/my-settings-ui/release/web/public
-WWWROOT=../settings-service/wwwroot
+WWWROOT=../wwwroot
 
 echo "→ cleaning previous artifacts"
 rm -rf "$DX_OUT"

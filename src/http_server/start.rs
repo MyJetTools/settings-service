@@ -55,7 +55,7 @@ pub async fn start(app: &Arc<AppContext>) {
 
     http_server.add_middleware(controllers);
 
-    // wwwroot/ holds the Dioxus WASM SPA bundle (см. my-settings-ui/build.sh).
+    // wwwroot/ holds the Dioxus WASM SPA bundle (см. build-ui.sh).
     // add_index_file("index.html") makes "/" return the SPA shell;
     // set_not_found_file("index.html") gives SPA-routing fallback so deep
     // links like /templates, /secrets, /products survive a page reload.

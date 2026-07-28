@@ -11,7 +11,7 @@ The service stores **secrets** and **YAML configuration templates**. Clients req
 
 Instead of maintaining two separate secrets or two templates, each secret carries an optional second value — `remote_value`.
 
-**Model.** `SecretItem` (see [settings-service/src/models/secret_item.rs](settings-service/src/models/secret_item.rs)):
+**Model.** `SecretItem` (see [src/models/secret_item.rs](src/models/secret_item.rs)):
 
 ```rust
 pub struct SecretItem {
@@ -29,9 +29,9 @@ pub struct SecretItem {
 - header is absent → **local** (backward compatibility with older clients)
 - `local_env_prefixes` is not configured → always **local**
 
-Logic lives in [`SettingsModel::is_local_env`](settings-service/src/settings.rs) and [`SecretItem::resolve_content`](settings-service/src/models/secret_item.rs).
+Logic lives in [`SettingsModel::is_local_env`](src/settings.rs) and [`SecretItem::resolve_content`](src/models/secret_item.rs).
 
-**Where it applies.** In the template-rendering middleware [settings-service/src/http_server/settings_middleware.rs](settings-service/src/http_server/settings_middleware.rs): it reads the `env-info` header, computes `is_remote`, and passes the flag into `populate_secrets` when substituting placeholders.
+**Where it applies.** In the template-rendering middleware [src/http_server/settings_middleware.rs](src/http_server/settings_middleware.rs): it reads the `env-info` header, computes `is_remote`, and passes the flag into `populate_secrets` when substituting placeholders.
 
 ## Configuration
 
