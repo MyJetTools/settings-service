@@ -19,6 +19,9 @@ pub use move_secret_tool_call::*;
 mod get_secret_value_tool_call;
 pub use get_secret_value_tool_call::*;
 
+mod get_secret_value_len_tool_call;
+pub use get_secret_value_len_tool_call::*;
+
 mod get_secret_dependencies_tool_call;
 pub use get_secret_dependencies_tool_call::*;
 

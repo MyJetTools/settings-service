@@ -38,6 +38,10 @@ pub async fn build_mcp_middleware(app: &Arc<AppContext>) -> McpMiddleware {
 
     middleware.register_tool_call(Arc::new(super::GetSecretValueHandler::new(app.clone())));
 
+    middleware.register_tool_call(Arc::new(super::GetSecretValueLenHandler::new(
+        app.clone(),
+    )));
+
     middleware.register_tool_call(Arc::new(super::ListSecretsHandler::new(app.clone())));
 
     middleware.register_tool_call(Arc::new(super::GetSecretDependenciesHandler::new(

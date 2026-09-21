@@ -35,6 +35,7 @@ Local vs remote distinction does NOT apply to this tool: since values are not su
 
 - `list_secrets` returns metadata only — id, description, level, `has_remote_value`, `visible_for_mcp`. It NEVER returns the actual `value` or `remote_value`. Use the `visible_for_mcp` field to know which secrets can be read via `get_secret_value`.
 - `get_secret_value` returns the root value of a secret, but only when `visible_for_mcp == true`. For any other secret it returns an error pointing the user to flip the flag in the UI.
+- `get_secret_value_len` returns only the character count of a value, never the value. It works for EVERY existing secret, private ones included, because a length reveals nothing about the content; it also reports the length of the remote-datacenter variant (still never its value).
 - `compile_template_yaml` NEVER returns secret values: every `${secret_id}` becomes `SECRET_<id>_VALUE` or `SECRET_<id>_NOT_FOUND`. The marker tells you the secret exists (or does not); it never reveals what it stores.
 
 # Authoring rule: inject secrets, do not hardcode
@@ -74,7 +75,7 @@ Surface the trade-off to the user when in doubt — propose the placeholder, nam
 
 3. **Discover available secrets** — call `list_secrets` with that `product_id`. Read the `description` field on each entry to figure out which secret matches the AI's intended use. Pass `include_shared: true` to also see fallback secrets from the Shared scope. Pass `id_regex` (e.g. `^db_`, `(?i)token`) to narrow the result to secret ids matching a regular expression — useful when the directory is large. The returned entries include `secret_id`, `description`, `level`, `has_remote_value` and `visible_for_mcp` — never the value itself.
 
-4. **Read a secret's value** — only when an entry from step 3 has `visible_for_mcp: true`, call `get_secret_value(product_id, secret_id)` to read the root value. For any other secret the call returns an error — never try to bypass it. The remote-datacenter variant is always private.
+4. **Read a secret's value** — only when an entry from step 3 has `visible_for_mcp: true`, call `get_secret_value(product_id, secret_id)` to read the root value. For any other secret the call returns an error — never try to bypass it. The remote-datacenter variant is always private. When a secret is private and you only need to know whether it holds a plausible value, call `get_secret_value_len(product_id, secret_id)` — it returns the character count of the root value (and of the remote variant, when there is one) for any existing secret, regardless of `visible_for_mcp`.
 
 5. **Inspect a secret's dependency graph** — when a secret's value itself contains `${other_secret}` placeholders, call `get_secret_dependencies(product_id, secret_id)` to list every secret it references and where each one was resolved from (`Product`, `Shared`, or `Missing`). The actual value is not returned — only the dependency names — so you can audit the wiring without reading sensitive content.
 
