@@ -20,6 +20,8 @@ rust-extensions = { tag = "0.1.5", git = "https://github.com/MyJetTools/rust-ext
 
 settings-utils = { tag = "0.1.2", git = "https://github.com/MyJetTools/settings-utils.git" }
 
+flurl = { tag = "0.7.0", git = "https://github.com/MyJetTools/fl-url.git" }
+
 reqwest = { version = "*", features = ["json", "multipart"] }
 web-sys = { version = "*", features = ["Window", "Location", "Storage"] }
 dioxus-logger = "*"

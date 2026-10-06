@@ -101,8 +101,11 @@ action buttons** — the columns listed are real.
 ### 4.2 Secrets page (`/secrets`)
 Columns: **Used→Templates** (clickable count badge), **Used→Secrets** (clickable
 count badge), **Product scope** (badge: product id, or amber `Shared`), **Name**
-(+ optional `MCP` badge, + `Last edited` badge), **Description**, **Level**,
-**Created**, **Updated**, **Actions** (view, clone, edit, delete).
+(+ optional `MCP` badge, + `Last edited` badge), **Uses secrets** (names of the
+secrets referenced from the value: green when the secret exists with a higher
+level; red and clickable when it is missing, or its level is the same or lower),
+**Description**, **Level**, **Created**, **Updated**, **Actions** (view, clone,
+move between product scope and `Shared`, edit, delete).
 Toolbar: product-scope selector, name search, add button.
 Key states: a secret used by nothing (today shown red) vs. used (green) — design
 this "orphan vs. referenced" signal cleanly.

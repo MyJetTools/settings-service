@@ -6,6 +6,7 @@ use dioxus_utils::*;
 
 use crate::{dialogs::*, icons::*, models::*, states::*, ui_utils::ToastType};
 
+use super::actions::*;
 use super::state::*;
 
 #[component]
@@ -32,6 +33,8 @@ pub fn SecretsPage() -> Element {
     };
 
     let last_edited = get_last_edited(secrets);
+
+    let lookup = SecretsLookup::new(secrets);
 
     let secrets = secrets
         .into_iter()
@@ -122,6 +125,7 @@ pub fn SecretsPage() -> Element {
                                 product_id,
                                 secret_id,
                                 clone_from: None,
+                                prefill: None,
                                 on_ok: EventHandler::new(move |value| {
                                     exec_save_secret(env_id.to_string(), value);
                                 }),
@@ -149,6 +153,7 @@ pub fn SecretsPage() -> Element {
                                 product_id,
                                 secret_id: "".to_string().into(),
                                 clone_from: Some(source_secret_id),
+                                prefill: None,
                                 on_ok: EventHandler::new(move |value| {
                                     exec_save_secret(env_id.to_string(), value);
                                 }),
@@ -157,6 +162,8 @@ pub fn SecretsPage() -> Element {
                     CopyFromIcon {}
                 }
             };
+
+            let move_btn = render_move_btn(&selected_env_id, &lookup, itm, &cs_ra.product_id);
 
             let delete_secret_product_id = item_product_id.clone();
 
@@ -195,6 +202,10 @@ pub fn SecretsPage() -> Element {
                     span { class: "badge text-bg-warning", "Shared" }
                 },
             };
+
+            let uses_secrets = itm.uses_secrets.iter().map(|used_secret_id| {
+                render_used_secret(&selected_env_id, &lookup, itm, used_secret_id)
+            });
 
             let mcp_badge = if itm.visible_for_mcp {
                 Some(rsx! {
@@ -259,6 +270,7 @@ pub fn SecretsPage() -> Element {
                         {mcp_badge}
                         {last_edited}
                     }
+                    td { style: "padding: 10px", {uses_secrets} }
                     td { style: "padding: 10px; color: #555;",
                         {itm.description.as_deref().unwrap_or("")}
                     }
@@ -269,6 +281,7 @@ pub fn SecretsPage() -> Element {
                         div { class: "btn-group",
                             {view_template_btn}
                             {clone_btn}
+                            {move_btn}
                             {edit_btn}
                             {delete_btn}
                         }
@@ -306,7 +319,7 @@ pub fn SecretsPage() -> Element {
                         "Product scope"
                         {select_product}
                     }
-                    th { style: "width:35%",
+                    th { style: "width:20%",
                         table {
                             tr {
                                 td {
@@ -332,6 +345,7 @@ pub fn SecretsPage() -> Element {
                             }
                         }
                     }
+                    th { style: "width:13%", "Uses secrets" }
                     th { style: "width:25%", "Description" }
                     th { "Level" }
                     th { "Created" }
@@ -355,6 +369,7 @@ pub fn SecretsPage() -> Element {
                                             product_id,
                                             secret_id: "".to_string().into(),
                                             clone_from: None,
+                                            prefill: None,
                                             on_ok: EventHandler::new(move |value| {
                                                 exec_save_secret(env_id.to_string(), value);
                                             }),
@@ -403,6 +418,164 @@ fn get_data<'s>(
             return Err(crate::icons::render_error(err));
         }
     }
+}
+
+fn render_used_secret(
+    env_id: &Rc<String>,
+    lookup: &SecretsLookup,
+    itm: &SecretHttpModel,
+    used_secret_id: &str,
+) -> Element {
+    let env_id = env_id.clone();
+
+    match get_used_secret_state(lookup, itm, used_secret_id) {
+        UsedSecretState::Ok(used) => {
+            let scope = get_scope_name(used.product_id.as_deref());
+            rsx! {
+                span {
+                    class: "used-secret used-secret-ok",
+                    title: "Level {used.level} ({scope})",
+                    "{used_secret_id}"
+                }
+            }
+        }
+        UsedSecretState::WrongLevel(used) => {
+            let scope = get_scope_name(used.product_id.as_deref());
+            let product_id = used.product_id.clone().map(Rc::new);
+            let secret_id = Rc::new(used_secret_id.to_string());
+            rsx! {
+                span {
+                    class: "used-secret used-secret-error",
+                    title: "Level {used.level} ({scope}) - must be higher than {itm.level}. Click to edit",
+                    onclick: move |_| {
+                        let env_id = env_id.clone();
+                        let product_id = product_id.clone();
+                        let secret_id = secret_id.clone();
+                        consume_context::<Signal<DialogState>>()
+                            .set(DialogState::EditSecret {
+                                env_id: env_id.clone(),
+                                product_id,
+                                secret_id,
+                                clone_from: None,
+                                prefill: None,
+                                on_ok: EventHandler::new(move |value| {
+                                    exec_save_secret(env_id.to_string(), value);
+                                }),
+                            });
+                    },
+                    "{used_secret_id}"
+                }
+            }
+        }
+        UsedSecretState::NotFound => {
+            let product_id = itm.product_id.clone().map(Rc::new);
+            let prefill = NewSecretPrefill {
+                secret_id: Rc::new(used_secret_id.to_string()),
+                level: get_level_to_be_used_by(itm),
+            };
+            rsx! {
+                span {
+                    class: "used-secret used-secret-error",
+                    title: "Secret is not found. Click to create",
+                    onclick: move |_| {
+                        let env_id = env_id.clone();
+                        let product_id = product_id.clone();
+                        let prefill = prefill.clone();
+                        consume_context::<Signal<DialogState>>()
+                            .set(DialogState::EditSecret {
+                                env_id: env_id.clone(),
+                                product_id,
+                                secret_id: "".to_string().into(),
+                                clone_from: None,
+                                prefill: Some(prefill),
+                                on_ok: EventHandler::new(move |value| {
+                                    exec_save_secret(env_id.to_string(), value);
+                                }),
+                            });
+                    },
+                    "{used_secret_id}"
+                }
+            }
+        }
+    }
+}
+
+fn render_move_btn(
+    env_id: &Rc<String>,
+    lookup: &SecretsLookup,
+    itm: &SecretHttpModel,
+    selected_product_id: &Rc<String>,
+) -> Element {
+    let secret_move = match SecretMove::new(lookup, itm, selected_product_id) {
+        Ok(secret_move) => secret_move,
+        Err(reason) => {
+            return rsx! {
+                button {
+                    class: "btn btn-sm btn-secondary",
+                    disabled: true,
+                    title: "{reason}",
+                    MoveIcon {}
+                }
+            };
+        }
+    };
+
+    let env_id = env_id.clone();
+    let title = secret_move.get_title();
+
+    rsx! {
+        button {
+            class: "btn btn-sm btn-secondary",
+            title: "{title}",
+            onclick: move |_| {
+                let env_id = env_id.clone();
+                let secret_move = secret_move.clone();
+                consume_context::<Signal<DialogState>>()
+                    .set(DialogState::Confirmation {
+                        content: secret_move.get_confirmation(),
+                        on_ok: EventHandler::new(move |_| {
+                            exec_move_secret(env_id.clone(), secret_move.clone(), false);
+                        }),
+                    });
+            },
+            MoveIcon {}
+        }
+    }
+}
+
+fn exec_move_secret(env_id: Rc<String>, secret_move: SecretMove, force: bool) {
+    let mut main_state = consume_context::<Signal<MainState>>();
+    let mut dialog_state = consume_context::<Signal<DialogState>>();
+    spawn(async move {
+        let result = crate::api::secrets::move_secret(
+            env_id.to_string(),
+            secret_move.secret_id.to_string(),
+            secret_move.from.as_ref().map(|itm| itm.to_string()),
+            secret_move.to.as_ref().map(|itm| itm.to_string()),
+            force,
+        )
+        .await;
+
+        match result {
+            Ok(result) => {
+                if result.moved {
+                    main_state.write().drop_data();
+                    crate::ui_utils::show_toast("Secret is moved", ToastType::Info);
+                    return;
+                }
+
+                dialog_state.set(DialogState::Confirmation {
+                    content: secret_move.get_breaks_references_confirmation(&result),
+                    on_ok: EventHandler::new(move |_| {
+                        exec_move_secret(env_id.clone(), secret_move.clone(), true);
+                    }),
+                });
+            }
+            Err(_) => {
+                crate::ui_utils::show_toast("Error moving secret", ToastType::Error);
+            }
+        }
+    });
 }
 
 fn exec_save_secret(env_id: String, value: UpdateSecretValueHttpModel) {

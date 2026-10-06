@@ -18,6 +18,20 @@ pub struct SecretUsageBySecretApiModel {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct MoveSecretApiModel {
+    pub moved: bool,
+    pub broken_dependencies: Vec<String>,
+    pub broken_consumers: Vec<MoveSecretBrokenConsumerApiModel>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct MoveSecretBrokenConsumerApiModel {
+    pub product_id: Option<String>,
+    pub kind: String,
+    pub id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct TemplateUsageApiModel {
     pub product_id: String,
     pub template_id: String,

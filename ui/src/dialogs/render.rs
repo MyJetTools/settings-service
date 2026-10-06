@@ -23,6 +23,7 @@ pub fn RenderDialog() -> Element {
             product_id,
             secret_id,
             clone_from,
+            prefill,
             on_ok,
         } => {
             return rsx! {
@@ -31,6 +32,7 @@ pub fn RenderDialog() -> Element {
                     product_id,
                     secret_id,
                     clone_from,
+                    prefill,
                     on_ok,
                 }
             }

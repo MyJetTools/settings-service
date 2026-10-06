@@ -3,7 +3,10 @@ use std::sync::Arc;
 use my_http_server::{macros::http_route, HttpContext, HttpFailResult, HttpOkResult, HttpOutput};
 
 use super::contracts::*;
-use crate::{app_ctx::AppContext, models::ProductId};
+use crate::{
+    app_ctx::AppContext,
+    models::{ProductId, SecretItem},
+};
 
 #[http_route(
     method: "GET",
@@ -54,6 +57,7 @@ async fn handle_request(
                     updated: item.updated.unix_microseconds,
                     used_by_templates,
                     used_by_secrets,
+                    uses_secrets: get_uses_secrets(item),
                     description: item.description.clone(),
                     visible_for_mcp: item.visible_for_mcp,
                 });
@@ -77,6 +81,7 @@ async fn handle_request(
                 updated: item.updated.unix_microseconds,
                 used_by_templates,
                 used_by_secrets,
+                uses_secrets: get_uses_secrets(item),
                 description: item.description.clone(),
                 visible_for_mcp: item.visible_for_mcp,
             });
@@ -84,4 +89,11 @@ async fn handle_request(
     }
 
     HttpOutput::as_json(result).into_ok_result(false)
+}
+
+fn get_uses_secrets(item: &SecretItem) -> Vec<String> {
+    item.get_referenced_secrets()
+        .into_iter()
+        .map(|secret_id| secret_id.to_string())
+        .collect()
 }

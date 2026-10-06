@@ -12,6 +12,9 @@ pub use save_action::*;
 mod delete_action;
 pub use delete_action::*;
 
+mod move_action;
+pub use move_action::*;
+
 mod usage_by_templates_action;
 pub use usage_by_templates_action::*;
 

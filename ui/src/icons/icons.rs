@@ -50,6 +50,12 @@ pub fn CopyFromIcon() -> Element {
     }
 }
 #[component]
+pub fn MoveIcon() -> Element {
+    rsx! {
+        img { class: "btn-icon-sm", src: "/assets/img/ico-move.svg" }
+    }
+}
+#[component]
 pub fn WarningIcon() -> Element {
     rsx! {
         img { class: "btn-icon-sm", src: "/assets/img/ico-warning.svg" }

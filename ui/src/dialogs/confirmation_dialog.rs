@@ -8,7 +8,7 @@ pub fn ConfirmationDialog(content: String, on_ok: EventHandler<()>) -> Element {
         DialogTemplate {
             header: "Confirmation".to_string(),
             content: rsx! {
-                {content}
+                div { style: "white-space: pre-line", {content} }
             },
             ok_button: rsx! {
                 button {

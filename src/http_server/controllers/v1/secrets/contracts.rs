@@ -10,6 +10,7 @@ pub struct SecretHttpModel {
     pub updated: i64,
     pub used_by_templates: i32,
     pub used_by_secrets: i32,
+    pub uses_secrets: Vec<String>,
     pub description: Option<String>,
     pub visible_for_mcp: bool,
 }
@@ -63,6 +64,32 @@ pub struct DeleteSecretInput {
     pub product_id: Option<String>,
     #[http_body(description = "Secret id")]
     pub secret_id: String,
+}
+
+#[derive(MyHttpInput)]
+pub struct MoveSecretInput {
+    #[http_body(description = "Secret id")]
+    pub secret_id: String,
+    #[http_body(description = "Product id to move from (empty for shared)")]
+    pub from_product_id: Option<String>,
+    #[http_body(description = "Product id to move to (empty for shared)")]
+    pub to_product_id: Option<String>,
+    #[http_body(description = "Move even if it breaks references to or from the secret")]
+    pub force: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, MyHttpObjectStructure)]
+pub struct MoveSecretBrokenConsumerHttpModel {
+    pub product_id: Option<String>,
+    pub kind: String,
+    pub id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, MyHttpObjectStructure)]
+pub struct MoveSecretHttpModel {
+    pub moved: bool,
+    pub broken_dependencies: Vec<String>,
+    pub broken_consumers: Vec<MoveSecretBrokenConsumerHttpModel>,
 }
 
 #[derive(MyHttpInput)]

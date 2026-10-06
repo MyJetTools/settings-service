@@ -4,23 +4,9 @@ use mcp_server_middleware::McpToolCall;
 use my_ai_agent::{macros::ApplyJsonSchema, ToolDefinition};
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    app_ctx::AppContext,
-    caches::SecretsSnapshot,
-    models::{Content, ProductId},
-};
+use crate::{app_ctx::AppContext, flows::MoveSecretError, models::ProductId};
 
 const SHARED_LITERAL: &str = "Shared";
-
-/// Does `content` actually reference `secret_id` as a `${secret_id}` placeholder?
-///
-/// Uses the SAME placeholder parser as secret resolution (`Content::get_secrets`),
-/// not a naive substring test — so adversarial/nested content such as `${a${b}`
-/// (which parses as a single placeholder `a${b`, not a reference to `b`) is not
-/// mis-detected as a consumer.
-fn references_secret(content: &Content, secret_id: &str) -> bool {
-    content.get_secrets().iter().any(|name| *name == secret_id)
-}
 
 #[derive(ApplyJsonSchema, Debug, Serialize, Deserialize)]
 pub struct MoveSecretInputData {
@@ -117,20 +103,6 @@ impl McpToolCall<MoveSecretInputData, MoveSecretResponse> for MoveSecretHandler 
         let from_is_shared = from_input.eq_ignore_ascii_case(SHARED_LITERAL);
         let to_is_shared = to_input.eq_ignore_ascii_case(SHARED_LITERAL);
 
-        let same_scope = if from_is_shared && to_is_shared {
-            true
-        } else if !from_is_shared && !to_is_shared {
-            from_input == to_input
-        } else {
-            false
-        };
-        if same_scope {
-            return Err(
-                "`from_product_id` and `to_product_id` resolve to the same scope — nothing to move"
-                    .to_string(),
-            );
-        }
-
         let from_product: ProductId = if from_is_shared {
             ProductId::Shared
         } else {
@@ -142,118 +114,53 @@ impl McpToolCall<MoveSecretInputData, MoveSecretResponse> for MoveSecretHandler 
             ProductId::Id(to_input)
         };
 
-        let snapshot = self.app.secrets.get_snapshot().await;
+        let result = crate::flows::try_move_secret(
+            self.app.as_ref(),
+            secret_id,
+            from_product,
+            to_product,
+            force,
+        )
+        .await;
 
-        // The source secret must exist; clone it so we can keep using the snapshot.
-        let item = snapshot
-            .get_by_id(from_product, secret_id)
-            .ok_or_else(|| {
-                format!(
+        let (impact, moved) = match result {
+            Ok(impact) => (impact, true),
+            Err(MoveSecretError::BreaksReferences(impact)) => (impact, false),
+            Err(MoveSecretError::SameScope) => {
+                return Err(
+                    "`from_product_id` and `to_product_id` resolve to the same scope — nothing to move"
+                        .to_string(),
+                );
+            }
+            Err(MoveSecretError::NotFound) => {
+                return Err(format!(
                     "Secret {}/{} not found in the source scope",
                     from_input, secret_id
-                )
-            })?
-            .clone();
-
-        // Never overwrite an existing secret in the target scope.
-        if snapshot.has_secret(to_product, secret_id) {
-            return Err(format!(
-                "Secret {}/{} already exists in the target scope — move refused (this call never overwrites). Resolve the conflict first.",
-                to_input, secret_id
-            ));
-        }
-
-        let ctx = MoveImpactCtx {
-            snapshot: snapshot.as_ref(),
-            secret_id,
-            from_is_shared,
-            from_input,
-            to_is_shared,
-            to_input,
+                ));
+            }
+            Err(MoveSecretError::AlreadyExists) => {
+                return Err(format!(
+                    "Secret {}/{} already exists in the target scope — move refused (this call never overwrites). Resolve the conflict first.",
+                    to_input, secret_id
+                ));
+            }
         };
 
-        // 1. Dependencies of the moved secret that stop resolving after the move.
-        let mut broken_dependencies: Vec<String> = Vec::new();
-        for dep in item.content.get_secrets() {
-            if dep == secret_id {
-                continue;
-            }
-            if broken_dependencies.iter().any(|d| d == dep) {
-                continue;
-            }
-            let resolved_before = ctx.dep_reachable(dep, from_product);
-            let resolved_after = ctx.dep_reachable(dep, to_product);
-            if resolved_before && !resolved_after {
-                broken_dependencies.push(dep.to_string());
-            }
-        }
-
-        // 2. Consumers (secrets + templates) that stop resolving this secret after the move.
-        let mut broken_consumers: Vec<MoveConsumerEntry> = Vec::new();
-
-        for shared_item in snapshot.shared.iter() {
-            if from_is_shared && shared_item.id == secret_id {
-                continue; // the secret being moved is not a consumer of itself
-            }
-            if references_secret(&shared_item.content, secret_id)
-                && ctx.consumer_breaks(ProductId::Shared)
-            {
-                broken_consumers.push(MoveConsumerEntry {
-                    scope: SHARED_LITERAL.to_string(),
-                    kind: "Secret".to_string(),
-                    id: shared_item.id.clone(),
-                });
-            }
-        }
-
-        for (product_id, items) in snapshot.by_product.iter() {
-            let consumer_scope = ProductId::Id(product_id.as_str());
-            let breaks = ctx.consumer_breaks(consumer_scope);
-            for product_item in items.iter() {
-                if !from_is_shared && product_id == from_input && product_item.id == secret_id {
-                    continue; // the secret being moved is not a consumer of itself
-                }
-                if breaks && references_secret(&product_item.content, secret_id) {
-                    broken_consumers.push(MoveConsumerEntry {
-                        scope: product_id.clone(),
-                        kind: "Secret".to_string(),
-                        id: product_item.id.clone(),
-                    });
-                }
-            }
-        }
-
-        let template_consumers = self
-            .app
-            .templates
-            .find_into_vec(|product_id, template| {
-                if references_secret(&template.content, secret_id) {
-                    Some((product_id.to_string(), template.id.clone()))
-                } else {
-                    None
-                }
+        let would_break = impact.breaks_references();
+        let broken_dependencies = impact.broken_dependencies;
+        let broken_consumers: Vec<MoveConsumerEntry> = impact
+            .broken_consumers
+            .into_iter()
+            .map(|consumer| MoveConsumerEntry {
+                scope: consumer
+                    .product_id
+                    .unwrap_or_else(|| SHARED_LITERAL.to_string()),
+                kind: consumer.kind.as_str().to_string(),
+                id: consumer.id,
             })
-            .await;
+            .collect();
 
-        for (template_product, template_id) in template_consumers {
-            let consumer_scope: ProductId = template_product.as_str().into();
-            if ctx.consumer_breaks(consumer_scope) {
-                let scope_display = if template_product.is_empty() {
-                    SHARED_LITERAL.to_string()
-                } else {
-                    template_product
-                };
-                broken_consumers.push(MoveConsumerEntry {
-                    scope: scope_display,
-                    kind: "Template".to_string(),
-                    id: template_id,
-                });
-            }
-        }
-
-        let would_break = !broken_dependencies.is_empty() || !broken_consumers.is_empty();
-
-        if would_break && !force {
+        if !moved {
             let mut msg = format!(
                 "Refusing to move secret {}/{} to {} because it would break references:\n",
                 from_input, secret_id, to_input
@@ -283,10 +190,6 @@ impl McpToolCall<MoveSecretInputData, MoveSecretResponse> for MoveSecretHandler 
             return Err(msg);
         }
 
-        drop(snapshot);
-
-        crate::flows::move_secret(self.app.as_ref(), from_product, to_product, item).await;
-
         Ok(MoveSecretResponse {
             secret_id: secret_id.to_string(),
             from_product_id: if from_is_shared {
@@ -304,77 +207,5 @@ impl McpToolCall<MoveSecretInputData, MoveSecretResponse> for MoveSecretHandler 
             broken_dependencies,
             broken_consumers,
         })
-    }
-}
-
-/// Helper that answers reachability questions about the move without mutating
-/// anything. The move only ever relocates the single subject secret, so the
-/// "after" state is the current snapshot with that one id removed from the
-/// source scope and added to the target scope.
-struct MoveImpactCtx<'a> {
-    snapshot: &'a SecretsSnapshot,
-    secret_id: &'a str,
-    from_is_shared: bool,
-    from_input: &'a str,
-    to_is_shared: bool,
-    to_input: &'a str,
-}
-
-impl<'a> MoveImpactCtx<'a> {
-    fn is_target(&self, scope: ProductId<'_>) -> bool {
-        match scope {
-            ProductId::Shared => self.to_is_shared,
-            ProductId::Id(p) => !self.to_is_shared && p == self.to_input,
-        }
-    }
-
-    fn is_source(&self, scope: ProductId<'_>) -> bool {
-        match scope {
-            ProductId::Shared => self.from_is_shared,
-            ProductId::Id(p) => !self.from_is_shared && p == self.from_input,
-        }
-    }
-
-    /// Is the subject secret present in `scope`, either now (`after = false`) or
-    /// once the move has happened (`after = true`)?
-    fn subject_present(&self, scope: ProductId<'_>, after: bool) -> bool {
-        if after {
-            if self.is_target(scope) {
-                return true;
-            }
-            if self.is_source(scope) {
-                return false;
-            }
-        }
-        self.snapshot.has_secret(scope, self.secret_id)
-    }
-
-    /// Can a consumer living in `consumer` scope resolve the subject secret
-    /// (its own scope first, then the Shared fallback for product scopes)?
-    fn subject_reachable(&self, consumer: ProductId<'_>, after: bool) -> bool {
-        match consumer {
-            ProductId::Shared => self.subject_present(ProductId::Shared, after),
-            ProductId::Id(_) => {
-                self.subject_present(consumer, after)
-                    || self.subject_present(ProductId::Shared, after)
-            }
-        }
-    }
-
-    fn consumer_breaks(&self, consumer: ProductId<'_>) -> bool {
-        self.subject_reachable(consumer, false) && !self.subject_reachable(consumer, true)
-    }
-
-    /// Can a dependency `dep` (a different secret, unaffected by the move) be
-    /// resolved from `scope`? Used to check the moved secret's own `${...}`
-    /// placeholders against the source vs. the target scope.
-    fn dep_reachable(&self, dep: &str, scope: ProductId<'_>) -> bool {
-        match scope {
-            ProductId::Shared => self.snapshot.has_secret(ProductId::Shared, dep),
-            ProductId::Id(_) => {
-                self.snapshot.has_secret(scope, dep)
-                    || self.snapshot.has_secret(ProductId::Shared, dep)
-            }
-        }
     }
 }

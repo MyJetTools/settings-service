@@ -48,6 +48,9 @@ pub fn build_controllers(app: &Arc<AppContext>) -> Arc<ControllersMiddleware> {
     result.register_post_action(Arc::new(
         super::controllers::v1::secrets::DeleteSecretAction::new(app.clone()),
     ));
+    result.register_post_action(Arc::new(
+        super::controllers::v1::secrets::MoveSecretAction::new(app.clone()),
+    ));
     result.register_get_action(Arc::new(
         super::controllers::v1::secrets::UsageByTemplatesAction::new(app.clone()),
     ));

@@ -107,6 +107,25 @@ body {
     background-color: red;
 }
 
+.used-secret {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.used-secret-ok {
+    color: green;
+}
+
+.used-secret-error {
+    color: red;
+    cursor: pointer;
+    text-decoration: underline dotted;
+}
+
+.used-secret-error:hover {
+    text-decoration: underline;
+}
+
 .modal-content {
     text-align: left;
 }

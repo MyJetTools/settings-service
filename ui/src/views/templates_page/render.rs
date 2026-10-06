@@ -17,7 +17,7 @@ use super::state::*;
 #[component]
 pub fn TemplatesPage() -> Element {
 
-    let now = dioxus_utils::now_date_time();
+    let now = DateTimeAsMicroseconds::now();
      let selected_env = Rc::new(crate::storage::selected_env::get());
     let mut cs = use_signal(|| TemplatesState::new(selected_env.as_str()));
     let cs_ra = cs.read();

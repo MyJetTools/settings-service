@@ -4,6 +4,13 @@ use dioxus_utils::*;
 
 use crate::models::*;
 
+/// Values a new secret dialog is opened with
+#[derive(Debug, Clone, PartialEq)]
+pub struct NewSecretPrefill {
+    pub secret_id: Rc<String>,
+    pub level: i32,
+}
+
 pub struct EditSecretState {
     pub product_id: Option<String>,
     pub secret_id: String,
@@ -14,7 +21,12 @@ pub struct EditSecretState {
 }
 
 impl EditSecretState {
-    pub fn new(secret_id: String, product_id: &Option<Rc<String>>, is_clone: bool) -> Self {
+    pub fn new(
+        secret_id: String,
+        product_id: &Option<Rc<String>>,
+        is_clone: bool,
+        prefill: Option<&NewSecretPrefill>,
+    ) -> Self {
         let new_secret = secret_id.len() == 0;
 
         let value = SecretValue::default();
@@ -25,14 +37,21 @@ impl EditSecretState {
             DataState::new()
         };
 
-        Self {
+        let mut result = Self {
             new_secret,
             is_clone,
             product_id: product_id.as_ref().map(|itm| itm.to_string()),
             secret_id,
             value_on_init,
             value,
+        };
+
+        if let Some(prefill) = prefill {
+            result.secret_id = prefill.secret_id.to_string();
+            result.value.level = prefill.level.to_string();
         }
+
+        result
     }
 
     pub fn init_value(&mut self, value: SecretValue) {

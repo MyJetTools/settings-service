@@ -5,6 +5,7 @@ use dioxus::prelude::EventHandler;
 use crate::models::*;
 
 use super::states::EditTemplateDialogData;
+use super::NewSecretPrefill;
 
 #[derive(Debug, Clone)]
 pub enum DialogState {
@@ -23,6 +24,7 @@ pub enum DialogState {
         product_id: Option<Rc<String>>,
         secret_id: Rc<String>,
         clone_from: Option<Rc<String>>,
+        prefill: Option<NewSecretPrefill>,
         on_ok: EventHandler<UpdateSecretValueHttpModel>,
     },
 

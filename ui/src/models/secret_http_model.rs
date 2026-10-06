@@ -9,6 +9,7 @@ pub struct SecretHttpModel {
     pub updated: i64,
     pub used_by_templates: i32,
     pub used_by_secrets: i32,
+    pub uses_secrets: Vec<String>,
     pub description: Option<String>,
     pub visible_for_mcp: bool,
 }

@@ -1,3 +1,5 @@
+use flurl::{body::HttpRequestBody, FlUrl};
+
 use crate::models::*;
 
 use super::base_url;
@@ -60,6 +62,37 @@ pub async fn delete_secret(
         return Err(format!("POST {url} → {}", resp.status()));
     }
     Ok(())
+}
+
+#[derive(serde::Serialize)]
+struct MoveSecretPayload<'a> {
+    secret_id: &'a str,
+    from_product_id: Option<&'a str>,
+    to_product_id: Option<&'a str>,
+    force: bool,
+}
+
+pub async fn move_secret(
+    _env_id: String,
+    secret_id: String,
+    from_product_id: Option<String>,
+    to_product_id: Option<String>,
+    force: bool,
+) -> Result<MoveSecretApiModel, String> {
+    let url = "/api/v1/secrets/move";
+    let mut resp = FlUrl::new(url)
+        .post(HttpRequestBody::as_json(&MoveSecretPayload {
+            secret_id: &secret_id,
+            from_product_id: from_product_id.as_deref(),
+            to_product_id: to_product_id.as_deref(),
+            force,
+        }))
+        .await
+        .map_err(|e| e.to_string())?;
+    if !(200..300).contains(&resp.get_status_code()) {
+        return Err(format!("POST {url} → {}", resp.get_status_code()));
+    }
+    resp.get_json().await.map_err(|e| e.to_string())
 }
 
 pub async fn load_secret(

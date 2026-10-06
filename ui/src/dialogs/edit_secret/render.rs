@@ -18,10 +18,18 @@ pub fn EditSecret(
     product_id: Option<Rc<String>>,
     secret_id: Rc<String>,
     clone_from: Option<Rc<String>>,
+    prefill: Option<NewSecretPrefill>,
     on_ok: EventHandler<UpdateSecretValueHttpModel>,
 ) -> Element {
     let is_clone = clone_from.is_some();
-    let mut cs = use_signal(|| EditSecretState::new(secret_id.to_string(), &product_id, is_clone));
+    let mut cs = use_signal(|| {
+        EditSecretState::new(
+            secret_id.to_string(),
+            &product_id,
+            is_clone,
+            prefill.as_ref(),
+        )
+    });
     let cs_ra = cs.read();
 
     let load_secret_id: Rc<String> = if let Some(src) = clone_from.as_ref() {

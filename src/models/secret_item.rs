@@ -25,6 +25,35 @@ impl SecretItem {
         }
         &self.content
     }
+
+    /// Ids of the secrets this secret references as `${secret_id}` inside its
+    /// value or its remote value - deduplicated, in order of first appearance.
+    pub fn get_referenced_secrets(&self) -> Vec<&str> {
+        let mut result = Vec::new();
+
+        let remote_value_secrets = self
+            .remote_value
+            .iter()
+            .flat_map(|remote_value| remote_value.get_secrets());
+
+        for secret_id in self
+            .content
+            .get_secrets()
+            .into_iter()
+            .chain(remote_value_secrets)
+        {
+            // `${$name}` is an escaped placeholder, rendered as a literal `${name}`
+            if secret_id.starts_with('$') {
+                continue;
+            }
+
+            if !result.contains(&secret_id) {
+                result.push(secret_id);
+            }
+        }
+
+        result
+    }
 }
 
 impl EntityWithStrKey for SecretItem {
