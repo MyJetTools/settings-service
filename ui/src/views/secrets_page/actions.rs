@@ -37,6 +37,16 @@ impl<'s> SecretsLookup<'s> {
 
         self.shared.get(secret_id).copied()
     }
+
+    /// The product secret which has the same name as the shared one and takes
+    /// priority over it when a placeholder is resolved
+    pub fn get_overriding(&self, used: &SecretHttpModel) -> Option<&'s SecretHttpModel> {
+        if used.product_id.is_some() {
+            return None;
+        }
+
+        self.product.get(used.secret_id.as_str()).copied()
+    }
 }
 
 pub enum UsedSecretState<'s> {
@@ -45,20 +55,24 @@ pub enum UsedSecretState<'s> {
     NotFound,
 }
 
-/// A secret can use only an existing secret of a higher level than its own
+/// A secret can use a secret of a higher level than its own - the product one
+/// or the shared one
 pub fn get_used_secret_state<'s>(
     lookup: &SecretsLookup<'s>,
     itm: &SecretHttpModel,
     used_secret_id: &str,
 ) -> UsedSecretState<'s> {
-    match lookup.resolve(used_secret_id) {
-        Some(used) => {
-            if used.level > itm.level {
-                UsedSecretState::Ok(used)
-            } else {
-                UsedSecretState::WrongLevel(used)
-            }
+    let product = lookup.product.get(used_secret_id).copied();
+    let shared = lookup.shared.get(used_secret_id).copied();
+
+    for used in [product, shared].into_iter().flatten() {
+        if used.level > itm.level {
+            return UsedSecretState::Ok(used);
         }
+    }
+
+    match lookup.resolve(used_secret_id) {
+        Some(used) => UsedSecretState::WrongLevel(used),
         None => UsedSecretState::NotFound,
     }
 }

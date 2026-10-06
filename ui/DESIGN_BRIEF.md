@@ -102,8 +102,9 @@ action buttons** — the columns listed are real.
 Columns: **Used→Templates** (clickable count badge), **Used→Secrets** (clickable
 count badge), **Product scope** (badge: product id, or amber `Shared`), **Name**
 (+ optional `MCP` badge, + `Last edited` badge), **Uses secrets** (names of the
-secrets referenced from the value: green when the secret exists with a higher
-level; red and clickable when it is missing, or its level is the same or lower),
+secrets referenced from the value: green when a secret with this name and a
+higher level exists in the product or in `Shared`; red and clickable when it is
+missing, or exists only with the same or a lower level),
 **Description**, **Level**, **Created**, **Updated**, **Actions** (view, clone,
 move between product scope and `Shared`, edit, delete).
 Toolbar: product-scope selector, name search, add button.

@@ -431,12 +431,24 @@ fn render_used_secret(
     match get_used_secret_state(lookup, itm, used_secret_id) {
         UsedSecretState::Ok(used) => {
             let scope = get_scope_name(used.product_id.as_deref());
-            rsx! {
-                span {
-                    class: "used-secret used-secret-ok",
-                    title: "Level {used.level} ({scope})",
-                    "{used_secret_id}"
+            match lookup.get_overriding(used) {
+                Some(own) => {
+                    let own_scope = get_scope_name(own.product_id.as_deref());
+                    rsx! {
+                        span {
+                            class: "used-secret used-secret-ok used-secret-overridden",
+                            title: "Level {used.level} ({scope}). Note: when a config is rendered, the {own_scope} secret with this name (level {own.level}) is taken first",
+                            "{used_secret_id}"
+                        }
+                    }
                 }
+                None => rsx! {
+                    span {
+                        class: "used-secret used-secret-ok",
+                        title: "Level {used.level} ({scope})",
+                        "{used_secret_id}"
+                    }
+                },
             }
         }
         UsedSecretState::WrongLevel(used) => {

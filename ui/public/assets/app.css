@@ -116,6 +116,11 @@ body {
     color: green;
 }
 
+.used-secret-overridden {
+    cursor: help;
+    text-decoration: underline dotted;
+}
+
 .used-secret-error {
     color: red;
     cursor: pointer;
